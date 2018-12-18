@@ -1,0 +1,24 @@
+{
+    "name": "tonisormisson/limesurvey-relevance-imex",
+    "description": "A LimeSurvey Plugin to allow Import & Export of survey Relevance equations",
+    "keywords": ["limesurvey"],
+    "homepage": "https://github.com/TonisOrmisson/limesurvey-relevance-imex",
+    "type": "limesurvey-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tõnis Ormisson",
+            "email": "tonis@andmemasin.eu",
+            "homepage": "https://andmemasin.eu",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "limesurvey/limesurvey": "~3.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
