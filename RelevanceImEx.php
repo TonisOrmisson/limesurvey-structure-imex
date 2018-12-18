@@ -10,10 +10,16 @@ class RelevanceImEx extends PluginBase {
     static protected $description = 'Import-Export survey relevances';
     static protected $name = 'Relevance IMEX';
 
+    /** @var Survey $survey */
+    private $survey;
 
     /* Register plugin on events*/
     public function init() {
+
         $this->subscribe('beforeToolsMenuRender');
+
+        /* Show page */
+        $this->subscribe('newDirectRequest');
 
     }
 
@@ -22,10 +28,20 @@ class RelevanceImEx extends PluginBase {
 
         /** @var array $menuItems */
         $menuItems = $event->get('menuItems');
+        $this->survey = Survey::model()->findByPk($event->get('surveyId'));
+        $url = $this->api->createUrl(
+            'admin/pluginhelper',
+            [
+                'sa'     => 'sidebody',
+                'plugin' => 'RelevanceImEx',
+                'method' => 'actionIndex',
+                'sid' => $this->survey->primaryKey,
+            ]
+        );
+
         $menuItem = new \LimeSurvey\Menu\MenuItem([
-            'label' => self::$name,
-            'icon' =>'',
-            'href' => ''
+            'label' => $this->getName(),
+            'href' => $url,
         ]);
         $menuItems[] = $menuItem;
         $event->set('menuItems', $menuItems);
@@ -34,6 +50,16 @@ class RelevanceImEx extends PluginBase {
     }
 
 
+
+
+    public function actionIndex()
+    {
+        $aData = [
+            'pluginds' => $this->getName(),
+            'aData' => [],
+        ];
+        return  $this->renderPartial('index', $aData, true);
+    }
 
 
 }
