@@ -18,9 +18,6 @@ class RelevanceImEx extends PluginBase {
 
         $this->subscribe('beforeToolsMenuRender');
 
-        /* Show page */
-        $this->subscribe('newDirectRequest');
-
     }
 
     public function beforeToolsMenuRender() {
@@ -29,19 +26,12 @@ class RelevanceImEx extends PluginBase {
         /** @var array $menuItems */
         $menuItems = $event->get('menuItems');
         $this->survey = Survey::model()->findByPk($event->get('surveyId'));
-        $url = $this->api->createUrl(
-            'admin/pluginhelper',
-            [
-                'sa'     => 'sidebody',
-                'plugin' => 'RelevanceImEx',
-                'method' => 'actionIndex',
-                'sid' => $this->survey->primaryKey,
-            ]
-        );
+
+
 
         $menuItem = new \LimeSurvey\Menu\MenuItem([
             'label' => $this->getName(),
-            'href' => $url,
+            'href' => $this->createUrl('actionIndex'),
         ]);
         $menuItems[] = $menuItem;
         $event->set('menuItems', $menuItems);
@@ -49,14 +39,27 @@ class RelevanceImEx extends PluginBase {
 
     }
 
+    private function createUrl($action, $params = []) {
+        $url = $this->api->createUrl(
+            'admin/pluginhelper',
+            array_merge([
+                'sa'     => 'sidebody',
+                'plugin' => 'RelevanceImEx',
+                'method' => $action,
+                'sid' => $this->survey->primaryKey,
+            ], $params)
+        );
+        return $url;
+    }
 
 
-
-    public function actionIndex()
+    public function actionIndex($sid)
     {
+        $this->survey = Survey::model()->findByPk($sid);
         $aData = [
-            'pluginds' => $this->getName(),
-            'aData' => [],
+            'survey' => $this->survey,
+            'exportUrl' => $this->createUrl('actionExport'),
+            'importUrl' => $this->createUrl('actionImport'),
         ];
         return  $this->renderPartial('index', $aData, true);
     }
