@@ -7,7 +7,7 @@ class RelevanceImEx extends PluginBase {
 
 
     protected $storage = 'DbStorage';
-    static protected $description = 'Import-Export survey relevances';
+    static protected $description = 'Import-Export survey logic as file';
     static protected $name = 'Relevance IMEX';
 
     /** @var Survey $survey */
@@ -55,15 +55,7 @@ class RelevanceImEx extends PluginBase {
     public function actionIndex($sid)
     {
         $this->survey = Survey::model()->findByPk($sid);
-        $exportUrl = $this->api->createUrl(
-            'admin/pluginhelper',
-            [
-                'sa'     => 'sidebody',
-                'plugin' => 'RelevanceImEx',
-                'method' => 'actionExport',
-                'sid' => $this->survey->primaryKey,
-            ]);
-
+        $exportUrl = $this->createUrl('actionExport');
 
         $aData = [
             'survey' => $this->survey,
