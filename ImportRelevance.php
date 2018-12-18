@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . DIRECTORY_SEPARATOR.'ImportFromFile.php';
 
 class ImportRelevance extends ImportFromFile
 {
     /** @var Question  */
     public $currentModel;
     public $importModelsClassName = Question::class;
+
 
     /**
      * @inheritdoc
@@ -19,10 +21,13 @@ class ImportRelevance extends ImportFromFile
         if($this->currentModel instanceof Question){
             // validate the relevance on the question
             $this->currentModel->relevance = $attributes['relevance'];
-            if($this->currentModel->validate(['relevance'])){
+            if($this->currentModel->validate(['relevance'])) {
+                $this->successfulModelsCount ++;
                 // relevance is OK-> load this to all questions with this title
-                Question::model()->updateAll(['relevance'=>$this->currentModel->relevance], $criteria);
+                return Question::model()->updateAll(['relevance'=>$this->currentModel->relevance], $criteria);
             }
+            $this->failedModelsCount ++;
+            return false;
         }
     }
 }

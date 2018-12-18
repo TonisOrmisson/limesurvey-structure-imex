@@ -15,9 +15,8 @@ class RelevanceImEx extends PluginBase {
 
     /* Register plugin on events*/
     public function init() {
-
+        require_once __DIR__.DIRECTORY_SEPARATOR.'ImportRelevance.php';
         $this->subscribe('beforeToolsMenuRender');
-
     }
 
     public function beforeToolsMenuRender() {
@@ -73,16 +72,27 @@ class RelevanceImEx extends PluginBase {
         ];
         $aData['title_bar']['title'] = $this->survey->currentLanguageSettings->surveyls_title . " (" . gT("ID") . ":" . $this->survey->primaryKey . ")";
         // Get default character set from global settings
-        $thischaracterset = getGlobalSetting('characterset');
+        $characterSet = App()->getConfig('characterset');
         // If no encoding was set yet, use the old "auto" default
-        if($thischaracterset == "") {
-            $thischaracterset = "auto";
+        if($characterSet == "") {
+            $characterSet = "auto";
         }
         $aEncodings =aEncodingsArray();
         // If there are error with file : show the form
         $aData['aEncodings'] = $aEncodings;
         asort($aData['aEncodings']);
-        $aData['thischaracterset'] = $thischaracterset;
+        $aData['thischaracterset'] = $characterSet;
+
+        if (Yii::app()->request->isPostRequest){
+            $import = new ImportRelevance();
+            $oFile = CUploadedFile::getInstanceByName("the_file");
+            if(!$import->loadFile($oFile)){
+                Yii::app()->setFlashMessage($import->getError('file'), 'error');
+            } else {
+                $import->process();
+                Yii::app()->setFlashMessage("Successfully updated {$import->successfulModelsCount} model relevances", 'success');
+            }
+        }
 
         return  $this->renderPartial('index', $aData, true);
     }
