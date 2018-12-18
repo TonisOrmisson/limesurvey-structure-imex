@@ -102,20 +102,29 @@ class RelevanceImEx extends PluginBase {
         header("Pragma: public");
 
         //FIXME delimiter also ;
+
         echo "group,code,parent,relevance\n";
         foreach ($oSurvey->groups as $group) {
+            // only base language
+            if ($group->language != $oSurvey->language) {
+                continue;
+            }
             /** @var $group QuestionGroup */
             echo "\"{$group->group_name}\",\"\",\"\",{$group->grelevance}\n";
             foreach ($group->questions as $question) {
+                // only base language
+                if ($question->language != $oSurvey->language) {
+                    continue;
+                }
                 echo "\"\",\"{$question->title}\",\"\",{$question->relevance}\n";
-                $subQuestions = $question->subquestions;
-                if (!empty($subquestions)) {
-                    foreach ($subQuestions as $subQuestion) {
-                        echo "\"sss\",\"{$subQuestion->title}\",\"\",\"{$question->title}\",{$subQuestion->relevance}\n";
+                if (!empty($question->subquestions)) {
+                    foreach ($question->subquestions as $subquestion) {
+                        echo "\"\",\"{$subquestion->title}\",\"{$question->title}\",{$subquestion->relevance}\n";
                     }
                 }
             }
         }
+
         // don't render page
         App()->end();
     }
