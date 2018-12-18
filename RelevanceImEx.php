@@ -56,12 +56,63 @@ class RelevanceImEx extends PluginBase {
     public function actionIndex($sid)
     {
         $this->survey = Survey::model()->findByPk($sid);
+        $exportUrl = $this->api->createUrl(
+            'admin/pluginhelper',
+            [
+                'sa'     => 'sidebody',
+                'plugin' => 'RelevanceImEx',
+                'method' => 'actionExport',
+                'sid' => $this->survey->primaryKey,
+            ]);
+
+
         $aData = [
             'survey' => $this->survey,
-            'exportUrl' => $this->createUrl('actionExport'),
+            'exportUrl' => $exportUrl,
             'importUrl' => $this->createUrl('actionImport'),
         ];
+        $aData['title_bar']['title'] = $this->survey->currentLanguageSettings->surveyls_title . " (" . gT("ID") . ":" . $this->survey->primaryKey . ")";
+        // Get default character set from global settings
+        $thischaracterset = getGlobalSetting('characterset');
+        // If no encoding was set yet, use the old "auto" default
+        if($thischaracterset == "") {
+            $thischaracterset = "auto";
+        }
+        $aEncodings =aEncodingsArray();
+        // If there are error with file : show the form
+        $aData['aEncodings'] = $aEncodings;
+        asort($aData['aEncodings']);
+        $aData['thischaracterset'] = $thischaracterset;
+
         return  $this->renderPartial('index', $aData, true);
+    }
+
+
+    public function actionExport($sid)
+    {
+        $this->survey = Survey::model()->findByPk($sid);
+        $oSurvey = $this->survey;
+        $fn = "survey_relevances_{$oSurvey->primaryKey}.csv";
+
+        // headers
+        header('Content-Type: application/excel');
+        header('Content-Disposition: attachment; filename="'.$fn.'"');
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Pragma: public");
+
+        //FIXME delimiter also ;
+        echo "group,code,parent,relevance\n";
+        foreach ($oSurvey->groups as $group) {
+            /** @var $group QuestionGroup */
+            echo "\"{$group->group_name}\",\"\",\"\",{$group->grelevance}\n";
+            foreach ($group->questions as $question) {
+                $parentCode = empty($question->parents) ? '' : $question->parents->title;
+                echo "\"\",\"{$question->title}\",\"{$parentCode}\",{$question->relevance}\n";
+            }
+        }
+        // don't render page
+        App()->end();
     }
 
 
