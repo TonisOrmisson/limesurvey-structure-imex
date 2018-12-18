@@ -107,8 +107,13 @@ class RelevanceImEx extends PluginBase {
             /** @var $group QuestionGroup */
             echo "\"{$group->group_name}\",\"\",\"\",{$group->grelevance}\n";
             foreach ($group->questions as $question) {
-                $parentCode = empty($question->parents) ? '' : $question->parents->title;
-                echo "\"\",\"{$question->title}\",\"{$parentCode}\",{$question->relevance}\n";
+                echo "\"\",\"{$question->title}\",\"\",{$question->relevance}\n";
+                $subQuestions = $question->subquestions;
+                if (!empty($subquestions)) {
+                    foreach ($subQuestions as $subQuestion) {
+                        echo "\"sss\",\"{$subQuestion->title}\",\"\",\"{$question->title}\",{$subQuestion->relevance}\n";
+                    }
+                }
             }
         }
         // don't render page
