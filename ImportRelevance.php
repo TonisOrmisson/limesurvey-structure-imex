@@ -106,7 +106,10 @@ class ImportRelevance extends ImportFromFile
 
     }
 
-
+    /**
+     * @param $row
+     * @return Question|QuestionGroup|null
+     */
     private function findModel($row) {
 
         $this->relevanceAttribute = 'relevance';
@@ -130,7 +133,10 @@ class ImportRelevance extends ImportFromFile
         return null;
     }
 
-
+    /**
+     * @param $row
+     * @return QuestionGroup|null
+     */
     private function findGroup($row) {
         $criteria = $this->baseCriteria();
         $criteria->addCondition('group_name=:name');
@@ -138,7 +144,10 @@ class ImportRelevance extends ImportFromFile
         return QuestionGroup::model()->find($criteria);
     }
 
-
+    /**
+     * @param $row
+     * @return Question|null
+     */
     private function findQuestion($row) {
         $criteria = $this->baseCriteria();
 
@@ -149,6 +158,10 @@ class ImportRelevance extends ImportFromFile
         return Question::model()->find($criteria);
     }
 
+    /**
+     * @param $row
+     * @return Question|null
+     */
     private function findSubQuestion($row) {
         $parent = $this->findQuestion(['code'=>$row['parent']]);
 
@@ -167,6 +180,9 @@ class ImportRelevance extends ImportFromFile
         return Question::model()->find($criteria);
     }
 
+    /**
+     * @return CDbCriteria
+     */
     private function baseCriteria() {
         $criteria = new CDbCriteria();
         $criteria->addCondition('sid=:survey_id');
