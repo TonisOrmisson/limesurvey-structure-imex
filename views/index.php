@@ -4,6 +4,7 @@
 /** @var string $thischaracterset */
 /** @var array $aEncodings */
 /** @var string $exportUrl */
+/** @var ImportRelevance $import */
 
 
 $this->pageTitle = "import";
@@ -12,6 +13,31 @@ $this->pageTitle = "import";
 
 <div id='relevance-imex'>
     <div class="h3 pagetitle">Import/Export survey relevance logic</div>
+
+
+    <?php if($import instanceof ImportRelevance):?>
+        <div class="row">
+            <div class="col-md-12">
+                <?php if(!empty($import->getErrors())):?>
+                    <div id="relevance-import-results" class="alert alert-danger">
+                        <div class="h4">Errors while importing the logic file!</div>
+                        <?php foreach($import->getErrors('currentModel') as $error): ?>
+                            <div class="h4 text-danger"><?= $error; ?></div>
+                        <?php endforeach;?>
+                    </div>
+                <?php else:?>
+
+                <div id="relevance-import-results" class="alert alert-success">
+                    <div class="h4">Successfully updated <?= $import->successfulModelsCount?> models logic.</div>
+                    <?php if ($import->failedModelsCount > 0): ?>
+                        <div class="h4 text-danger">Failed to find <?= $import->failedModelsCount?> models.</div>
+                    <?php endif;?>
+                </div>
+                <?php endif;?>
+            </div>
+        </div>
+    <?php endif;?>
+
     <?php echo CHtml::form(null, 'post',array('enctype'=>'multipart/form-data')); ?>
     <div class="row">
         <div class="col-md-12 col-lg-6">

@@ -81,6 +81,9 @@ abstract class ImportFromFile extends CModel
         } else {
             foreach ($this->data as $row){
                 $this->importModel($row);
+                if (!empty($this->getErrors())) {
+                    return false;
+                }
             }
         }
 

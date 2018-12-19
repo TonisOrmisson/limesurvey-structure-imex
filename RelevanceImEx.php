@@ -1,7 +1,6 @@
 <?php
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
- * @since 3.0.
  */
 class RelevanceImEx extends PluginBase {
 
@@ -74,17 +73,18 @@ class RelevanceImEx extends PluginBase {
         $aData['aEncodings'] = $aEncodings;
         asort($aData['aEncodings']);
         $aData['thischaracterset'] = $characterSet;
+        $import = null;
 
         if (Yii::app()->request->isPostRequest){
-            $import = new ImportRelevance();
+            $import = new ImportRelevance($this->survey);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if(!$import->loadFile($oFile)){
                 Yii::app()->setFlashMessage($import->getError('file'), 'error');
             } else {
                 $import->process();
-                Yii::app()->setFlashMessage("Successfully updated {$import->successfulModelsCount} model relevances", 'success');
             }
         }
+        $aData['import'] = $import;
 
         return  $this->renderPartial('index', $aData, true);
     }
