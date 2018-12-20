@@ -30,6 +30,8 @@ class RelevanceImEx extends PluginBase {
         $menuItem = new \LimeSurvey\Menu\MenuItem([
             'label' => $this->getName(),
             'href' => $this->createUrl('actionIndex'),
+            'iconClass' => 'fa fa-code-fork  text-info',
+
         ]);
         $menuItems[] = $menuItem;
         $event->set('menuItems', $menuItems);
