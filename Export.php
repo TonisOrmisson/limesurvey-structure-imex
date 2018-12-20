@@ -58,7 +58,7 @@ class Export extends CModel
         }
 
         $this->survey = $survey;
-        $this->fileName = "tmp/survey_{$this->survey->primaryKey}_logic". random_bytes(5).".ods";
+        $this->fileName = "survey_{$this->survey->primaryKey}_logic_". bin2hex(random_bytes(3)).".ods";
 
         $this->writer = WriterFactory::create(Type::ODS);
 
