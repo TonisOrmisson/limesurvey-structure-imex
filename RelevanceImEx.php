@@ -25,8 +25,6 @@ class RelevanceImEx extends PluginBase {
         $menuItems = $event->get('menuItems');
         $this->survey = Survey::model()->findByPk($event->get('surveyId'));
 
-
-
         $menuItem = new \LimeSurvey\Menu\MenuItem([
             'label' => $this->getName(),
             'href' => $this->createUrl('actionIndex'),
@@ -77,6 +75,8 @@ class RelevanceImEx extends PluginBase {
         $aData['thischaracterset'] = $characterSet;
         $import = null;
 
+
+
         if (Yii::app()->request->isPostRequest){
             $import = new ImportRelevance($this->survey);
             $oFile = CUploadedFile::getInstanceByName("the_file");
@@ -91,47 +91,23 @@ class RelevanceImEx extends PluginBase {
         return  $this->renderPartial('index', $aData, true);
     }
 
-
     public function actionExport($sid)
     {
         $this->survey = Survey::model()->findByPk($sid);
         $oSurvey = $this->survey;
-        $fn = "survey_relevances_{$oSurvey->primaryKey}.csv";
+        $model = new Export($this->survey);
 
         // headers
         header('Content-Type: application/excel');
-        header('Content-Disposition: attachment; filename="'.$fn.'"');
+        header('Content-Disposition: attachment; filename="'.$model->fileName.'"');
+        header('Content-Length: ' . filesize($model->fileName));
         header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Pragma: public");
-
-        //FIXME delimiter also ;
-
-        echo "group,code,parent,relevance\n";
-        foreach ($oSurvey->groups as $group) {
-            // only base language
-            if ($group->language != $oSurvey->language) {
-                continue;
-            }
-            /** @var $group QuestionGroup */
-            echo "\"{$group->group_name}\",\"\",\"\",{$group->grelevance}\n";
-            foreach ($group->questions as $question) {
-                // only base language
-                if ($question->language != $oSurvey->language) {
-                    continue;
-                }
-                echo "\"\",\"{$question->title}\",\"\",{$question->relevance}\n";
-                if (!empty($question->subquestions)) {
-                    foreach ($question->subquestions as $subquestion) {
-                        echo "\"\",\"{$subquestion->title}\",\"{$question->title}\",{$subquestion->relevance}\n";
-                    }
-                }
-            }
-        }
-
-        // don't render page
+        readfile($model->fileName);
         App()->end();
     }
+
 
 
 }

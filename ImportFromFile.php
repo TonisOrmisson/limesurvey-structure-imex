@@ -1,5 +1,12 @@
 <?php
 
+require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
+
+use Box\Spout\Writer\WriterFactory;
+use Box\Spout\Common\Type;
+use Box\Spout\Writer\Style\StyleBuilder;
+use Box\Spout\Writer\Style\Color;
+
 /**
  * An abstract class for various file imports
  */
@@ -40,6 +47,9 @@ abstract class ImportFromFile extends CModel
         if(!$this->importModelsClassName){
             throw new ErrorException('You need to set importable models class name in: '.__CLASS__);
         }
+
+
+
     }
 
     /**
@@ -52,6 +62,8 @@ abstract class ImportFromFile extends CModel
         if($this->hasErrors()){
             return false;
         }
+
+
         $sPath = Yii::app()->getConfig('tempdir');
         $sFileName = $sPath . '/' . randomChars(20);
         @ini_set('auto_detect_line_endings', true);
