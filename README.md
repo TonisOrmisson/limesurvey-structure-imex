@@ -4,8 +4,13 @@
 cd /LimeSurveyFolder/plugins
 ```
 
+
 ```
-composer create-project --stability dev tonisormisson/limesurvey-relevance-imex RelevanceImEx
+git clone https://github.com/TonisOrmisson/limesurvey-relevance-imex.git  RelevanceImEx
+```
+
+```
+cd RelevanceImEx && composer install
 ```
 
 

@@ -105,6 +105,7 @@ class RelevanceImEx extends PluginBase {
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Pragma: public");
         readfile($model->fileName);
+        unlink($model->fileName);
         App()->end();
     }
 
