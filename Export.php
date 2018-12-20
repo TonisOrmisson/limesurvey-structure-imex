@@ -99,17 +99,22 @@ class Export extends CModel
                 continue;
             }
 
-            $this->writer->addRow([$group->group_name,null,null,$group->grelevance]);
+            $relevance = empty($group->grelevance) ? '1' :$group->grelevance;
+
+            $this->writer->addRow([$group->group_name,null,null,$relevance]);
 
             foreach ($group->questions as $question) {
                 // only base language
                 if ($question->language != $oSurvey->language) {
                     continue;
                 }
-                $this->writer->addRow([null,$question->title, null,$question->relevance]);
+                $relevance = empty($question->relevance) ? '1' :$question->relevance;
+                $this->writer->addRow([null,$question->title, null,$relevance]);
                 if (!empty($question->subquestions)) {
                     foreach ($question->subquestions as $subquestion) {
-                        $this->writer->addRow([null,$subquestion->title, $question->title, $subquestion->relevance]);
+                        $relevance = empty($subquestion->relevance) ? '1' : $subquestion->relevance;
+
+                        $this->writer->addRow([null,$subquestion->title, $question->title, $relevance]);
                     }
                 }
             }
