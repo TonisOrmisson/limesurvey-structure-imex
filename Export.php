@@ -43,7 +43,13 @@ class Export extends CModel
     protected $sheetsCount = 0;
 
 
-
+    /**
+     * Export constructor.
+     * @param $survey
+     * @throws ErrorException
+     * @throws \Box\Spout\Common\Exception\IOException
+     * @throws \Box\Spout\Common\Exception\UnsupportedTypeException
+     */
     public function __construct($survey)
     {
 
@@ -113,10 +119,10 @@ class Export extends CModel
                 $relevance = empty($question->relevance) ? '1' :$question->relevance;
                 $this->writer->addRow([null,$question->title, null,$relevance]);
                 if (!empty($question->subquestions)) {
-                    foreach ($question->subquestions as $subquestion) {
-                        $relevance = empty($subquestion->relevance) ? '1' : $subquestion->relevance;
+                    foreach ($question->subquestions as $subQuestion) {
+                        $relevance = empty($subQuestion->relevance) ? '1' : $subQuestion->relevance;
 
-                        $this->writer->addRow([null,$subquestion->title, $question->title, $relevance]);
+                        $this->writer->addRow([null,$subQuestion->title, $question->title, $relevance]);
                     }
                 }
             }
