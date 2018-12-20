@@ -50,15 +50,17 @@ class Export extends CModel
         if (!($survey instanceof Survey)) {
             throw new ErrorException(get_class($survey) .' used as Survey');
         }
-        $this->fileName = "test.ods";
 
         $this->survey = $survey;
+        $this->fileName = "survey_{$this->survey->primaryKey}_logic.ods";
+
         $this->writer = WriterFactory::create(Type::ODS);
 
         $this->headerStyle = (new StyleBuilder())
             ->setFontBold()
             ->setFontColor(Color::BLUE)
             ->build();
+
         $this->writer->openToFile($this->fileName);
         $this->setHeaders();
         $this->writeData();
