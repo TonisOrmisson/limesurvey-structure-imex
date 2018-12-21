@@ -27,3 +27,18 @@ Find the plugin Import / Export buttons from survey tools menu.
 
 Be careful. If you use the Import to upload survey logic, ALL MANUAL CONDITIONS WILL BE REMOVED!
 
+# Updating
+
+go to plugin folder
+```
+cd /LimeSurveyFolder/plugins/RelevanceImEx
+```
+
+Get updates via git.
+`git pull` or `git fetch --all && git checkout my-version-tag`
+
+
+Run install command to make sure dependencies are updated if necessary.
+```
+composer install --no-dev
+```
