@@ -83,15 +83,15 @@ abstract class ImportFromFile extends CModel
             $this->addError('file',gT('Error saving file'));
             return false;
         }
-        $this->prepare();
+        return $this->prepare();
 
     }
 
     public function process(){
-        if(empty($this->data)) {
+        if(empty($this->readerData)) {
             $this->addError('data',gT('No data to import!'));
         } else {
-            foreach ($this->data as $row){
+            foreach ($this->readerData as $key => $row) {
                 $this->importModel($row);
                 if (!empty($this->getErrors())) {
                     return false;
@@ -101,6 +101,10 @@ abstract class ImportFromFile extends CModel
 
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     */
     public function prepare(){
         $this->reader = new SpreadsheetReader($this->fileName);
         $this->setReaderData();
@@ -111,8 +115,10 @@ abstract class ImportFromFile extends CModel
 
     protected function prepareReaderData(){
         if(!empty($this->readerData)){
-            foreach ($this->readerData as $key => $row){
+            $this->readerData = self::indexByRow($this->readerData);
+            foreach ($this->readerData as $key => $row) {
                 $this->row = $row;
+                $this->readerData[$key] = $row;
             }
         }
 
@@ -149,5 +155,38 @@ abstract class ImportFromFile extends CModel
             'successfulModelsCount'=> gT('Successful records'),
             'failedModelsCount'=> gT('Failed records'),
         );
+    }
+
+
+    /**
+     * Converts an non-indexed MULTIDIMENSIONAL array (such as data matrix from spreadsheet)
+     * into an indexed array based on the $i-th element in the array. By default its the
+     * first [0] element (header row). The indexing element will be excluded from output
+     * array
+     * @param array $array
+     * @param integer $i
+     * @return array
+     */
+    public static function indexByRow($array, $i = 0)
+    {
+        $keys = $array[$i];
+        if (is_array($array) && !empty($array)) {
+            $newArray = [];
+            foreach ($array as $key => $row) {
+                // don'd add the indexing element into output
+                if ($key != $i) {
+                    $newRow = [];
+                    $j = 0;
+                    foreach ($row as $cell) {
+                        $newRow[$keys[$j]] = $cell;
+                        $j++;
+                    }
+                    $newArray[] = $newRow;
+                }
+            }
+
+            return $newArray;
+        }
+        throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
 }
