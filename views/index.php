@@ -51,23 +51,9 @@ $this->pageTitle = "import";
                     <div class="form-group">
                         <div class="col-sm-3">
                             <?php echo CHtml::fileField('the_file','',['required'=>'required','accept'=>".xlsx, .xls, .ods"]); ?>
+                            <input type='submit' class = "btn btn-success" value='<?php eT("Import"); ?>' />
                         </div>
                     </div>
-
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <!-- "Character set of the file -->
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" for='csvcharset'><?php eT("Character set of the file:"); ?></label>
-                                <div class="col-sm-5">
-                                    <?php
-                                    echo CHtml::dropDownList('csvcharset', $thischaracterset, $aEncodings, array('size' => '1', 'class'=>'form-control'));
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <input type='submit' class = "btn btn-success" value='<?php eT("Import"); ?>' />
 
                 </div>
             </div>

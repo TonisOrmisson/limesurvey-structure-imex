@@ -78,7 +78,6 @@ abstract class ImportFromFile extends CModel
         $sFileName = $sPath . '/' . $this->file->name;
         $this->fileName = $sFileName;
 
-        @ini_set('auto_detect_line_endings', true);
         if (!@$this->file->saveAs($sFileName)) {
             $this->addError('file',gT('Error saving file'));
             return false;
