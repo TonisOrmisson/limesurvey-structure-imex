@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9e8ae60240ffe38ae6651ced304cd2a",
+    "content-hash": "7602706897eff4844527be17132bf347",
     "packages": [
         {
             "name": "box/spout",
@@ -121,6 +121,52 @@
                 "xlsx"
             ],
             "time": "2015-04-30T08:54:58+00:00"
+        },
+        {
+            "name": "tonisormisson/php-version",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TonisOrmisson/php-version.git",
+                "reference": "244f68f0a347a811f60e86a0f95736fb664dc711"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/244f68f0a347a811f60e86a0f95736fb664dc711",
+                "reference": "244f68f0a347a811f60e86a0f95736fb664dc711",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "tonisormisson\\version\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tõnis Ormisson",
+                    "email": "tonis@andmemasin.eu"
+                }
+            ],
+            "description": "get Git version information",
+            "keywords": [
+                "git",
+                "vcs",
+                "yii2"
+            ],
+            "time": "2018-12-21T12:13:47+00:00"
         }
     ],
     "packages-dev": [],

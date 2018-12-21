@@ -1,11 +1,13 @@
 <?php
+
+use tonisormisson\version\Version;
+
 /** @var Survey $survey */
 /** @var AdminController $this */
 /** @var string $thischaracterset */
 /** @var array $aEncodings */
 /** @var string $exportUrl */
 /** @var ImportRelevance $import */
-
 
 $this->pageTitle = "import";
 ?>
@@ -74,5 +76,10 @@ $this->pageTitle = "import";
 
         <input type='hidden' name='sid' value='<?= $survey->primaryKey;?>' />
         <?php echo CHtml::endForm() ?>
+    </div>
+    <div class="row">
+        <div class="pull-right">
+            <span class="label label-default">Version: <?= (new Version(__DIR__. DIRECTORY_SEPARATOR .".." . DIRECTORY_SEPARATOR ))->tag;?></span>
+        </div>
     </div>
 </div>

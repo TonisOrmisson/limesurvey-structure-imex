@@ -17,11 +17,19 @@
     "prefer-stable": true,
     "require": {
         "nuovo/spreadsheet-reader": "dev-master",
-        "box/spout": ">=2.7.3"
+        "box/spout": ">=2.7.3",
+        "tonisormisson/php-version" : ">=1.1.0"
+
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "0.3.x-dev"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
 }
