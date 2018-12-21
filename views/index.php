@@ -50,10 +50,20 @@ $this->pageTitle = "import";
                     <strong> <?php eT("Import")?></strong>
                 </div>
                 <div class="panel-body">
+                    <div class="alert alert-warning">
+                        <div class="h3">NB! Conditions will be removed!</div>
+                        <p>
+                            Note that by importing the relevances via the import file, will overwrite all relevances described in the file and will also remove all current question conditions (if defined).
+                        </p>
+                    </div>
                     <div class="form-group">
-                        <div class="col-sm-3">
-                            <?php echo CHtml::fileField('the_file','',['required'=>'required','accept'=>".xlsx, .xls, .ods"]); ?>
-                            <input type='submit' class = "btn btn-success" value='<?php eT("Import"); ?>' />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <?php echo CHtml::fileField('the_file','',['required'=>'required','accept'=>".xlsx, .xls, .ods"]); ?>
+                            </div>
+                            <div class="col-md-6">
+                                <input type='submit' class = "btn btn-success pull-right" value='<?php eT("Import"); ?>' />
+                            </div>
                         </div>
                     </div>
 
@@ -64,6 +74,7 @@ $this->pageTitle = "import";
 
         <div class="col-md-12 col-lg-6">
             <div class="panel panel-default">
+
                 <!-- Export relevances -->
                 <div class="panel-heading">
                     <strong> <?php eT("Export")?></strong>
