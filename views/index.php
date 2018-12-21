@@ -50,7 +50,7 @@ $this->pageTitle = "import";
                 <div class="panel-body">
                     <div class="form-group">
                         <div class="col-sm-3">
-                            <?php echo CHtml::fileField('the_file','',array('required'=>'required','accept'=>'text/csv')); ?>
+                            <?php echo CHtml::fileField('the_file','',['required'=>'required','accept'=>".xlsx, .xls, .ods"]); ?>
                         </div>
                     </div>
 

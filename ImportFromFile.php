@@ -15,11 +15,23 @@ abstract class ImportFromFile extends CModel
     /** @var CUploadedFile imported file  */
     public $file;
 
+    /** @var string  */
+    public $fileName;
+
+    /** @var SpreadsheetReader */
+    private $reader;
+
+    /** @var array  */
+    public $readerData;
+
     /** @var array|bool imported raw data  */
     public $data;
 
+    /** @var array|bool imported current row  */
+    public $row;
+
     /** @var string[] allowed extension types */
-    public $allowedTypes = ['csv','xls','xlsx'];
+    public $allowedTypes = [Type::ODS, Type::XLSX, 'xls'];
 
     /** @var integer Total number of processed records */
     public $processedModelsCount = 0;
@@ -48,8 +60,6 @@ abstract class ImportFromFile extends CModel
             throw new ErrorException('You need to set importable models class name in: '.__CLASS__);
         }
 
-
-
     }
 
     /**
@@ -65,26 +75,16 @@ abstract class ImportFromFile extends CModel
 
 
         $sPath = Yii::app()->getConfig('tempdir');
-        $sFileName = $sPath . '/' . randomChars(20);
+        $sFileName = $sPath . '/' . $this->file->name;
+        $this->fileName = $sFileName;
+
         @ini_set('auto_detect_line_endings', true);
         if (!@$this->file->saveAs($sFileName)) {
             $this->addError('file',gT('Error saving file'));
             return false;
         }
+        $this->prepare();
 
-        $rows   = array_map('str_getcsv', file($sFileName));
-        if(!$rows){
-            $this->addError('file',gT('Error getting data from file'));
-            return false;
-        }
-
-        $header = array_shift($rows);
-        $this->data  = array();
-        foreach($rows as $row) {
-            $this->data[] = array_combine($header, $row);
-        }
-
-        return true;
     }
 
     public function process(){
@@ -99,6 +99,38 @@ abstract class ImportFromFile extends CModel
             }
         }
 
+    }
+
+    public function prepare(){
+        $this->reader = new SpreadsheetReader($this->fileName);
+        $this->setReaderData();
+        $this->prepareReaderData();
+        return true;
+
+    }
+
+    protected function prepareReaderData(){
+        if(!empty($this->readerData)){
+            foreach ($this->readerData as $key => $row){
+                $this->row = $row;
+            }
+        }
+
+    }
+
+
+    /**
+     * read current worksheet row by row and set row data as readerData
+     */
+    private function setReaderData(){
+        $this->readerData = [];
+        foreach ($this->reader as $row) {
+            // skip empty rows
+            if(empty($row[0]) && empty($row[1]) && empty($row[2])){
+                continue;
+            }
+            $this->readerData[] = $row;
+        }
     }
 
     /**

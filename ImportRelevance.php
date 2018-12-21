@@ -5,6 +5,8 @@ class ImportRelevance extends ImportFromFile
 {
     /** @var Question  */
     public $currentModel;
+
+    /** @var string */
     public $importModelsClassName = Question::class;
 
     /** @var Survey $survey */
@@ -28,6 +30,7 @@ class ImportRelevance extends ImportFromFile
         }
         $this->survey = $survey;
     }
+
 
 
     /**
@@ -194,4 +197,5 @@ class ImportRelevance extends ImportFromFile
         return $criteria;
 
     }
+
 }

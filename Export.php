@@ -116,7 +116,7 @@ class Export extends CModel
                 if ($question->language != $oSurvey->language) {
                     continue;
                 }
-                $relevance = empty($question->relevance) ? '1' :$question->relevance;
+                $relevance = empty($question->relevance) ? '1' : $question->relevance;
                 $this->writer->addRow([null,$question->title, null,$relevance]);
                 if (!empty($question->subquestions)) {
                     foreach ($question->subquestions as $subQuestion) {
