@@ -98,6 +98,8 @@ abstract class ImportFromFile extends CModel
             }
         }
 
+        unlink($this->fileName);
+
     }
 
     /**
