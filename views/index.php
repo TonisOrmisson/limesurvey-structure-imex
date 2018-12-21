@@ -42,15 +42,33 @@ $this->pageTitle = "import";
 
     <?php echo CHtml::form(null, 'post',array('enctype'=>'multipart/form-data')); ?>
     <div class="row">
-        <div class="col-md-12 col-lg-6">
-            <div class="panel panel-default">
 
-                <!-- Import relevances -->
+        <!-- Export relevances -->
+        <div class="col-md-12 col-lg-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <?php eT("Export")?>
+                </div>
+                <div class="alert">
+                    <div class="h3">Download</div>
+                    <p>
+                        Download the existing logic or base structure of the groups and questions for editing in your preferred spreadsheet editor.
+                    </p>
+                </div>
+                <div class="panel-body">
+                    <a role='button' class = "btn btn-success pull-right" href='<?= $exportUrl; ?>'>Export</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import relevances -->
+        <div class="col-md-12 col-lg-6">
+            <div class="panel panel-danger">
                 <div class="panel-heading">
                     <strong> <?php eT("Import")?></strong>
                 </div>
                 <div class="panel-body">
-                    <div class="alert alert-warning">
+                    <div class="alert">
                         <div class="h3">NB! Conditions will be removed!</div>
                         <p>
                             Note that by importing the relevances via the import file, will overwrite all relevances described in the file and will also remove all current question conditions (if defined).
@@ -71,19 +89,6 @@ $this->pageTitle = "import";
             </div>
         </div>
 
-
-        <div class="col-md-12 col-lg-6">
-            <div class="panel panel-default">
-
-                <!-- Export relevances -->
-                <div class="panel-heading">
-                    <strong> <?php eT("Export")?></strong>
-                </div>
-                <div class="panel-body">
-                    <a role='button' class = "btn btn-warning" href='<?= $exportUrl; ?>'>Export</a>
-                </div>
-            </div>
-        </div>
 
         <input type='hidden' name='sid' value='<?= $survey->primaryKey;?>' />
         <?php echo CHtml::endForm() ?>
