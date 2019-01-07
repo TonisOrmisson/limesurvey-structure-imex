@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7602706897eff4844527be17132bf347",
+    "content-hash": "7a6e1e8e3d10b37e3015f5e00f890eb9",
     "packages": [
         {
             "name": "box/spout",
@@ -124,16 +124,16 @@
         },
         {
             "name": "tonisormisson/php-version",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TonisOrmisson/php-version.git",
-                "reference": "244f68f0a347a811f60e86a0f95736fb664dc711"
+                "reference": "264a417e505db85264a4a1793472efc352fc4c81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/244f68f0a347a811f60e86a0f95736fb664dc711",
-                "reference": "244f68f0a347a811f60e86a0f95736fb664dc711",
+                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/264a417e505db85264a4a1793472efc352fc4c81",
+                "reference": "264a417e505db85264a4a1793472efc352fc4c81",
                 "shasum": ""
             },
             "require": {
@@ -166,7 +166,7 @@
                 "vcs",
                 "yii2"
             ],
-            "time": "2018-12-21T12:13:47+00:00"
+            "time": "2019-01-07T11:54:18+00:00"
         }
     ],
     "packages-dev": [],
