@@ -11,8 +11,14 @@ class RelevanceImEx extends PluginBase {
     static protected $description = 'Import-Export survey logic as file';
     static protected $name = 'Relevance IMEX';
 
+    /** @var array  */
+    private $data = [];
+
     /** @var Survey $survey */
     private $survey;
+
+    const ACTION_QUESTIONS = "questions";
+    const ACTION_RELEVANCES = "relevances";
 
     /* Register plugin on events*/
     public function init() {
@@ -40,6 +46,11 @@ class RelevanceImEx extends PluginBase {
 
     }
 
+    /**
+     * @param string $action
+     * @param array $params
+     * @return string
+     */
     private function createUrl($action, $params = []) {
         $url = $this->api->createUrl(
             'admin/pluginhelper',
@@ -56,29 +67,9 @@ class RelevanceImEx extends PluginBase {
 
     public function actionIndex($sid)
     {
-        $this->survey = Survey::model()->findByPk($sid);
-        $exportUrl = $this->createUrl('actionExport');
+        $this->beforeAction($sid);
 
-        $aData = [
-            'survey' => $this->survey,
-            'exportUrl' => $exportUrl,
-            'importUrl' => $this->createUrl('actionImport'),
-        ];
-        $aData['title_bar']['title'] = $this->survey->currentLanguageSettings->surveyls_title . " (" . gT("ID") . ":" . $this->survey->primaryKey . ")";
-        // Get default character set from global settings
-        $characterSet = App()->getConfig('characterset');
-        // If no encoding was set yet, use the old "auto" default
-        if($characterSet == "") {
-            $characterSet = "auto";
-        }
-        $aEncodings =aEncodingsArray();
-        // If there are error with file : show the form
-        $aData['aEncodings'] = $aEncodings;
-        asort($aData['aEncodings']);
-        $aData['thischaracterset'] = $characterSet;
         $import = null;
-
-
 
         if (Yii::app()->request->isPostRequest){
             $import = new ImportRelevance($this->survey);
@@ -90,9 +81,19 @@ class RelevanceImEx extends PluginBase {
             }
         }
 
-        $aData['import'] = $import;
+        $this->data['import'] = $import;
+        $this->data['exportPlugin'] = $this;
 
-        return  $this->renderPartial('index', $aData, true);
+        return $this->renderPartial('index', $this->data, true);
+    }
+
+
+    public function actionQuestions($sid)
+    {
+        $this->beforeAction($sid);
+        $import = null;
+        $this->data['exportPlugin'] = $this;
+        return $this->renderPartial('questions', $this->data, true);
     }
 
     public function actionExport($sid)
@@ -109,6 +110,26 @@ class RelevanceImEx extends PluginBase {
         readfile($model->fileName);
         unlink($model->fileName);
         App()->end();
+    }
+
+    private function beforeAction($sid) {
+        $this->survey = Survey::model()->findByPk($sid);
+        $exportUrl = $this->createUrl('actionExport');
+
+        $this->data = [
+            'survey' => $this->survey,
+            'exportUrl' => $exportUrl,
+            'importUrl' => $this->createUrl('actionImport'),
+            'navUrls' => $this->navigationUrls(),
+        ];
+
+    }
+
+    private function navigationUrls() {
+        return [
+            self::ACTION_QUESTIONS => $this->createUrl('actionQuestions'),
+            self::ACTION_RELEVANCES => $this->createUrl('actionIndex'),
+        ];
     }
 
 
