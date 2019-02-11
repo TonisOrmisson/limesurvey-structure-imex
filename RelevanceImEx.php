@@ -20,6 +20,9 @@ class RelevanceImEx extends PluginBase {
     const ACTION_QUESTIONS = "questions";
     const ACTION_RELEVANCES = "relevances";
 
+    /** @var string */
+    private $type;
+
     /* Register plugin on events*/
     public function init() {
         require_once __DIR__.DIRECTORY_SEPARATOR.'ImportRelevance.php';
@@ -67,6 +70,7 @@ class RelevanceImEx extends PluginBase {
 
     public function actionIndex($sid)
     {
+        $this->type = self::ACTION_RELEVANCES;
         $this->beforeAction($sid);
 
         $import = null;
@@ -90,6 +94,7 @@ class RelevanceImEx extends PluginBase {
 
     public function actionQuestions($sid)
     {
+        $this->type = self::ACTION_QUESTIONS;
         $this->beforeAction($sid);
         $import = null;
         $this->data['exportPlugin'] = $this;
@@ -98,8 +103,22 @@ class RelevanceImEx extends PluginBase {
 
     public function actionExport($sid)
     {
+
         $this->survey = Survey::model()->findByPk($sid);
-        $model = new ExportRelevances($this->survey);
+        $type = Yii::app()->request->getParam('type');
+
+        switch ($type) {
+            case self::ACTION_RELEVANCES:
+                $model = new ExportRelevances($this->survey);
+                break;
+            case self::ACTION_QUESTIONS:
+                $model = new ExportQuestions($this->survey);
+                break;
+            default:
+                throw new \Exception('Unknown type: ' . $type);
+        }
+
+
         // headers
         header('Content-Type: application/excel');
         header('Content-Disposition: attachment; filename="'.$model->fileName.'"');
@@ -114,7 +133,7 @@ class RelevanceImEx extends PluginBase {
 
     private function beforeAction($sid) {
         $this->survey = Survey::model()->findByPk($sid);
-        $exportUrl = $this->createUrl('actionExport');
+        $exportUrl = $this->createUrl('actionExport', ['type' => $this->type]);
 
         $this->data = [
             'survey' => $this->survey,

@@ -15,8 +15,6 @@ class ExportRelevances extends AbstractExport
     protected $sheetName = "relevances";
 
 
-
-
     protected function writeData() {
         $oSurvey = $this->survey;
         foreach ($oSurvey->groups as $group) {
