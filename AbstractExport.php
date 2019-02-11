@@ -16,7 +16,7 @@ abstract class AbstractExport extends CModel
     /** @var string */
     public $fileName;
 
-    /** @var ExcelWriter */
+    /** @var \Box\Spout\Writer\AbstractMultiSheetsWriter */
     public $writer;
 
     /** @var  string[] */
@@ -89,9 +89,9 @@ abstract class AbstractExport extends CModel
     protected function setSheet($sheetName){
         $this->sheetName = $sheetName;
 
-        if($this->sheetsCount === 0){
+        if($this->sheetsCount === 0) {
             $this->sheet = $this->writer->getCurrentSheet();
-        }else{
+        } else {
             $this->sheet = $this->writer->addNewSheetAndMakeItCurrent();
         }
         $this->sheet->setName($this->sheetName);
