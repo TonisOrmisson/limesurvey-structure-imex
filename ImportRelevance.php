@@ -40,11 +40,10 @@ class ImportRelevance extends ImportFromFile
     {
         $this->currentModel = null;
         $this->currentModel = $this->findModel($attributes);
-        $result = false;
 
         if (empty($this->currentModel)) {
             $this->addError('currentModel', "Unable to find model for row " . var_dump($attributes));
-            return;
+            return null;
         }
 
         $this->currentModel->{$this->relevanceAttribute} = $attributes['relevance'];

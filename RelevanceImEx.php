@@ -4,6 +4,8 @@
  */
 class RelevanceImEx extends PluginBase {
 
+    /** @var LSYii_Application */
+    protected $app;
 
     protected $storage = 'DbStorage';
     static protected $description = 'Import-Export survey logic as file';
@@ -16,6 +18,7 @@ class RelevanceImEx extends PluginBase {
     public function init() {
         require_once __DIR__.DIRECTORY_SEPARATOR.'ImportRelevance.php';
         $this->subscribe('beforeToolsMenuRender');
+        $this->app = Yii::app();
     }
 
     public function beforeToolsMenuRender() {
@@ -81,7 +84,7 @@ class RelevanceImEx extends PluginBase {
             $import = new ImportRelevance($this->survey);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if(!$import->loadFile($oFile)){
-                Yii::app()->setFlashMessage($import->getError('file'), 'error');
+                $this->app->setFlashMessage($import->getError('file'), 'error');
             } else {
                 $import->process();
             }
@@ -94,9 +97,7 @@ class RelevanceImEx extends PluginBase {
     public function actionExport($sid)
     {
         $this->survey = Survey::model()->findByPk($sid);
-        $oSurvey = $this->survey;
         $model = new Export($this->survey);
-
         // headers
         header('Content-Type: application/excel');
         header('Content-Disposition: attachment; filename="'.$model->fileName.'"');

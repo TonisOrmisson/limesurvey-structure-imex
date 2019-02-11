@@ -2,10 +2,7 @@
 
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Common\Type;
-use Box\Spout\Writer\Style\StyleBuilder;
-use Box\Spout\Writer\Style\Color;
 
 /**
  * An abstract class for various file imports
@@ -51,6 +48,9 @@ abstract class ImportFromFile extends CModel
     /** @var string The Classname of importable models */
     public $importModelsClassName;
 
+    /** @var LSYii_Application */
+    protected $app;
+
     //FIXME validate filetypes (eg rules)
 
 
@@ -59,6 +59,8 @@ abstract class ImportFromFile extends CModel
         if(!$this->importModelsClassName){
             throw new ErrorException('You need to set importable models class name in: '.__CLASS__);
         }
+
+        $this->app = Yii::app();
 
     }
 
@@ -72,9 +74,7 @@ abstract class ImportFromFile extends CModel
         if($this->hasErrors()){
             return false;
         }
-
-
-        $sPath = Yii::app()->getConfig('tempdir');
+        $sPath = $this->app->getConfig('tempdir');
         $sFileName = $sPath . '/' . $this->file->name;
         $this->fileName = $sFileName;
 
@@ -99,6 +99,7 @@ abstract class ImportFromFile extends CModel
         }
 
         unlink($this->fileName);
+        return null;
 
     }
 
