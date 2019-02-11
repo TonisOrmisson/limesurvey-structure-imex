@@ -89,6 +89,7 @@ class RelevanceImEx extends PluginBase {
                 $import->process();
             }
         }
+
         $aData['import'] = $import;
 
         return  $this->renderPartial('index', $aData, true);
@@ -97,7 +98,7 @@ class RelevanceImEx extends PluginBase {
     public function actionExport($sid)
     {
         $this->survey = Survey::model()->findByPk($sid);
-        $model = new Export($this->survey);
+        $model = new ExportRelevances($this->survey);
         // headers
         header('Content-Type: application/excel');
         header('Content-Disposition: attachment; filename="'.$model->fileName.'"');
