@@ -21,23 +21,29 @@ class ExportQuestions extends AbstractExport
     const QT_HTML = 'X';
     const QT_MULTI_W_COMMENTS = 'P';
 
-    protected $header = ['type', 'language', 'one', 'two', 'three', 'relevance', 'options'];
+    protected $header = ['type', 'code', 'language', 'one', 'two', 'three', 'relevance', 'options'];
 
     protected $sheetName = "questions";
 
 
     protected function writeData() {
         $oSurvey = $this->survey;
-        foreach ($oSurvey->groups as $group) {
+
+        foreach ($this->groupsInMainLanguage() as $group) {
             $this->processGroup($group);
         }
+
         $this->writeHelpSheet();
     }
 
+
     /**
      * @param QuestionGroup $group
+     * @throws \Box\Spout\Common\Exception\IOException
+     * @throws \Box\Spout\Common\Exception\SpoutException
+     * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
      */
-    private function processGroup($group) {
+    private function addGroup($group) {
         $row = [
             self::TYPE_GROUP,
             null,
@@ -50,17 +56,15 @@ class ExportQuestions extends AbstractExport
 
         $this->writer->addRow($row);
 
-        foreach ($group->questions as $question) {
-            $this->processQuestion($question);
-        }
     }
 
-
     /**
-     * @param Question $question
+     * @param $question Question
+     * @throws \Box\Spout\Common\Exception\IOException
+     * @throws \Box\Spout\Common\Exception\SpoutException
+     * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
      */
-    private function processQuestion($question)
-    {
+    private function addQuestion($question) {
         $row = [
             self::TYPE_QUESTION,
             $question->type,
@@ -73,12 +77,41 @@ class ExportQuestions extends AbstractExport
 
         $this->writer->addRow($row);
 
+    }
 
-        if (!empty($question->answers)) {
-            foreach ($question->answers as $answer) {
-                $this->processAnswer($answer, $question);
+    /**
+     * @param QuestionGroup $group
+     */
+    private function processGroup($group) {
+
+        foreach ($this->languageGroups($group) as $lGroup) {
+            $this->addGroup($lGroup);
+        }
+
+        foreach ($this->questionsInMainLanguage() as $question) {
+            $this->processQuestion($question);
+        }
+    }
+
+
+    /**
+     * @param Question $question
+     */
+    private function processQuestion($question)
+    {
+        foreach ($this->languageQuestions($question) as $lQuestion) {
+            $this->addQuestion($lQuestion);
+        }
+
+
+        foreach ($this->languageQuestions($question) as $lQuestion) {
+            if (!empty($lQuestion->answers)) {
+                foreach ($lQuestion->answers as $answer) {
+                    $this->processAnswer($answer, $lQuestion);
+                }
             }
         }
+
 
         if (!empty($question->subquestions)) {
             foreach ($question->subquestions as $subQuestion) {
@@ -156,5 +189,54 @@ class ExportQuestions extends AbstractExport
             ],
         ];
     }
+
+    /**
+     * @return QuestionGroup[]
+     */
+    private function groupsInMainLanguage()
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('sid=' . $this->survey->primaryKey);
+        $criteria->addCondition("language='" . $this->survey->language."'");
+        $criteria->order = 'group_order ASC';
+        return QuestionGroup::model()->findAll($criteria);
+    }
+
+    /**
+     * @param QuestionGroup $group
+     * @return QuestionGroup[]
+     */
+    private function languageGroups($group)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('sid=' .  $this->survey->primaryKey);
+        $criteria->addCondition('gid=' .  $group->gid);
+        return QuestionGroup::model()->findAll($criteria);
+    }
+
+    /**
+     * @return Question[]
+     */
+    private function questionsInMainLanguage()
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('sid=' . $this->survey->primaryKey);
+        $criteria->addCondition("language='" . $this->survey->language."'");
+        $criteria->order = 'question_order ASC';
+        return Question::model()->findAll($criteria);
+    }
+
+    /**
+     * @param Question $question
+     * @return Question[]
+     */
+    private function languageQuestions($question)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('sid=' .  $this->survey->primaryKey);
+        $criteria->addCondition('qid=' .  $question->qid);
+        return Question::model()->findAll($criteria);
+    }
+
 
 }
