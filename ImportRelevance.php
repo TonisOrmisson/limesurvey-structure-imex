@@ -9,27 +9,6 @@ class ImportRelevance extends ImportFromFile
     /** @var string */
     public $importModelsClassName = Question::class;
 
-    /** @var Survey $survey */
-    protected $survey;
-
-    /** @var string  */
-    private $type = "";
-
-    /** @var string  */
-    private $relevanceAttribute = "";
-
-    const TYPE_GROUP = 1;
-    const TYPE_QUESTION = 2;
-    const TYPE_SUBQUESTION = 3;
-
-    public function __construct($survey)
-    {
-        parent::__construct();
-        if (!($survey instanceof Survey)) {
-            throw new ErrorException(get_class($survey) .' used as Survey');
-        }
-        $this->survey = $survey;
-    }
 
 
 
@@ -40,6 +19,7 @@ class ImportRelevance extends ImportFromFile
     {
         $this->currentModel = null;
         $this->currentModel = $this->findModel($attributes);
+        $this->questionCodeColumn = 'code';
 
         if (empty($this->currentModel)) {
             $this->addError('currentModel', "Unable to find model for row " . var_dump($attributes));
@@ -78,7 +58,7 @@ class ImportRelevance extends ImportFromFile
                 $criteria = new CDbCriteria();
                 $criteria->addCondition('sid=:sid');
                 $criteria->addCondition('gid=:gid');
-                $criteria->params = [':gid' => $model->gid, ':sid'=>$this->survey->primaryKey];
+                $criteria->params = [':gid' => $model->gid, ':sid'=> $this->survey->primaryKey];
                 return QuestionGroup::model()->updateAll([$this->relevanceAttribute => $model->{$this->relevanceAttribute}], $criteria);
             }
             // TODO error?
@@ -139,25 +119,11 @@ class ImportRelevance extends ImportFromFile
      * @param $row
      * @return QuestionGroup|null
      */
-    private function findGroup($row) {
+    protected function findGroup($row) {
         $criteria = $this->baseCriteria();
         $criteria->addCondition('group_name=:name');
         $criteria->params[':name']=$row['group'];
         return QuestionGroup::model()->find($criteria);
-    }
-
-    /**
-     * @param $row
-     * @return Question|null
-     */
-    private function findQuestion($row) {
-        $criteria = $this->baseCriteria();
-
-        $criteria->addCondition('parent_qid=0');
-        $criteria->addCondition('title=:code');
-        $criteria->params[':code'] = $row['code'];
-
-        return Question::model()->find($criteria);
     }
 
     /**
@@ -182,19 +148,6 @@ class ImportRelevance extends ImportFromFile
         return Question::model()->find($criteria);
     }
 
-    /**
-     * @return CDbCriteria
-     */
-    private function baseCriteria() {
-        $criteria = new CDbCriteria();
-        $criteria->addCondition('sid=:survey_id');
-        $criteria->addCondition('language=:language');
-        $criteria->params = [
-            ':survey_id'=>$this->survey->primaryKey,
-            ':language'=>$this->survey->language,
-        ];
-        return $criteria;
 
-    }
 
 }

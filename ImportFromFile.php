@@ -27,6 +27,24 @@ abstract class ImportFromFile extends CModel
     /** @var array|bool imported current row  */
     public $row;
 
+    /** @var Survey $survey */
+    protected $survey;
+
+    /** @var string  */
+    protected $type = "";
+
+    /** @var string  */
+    protected $relevanceAttribute = "";
+
+    /** @var string  */
+    protected $language = "";
+
+    protected $hasSurveyColumn = true;
+
+    /** @var string $questionCodeColumn column in import file where question code is located */
+    protected $questionCodeColumn = 'code';
+
+
     /** @var string[] allowed extension types */
     public $allowedTypes = [Type::ODS, Type::XLSX, 'xls'];
 
@@ -53,12 +71,25 @@ abstract class ImportFromFile extends CModel
 
     //FIXME validate filetypes (eg rules)
 
+    const TYPE_GROUP = 1;
+    const TYPE_QUESTION = 2;
+    const TYPE_SUBQUESTION = 3;
 
-    function __construct()
+
+    /**
+     * ImportFromFile constructor.
+     * @param Survey $survey
+     */
+    function __construct($survey)
     {
         if(!$this->importModelsClassName){
             throw new ErrorException('You need to set importable models class name in: '.__CLASS__);
         }
+        if (!($survey instanceof Survey)) {
+            throw new ErrorException(get_class($survey) .' used as Survey');
+        }
+        $this->survey = $survey;
+        $this->language = $survey->language;
 
         $this->app = Yii::app();
 
@@ -191,4 +222,38 @@ abstract class ImportFromFile extends CModel
         }
         throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
+
+    /**
+     * @return CDbCriteria
+     */
+    protected function baseCriteria() {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->params = [
+            ':language'=>$this->language,
+        ];
+
+        if ($this->hasSurveyColumn) {
+            $criteria->addCondition('sid=:survey_id');
+            $criteria->params[':survey_id'] = $this->survey->primaryKey;
+        }
+
+        return $criteria;
+    }
+
+    /**
+     * @return Question|null
+     */
+    protected function findQuestion()
+    {
+        $criteria = $this->baseCriteria();
+
+        $criteria->addCondition('parent_qid=0');
+        $criteria->addCondition('title=:code');
+        $criteria->params[':code'] = $this->attributes[$this->questionCodeColumn];
+        return Question::model()->find($criteria);
+    }
+
+
+
 }

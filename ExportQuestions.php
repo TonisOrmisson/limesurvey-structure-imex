@@ -4,12 +4,16 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
 class ExportQuestions extends AbstractExport
 {
+    private $type = "";
+    /** @var Question $question Main / parent question */
+    private $question;
+
     const TYPE_GROUP = 'G';
     const TYPE_QUESTION = 'Q';
     const TYPE_SUB_QUESTION = 'sq';
     const TYPE_ANSWER = 'a';
 
-    // Question types. Codeing as per LS
+    // Question types. Coding as per LS
     const QT_LONG_FREE = 'T';
     const QT_DROPDOWN = 'L';
     const QT_RADIO = 'Z';
@@ -21,13 +25,13 @@ class ExportQuestions extends AbstractExport
     const QT_HTML = 'X';
     const QT_MULTI_W_COMMENTS = 'P';
 
-    protected $header = ['type', 'code', 'language', 'one', 'two', 'three', 'relevance', 'options'];
+    protected $header = ['type', 'subtype', 'language', 'code', 'two', 'three', 'relevance', 'options'];
 
     protected $sheetName = "questions";
 
 
-    protected function writeData() {
-        $oSurvey = $this->survey;
+    protected function writeData()
+    {
 
         foreach ($this->groupsInMainLanguage() as $group) {
             $this->processGroup($group);
@@ -46,7 +50,7 @@ class ExportQuestions extends AbstractExport
     private function addGroup($group) {
         $row = [
             self::TYPE_GROUP,
-            null,
+            $group->gid,
             $group->language,
             $group->gid,
             $group->group_name,
@@ -66,8 +70,8 @@ class ExportQuestions extends AbstractExport
      */
     private function addQuestion($question) {
         $row = [
-            self::TYPE_QUESTION,
-            $question->type,
+            $this->type,
+            ($this->type === self::TYPE_SUB_QUESTION ? $this->question->title : $question->type),
             $question->language,
             $question->title,
             $question->question,
@@ -85,10 +89,14 @@ class ExportQuestions extends AbstractExport
     private function processGroup($group) {
 
         foreach ($this->languageGroups($group) as $lGroup) {
+            $this->type = self::TYPE_GROUP;
             $this->addGroup($lGroup);
         }
 
-        foreach ($this->questionsInMainLanguage() as $question) {
+        foreach ($this->questionsInMainLanguage() as $question)
+        {
+            $this->question = $question;
+            $this->type = self::TYPE_QUESTION;
             $this->processQuestion($question);
         }
     }
@@ -99,6 +107,7 @@ class ExportQuestions extends AbstractExport
      */
     private function processQuestion($question)
     {
+
         foreach ($this->languageQuestions($question) as $lQuestion) {
             $this->addQuestion($lQuestion);
         }
@@ -115,6 +124,8 @@ class ExportQuestions extends AbstractExport
 
         if (!empty($question->subquestions)) {
             foreach ($question->subquestions as $subQuestion) {
+                $this->type = self::TYPE_SUB_QUESTION;
+
                 $this->processQuestion($subQuestion);
             }
         }

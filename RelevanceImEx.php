@@ -98,6 +98,17 @@ class RelevanceImEx extends PluginBase {
         $this->beforeAction($sid);
         $import = null;
         $this->data['exportPlugin'] = $this;
+
+        if (Yii::app()->request->isPostRequest){
+            $import = new ImportRelevance($this->survey);
+            $oFile = CUploadedFile::getInstanceByName("the_file");
+            if(!$import->loadFile($oFile)){
+                $this->app->setFlashMessage($import->getError('file'), 'error');
+            } else {
+                $import->process();
+            }
+        }
+
         return $this->renderPartial('questions', $this->data, true);
     }
 
