@@ -5,8 +5,19 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 class ExportQuestions extends AbstractExport
 {
     private $type = "";
+
     /** @var Question $question Main / parent question */
     private $question;
+
+    /** @var \Box\Spout\Writer\Style\Style */
+    private $groupStyle;
+
+    /** @var \Box\Spout\Writer\Style\Style */
+    private $questionStyle;
+
+    /** @var \Box\Spout\Writer\Style\Style */
+    private $subQuestionStyle;
+
 
     const TYPE_GROUP = 'G';
     const TYPE_QUESTION = 'Q';
@@ -58,7 +69,7 @@ class ExportQuestions extends AbstractExport
             $group->grelevance,
         ];
 
-        $this->writer->addRow($row);
+        $this->writer->addRowWithStyle($row,  $this->groupStyle);
 
     }
 
@@ -78,8 +89,9 @@ class ExportQuestions extends AbstractExport
             $question->help,
             $question->relevance,
         ];
+        $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
-        $this->writer->addRow($row);
+        $this->writer->addRowWithStyle($row,  $style);
 
     }
 

@@ -22,8 +22,9 @@ abstract class AbstractExport extends CModel
     /** @var  string[] */
     protected $header = [];
 
-    /** @var StyleBuilder */
+    /** @var \Box\Spout\Writer\Style\Style */
     public $headerStyle;
+
 
     /** @var array Currently processed columns */
     protected $columns = [];
@@ -60,16 +61,38 @@ abstract class AbstractExport extends CModel
         $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_". substr(bin2hex(random_bytes(10)),0,4).".ods";
 
         $this->writer = WriterFactory::create(Type::ODS);
+        $this->initStyles();
 
-        $this->headerStyle = (new StyleBuilder())
-            ->setFontBold()
-            ->setFontColor(Color::BLUE)
-            ->build();
+
+
 
         $this->writer->openToFile($this->fileName);
         $this->setHeaders();
         $this->writeData();
         $this->writer->close();
+    }
+
+    private function initStyles()
+    {
+        $this->headerStyle = (new StyleBuilder())
+            ->setFontBold()
+            ->setFontColor(Color::BLUE)
+            ->build();
+
+
+        $this->groupStyle = (new StyleBuilder())
+            ->setFontColor(Color::WHITE)
+            ->setBackgroundColor(Color::GREEN)
+            ->build();
+
+        $this->questionStyle = (new StyleBuilder())
+            ->setFontBold()
+            ->setBackgroundColor(Color::LIGHT_GREEN)
+            ->build();
+
+        $this->subQuestionStyle = (new StyleBuilder())
+            ->setBackgroundColor(Color::LIGHT_GREEN)
+            ->build();
     }
 
     public function attributeNames()
@@ -80,7 +103,7 @@ abstract class AbstractExport extends CModel
     protected function setHeaders()
     {
         $this->setSheet($this->sheetName);
-        $this->writer->addRowWithStyle($this->header,  $this->headerStyle);
+        $this->writer->addRowWithStyle($this->header, $this->headerStyle);
     }
 
     /**
