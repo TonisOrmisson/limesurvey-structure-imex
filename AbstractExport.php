@@ -42,6 +42,16 @@ abstract class AbstractExport extends CModel
     /** @var integer */
     protected $sheetsCount = 0;
 
+    /** @var \Box\Spout\Writer\Style\Style */
+    protected $groupStyle;
+
+    /** @var \Box\Spout\Writer\Style\Style */
+    protected $questionStyle;
+
+    /** @var \Box\Spout\Writer\Style\Style */
+    protected $subQuestionStyle;
+
+
 
     /**
      * Export constructor.
@@ -72,7 +82,7 @@ abstract class AbstractExport extends CModel
         $this->writer->close();
     }
 
-    private function initStyles()
+    protected function initStyles()
     {
         $this->headerStyle = (new StyleBuilder())
             ->setFontBold()
@@ -91,7 +101,7 @@ abstract class AbstractExport extends CModel
             ->build();
 
         $this->subQuestionStyle = (new StyleBuilder())
-            ->setBackgroundColor(Color::LIGHT_GREEN)
+            //->setBackgroundColor(Color::LIGHT_GREEN)
             ->build();
     }
 

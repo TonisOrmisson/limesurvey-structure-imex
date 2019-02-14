@@ -9,15 +9,6 @@ class ExportQuestions extends AbstractExport
     /** @var Question $question Main / parent question */
     private $question;
 
-    /** @var \Box\Spout\Writer\Style\Style */
-    private $groupStyle;
-
-    /** @var \Box\Spout\Writer\Style\Style */
-    private $questionStyle;
-
-    /** @var \Box\Spout\Writer\Style\Style */
-    private $subQuestionStyle;
-
 
     const TYPE_GROUP = 'G';
     const TYPE_QUESTION = 'Q';
@@ -91,7 +82,7 @@ class ExportQuestions extends AbstractExport
     private function addQuestion($question) {
         $row = [
             $this->type,
-            ($this->type === self::TYPE_SUB_QUESTION ? $this->question->title : $question->type),
+            ($this->type === self::TYPE_SUB_QUESTION ? null : $question->type),
             $question->language,
             $question->title,
             $question->question,
@@ -135,34 +126,42 @@ class ExportQuestions extends AbstractExport
 
 
         foreach ($this->languageQuestions($question) as $lQuestion) {
-            if (!empty($lQuestion->answers)) {
-                foreach ($lQuestion->answers as $answer) {
-                    $this->processAnswer($answer, $lQuestion);
+            $answers = $this->answersInThisLanguage($lQuestion);
+            if (!empty($answers)) {
+                foreach ($answers as $answer) {
+                    $this->processAnswer($answer);
+                }
+            }
+        }
+
+        if ($this->type === self::TYPE_SUB_QUESTION) {
+            return;
+        }
+
+        foreach ($this->languageQuestions($question) as $lQuestion) {
+            $subQuestions = $this->subQuestionsInThisLanguage($lQuestion);
+            if (!empty($subQuestions)) {
+                foreach ($subQuestions as $subQuestion) {
+                    $this->type = self::TYPE_SUB_QUESTION;
+                    $this->addQuestion($subQuestion);
                 }
             }
         }
 
 
-        if (!empty($question->subquestions)) {
-            foreach ($question->subquestions as $subQuestion) {
-                $this->type = self::TYPE_SUB_QUESTION;
-
-                $this->processQuestion($subQuestion);
-            }
-        }
     }
+
 
     /**
      * @param Answer $answer
-     * @param Question $question
      */
-    private function processAnswer($answer,  $question)
+    private function processAnswer($answer)
     {
         $row = [
             self::TYPE_ANSWER,
             null,
             $answer->language,
-            $question->title,
+            null,
             $answer->code,
             $answer->answer,
         ];
@@ -270,5 +269,39 @@ class ExportQuestions extends AbstractExport
         return Question::model()->findAll($criteria);
     }
 
+
+    /**
+     * @param Question $question
+     * @return Question[]
+     */
+    private function subQuestionsInThisLanguage($question)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('sid=:sid');
+        $criteria->addCondition('parent_qid=:qid');
+        $criteria->addCondition('language=:language');
+
+        $criteria->params[':language'] = $question->language;
+        $criteria->params[':qid'] = $question->qid;
+        $criteria->params[':sid'] =  $this->survey->primaryKey;
+
+        return Question::model()->findAll($criteria);
+    }
+    /**
+     * @param Question $question
+     * @return Answer[]
+     */
+    private function answersInThisLanguage($question)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('qid=:qid');
+        $criteria->addCondition('language=:language');
+        $criteria->order = 'sortorder ASC';
+
+        $criteria->params[':language'] = $question->language;
+        $criteria->params[':qid'] = $question->qid;
+
+        return Answer::model()->findAll($criteria);
+    }
 
 }
