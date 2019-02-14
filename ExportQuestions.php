@@ -36,7 +36,16 @@ class ExportQuestions extends AbstractExport
     const QT_HTML = 'X';
     const QT_MULTI_W_COMMENTS = 'P';
 
-    protected $header = ['type', 'subtype', 'language', 'code', 'two', 'three', 'relevance', 'options'];
+    protected $header = [
+        ImportStructure::COLUMN_TYPE,
+        ImportStructure::COLUMN_SUBTYPE,
+        ImportStructure::COLUMN_LANGUAGE,
+        ImportStructure::COLUMN_CODE,
+        ImportStructure::COLUMN_TWO,
+        ImportStructure::COLUMN_THREE,
+        ImportStructure::COLUMN_RELEVANCE,
+        ImportStructure::COLUMN_OPTIONS,
+    ];
 
     protected $sheetName = "questions";
 

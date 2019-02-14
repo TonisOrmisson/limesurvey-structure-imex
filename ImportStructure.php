@@ -18,7 +18,9 @@ class ImportStructure extends ImportFromFile
     /** @var QuestionGroup $questionGroup current questionGroup */
     private $questionGroup;
 
+    const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
+    const COLUMN_LANGUAGE = 'language';
     const COLUMN_CODE = 'code';
     const COLUMN_TWO = 'two';
     const COLUMN_THREE = 'three';
