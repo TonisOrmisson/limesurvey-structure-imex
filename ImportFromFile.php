@@ -69,6 +69,9 @@ abstract class ImportFromFile extends CModel
     /** @var LSYii_Application */
     protected $app;
 
+    /** @var array */
+    public $rowAttributes = [];
+
     //FIXME validate filetypes (eg rules)
 
     const TYPE_GROUP = 1;
@@ -250,7 +253,7 @@ abstract class ImportFromFile extends CModel
 
         $criteria->addCondition('parent_qid=0');
         $criteria->addCondition('title=:code');
-        $criteria->params[':code'] = $this->attributes[$this->questionCodeColumn];
+        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
         return Question::model()->find($criteria);
     }
 

@@ -9,8 +9,6 @@ class ImportStructure extends ImportFromFile
     /** @var string */
     public $importModelsClassName = "";
 
-    /** @var array */
-    public $attributes = [];
 
     /** @var Question $question current question (main/parent) */
     private $question;
@@ -53,18 +51,25 @@ class ImportStructure extends ImportFromFile
         $this->saveModel();
     }
 
+    /**
+     * @param array attributes
+     * @throws Exception
+     */
     protected function initModel($attributes)
     {
         $this->currentModel = null;
-        $this->attributes = $attributes;
+        $this->rowAttributes = $attributes;
         $this->initType();
         $this->currentModel = $this->findModel();
 
     }
 
+    /**
+     * @throws Exception
+     */
     protected function initType()
     {
-        switch (strtolower($this->attributes[0])) {
+        switch (strtolower($this->rowAttributes[0])) {
             case strtolower(ExportQuestions::TYPE_QUESTION):
                 $this->type = ExportQuestions::TYPE_QUESTION;
                 $this->hasSurveyColumn = true;
@@ -78,7 +83,7 @@ class ImportStructure extends ImportFromFile
                 $this->type = ExportQuestions::TYPE_ANSWER;
                 break;
             default:
-                throw new \Exception('Invalid Type: ' . $this->attributes[0]);
+                throw new \Exception('Invalid Type: ' . $this->rowAttributes[0]);
         }
     }
 
@@ -93,11 +98,14 @@ class ImportStructure extends ImportFromFile
 
         $criteria = $this->baseCriteria();
         $criteria->addCondition('gid=:gid');
-        $criteria->params[':gid']= $this->attributes['code'];
+        $criteria->params[':gid']= $this->rowAttributes['code'];
 
         return QuestionGroup::model()->find($criteria);
     }
 
+    /**
+     * @return bool
+     */
     private function saveModel()
     {
         switch ($this->type) {
@@ -122,10 +130,10 @@ class ImportStructure extends ImportFromFile
     private function saveGroup()
     {
         $this->currentModel->setAttributes([
-            'group_name' => $this->attributes[self::COLUMN_TWO],
-            'description' => $this->attributes[self::COLUMN_THREE],
-            'grelevance' => $this->attributes[self::COLUMN_RELEVANCE],
-            'language' => $this->attributes[self::COLUMN_LANGUAGE],
+            'group_name' => $this->rowAttributes[self::COLUMN_TWO],
+            'description' => $this->rowAttributes[self::COLUMN_THREE],
+            'grelevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
             'group_order' => $this->groupOrder,
         ]);
         $this->groupOrder ++;
@@ -140,13 +148,13 @@ class ImportStructure extends ImportFromFile
     private function saveQuestion()
     {
         $this->currentModel->setAttributes([
-            'type' => $this->attributes[self::COLUMN_SUBTYPE],
+            'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
             'gid' => $this->questionGroup->gid,
-            'title' => $this->attributes[self::COLUMN_CODE],
-            'question' => $this->attributes[self::COLUMN_TWO],
-            'help' => $this->attributes[self::COLUMN_THREE],
-            'relevance' => $this->attributes[self::COLUMN_RELEVANCE],
-            'language' => $this->attributes[self::COLUMN_LANGUAGE],
+            'title' => $this->rowAttributes[self::COLUMN_CODE],
+            'question' => $this->rowAttributes[self::COLUMN_TWO],
+            'help' => $this->rowAttributes[self::COLUMN_THREE],
+            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
             'question_order' => $this->questionOrder,
         ]);
 
@@ -165,11 +173,11 @@ class ImportStructure extends ImportFromFile
             'type' => $this->question->type,
             'parent_qid' => $this->question->qid,
             'gid' => $this->question->gid,
-            'title' => $this->attributes[self::COLUMN_CODE],
-            'question' => $this->attributes[self::COLUMN_TWO],
-            'help' => $this->attributes[self::COLUMN_THREE],
-            'relevance' => $this->attributes[self::COLUMN_RELEVANCE],
-            'language' => $this->attributes[self::COLUMN_LANGUAGE],
+            'title' => $this->rowAttributes[self::COLUMN_CODE],
+            'question' => $this->rowAttributes[self::COLUMN_TWO],
+            'help' => $this->rowAttributes[self::COLUMN_THREE],
+            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
             'question_order' => $this->subQuestionOrder,
         ]);
         $this->subQuestionOrder ++ ;
@@ -183,10 +191,10 @@ class ImportStructure extends ImportFromFile
     {
         $this->currentModel->setAttributes([
             'qid' => $this->question->qid,
-            'code' => $this->attributes[self::COLUMN_TWO],
-            'answer' => $this->attributes[self::COLUMN_THREE],
+            'code' => $this->rowAttributes[self::COLUMN_TWO],
+            'answer' => $this->rowAttributes[self::COLUMN_THREE],
             'sortorder' => $this->answerOrder,
-            'language' => $this->attributes[self::COLUMN_LANGUAGE],
+            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
         ]);
         $this->answerOrder ++;
 
@@ -230,8 +238,8 @@ class ImportStructure extends ImportFromFile
         $criteria->addCondition('code=:code');
         $criteria->addCondition('language=:language');
         $criteria->params[':qid'] = $this->question->qid;
-        $criteria->params[':code'] = $this->attributes[self::COLUMN_TWO];
-        $criteria->params[':language'] = $this->attributes[self::COLUMN_LANGUAGE];
+        $criteria->params[':code'] = $this->rowAttributes[self::COLUMN_TWO];
+        $criteria->params[':language'] = $this->rowAttributes[self::COLUMN_LANGUAGE];
         return Answer::model()->find($criteria);
     }
 
@@ -245,8 +253,8 @@ class ImportStructure extends ImportFromFile
 
         $criteria->addCondition('parent_qid=:qid');
         $criteria->addCondition('title=:code');
-        $criteria->params[':code'] = $this->attributes[$this->questionCodeColumn];
-        $criteria->params[':qid'] = $this->attributes[$this->question->qid];
+        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
+        $criteria->params[':qid'] = $this->rowAttributes[$this->question->qid];
         return Question::model()->find($criteria);
     }
 
@@ -279,9 +287,9 @@ class ImportStructure extends ImportFromFile
         $this->currentModel->setAttributes([
             'sid' => $this->survey->primaryKey,
             'gid' => $this->questionGroup->gid,
-            'title' => $this->attributes[self::COLUMN_CODE],
-            'question' => $this->attributes[self::COLUMN_TWO],
-            'relevance' => $this->attributes[self::COLUMN_RELEVANCE],
+            'title' => $this->rowAttributes[self::COLUMN_CODE],
+            'question' => $this->rowAttributes[self::COLUMN_TWO],
+            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
         ]);
 
     }
