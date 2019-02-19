@@ -105,7 +105,7 @@ class ExportQuestions extends AbstractExport
             $this->addGroup($lGroup);
         }
 
-        foreach ($this->questionsInMainLanguage() as $question)
+        foreach ($this->questionsInMainLanguage($group) as $question)
         {
             $this->question = $question;
             $this->type = self::TYPE_QUESTION;
@@ -123,7 +123,6 @@ class ExportQuestions extends AbstractExport
         foreach ($this->languageQuestions($question) as $lQuestion) {
             $this->addQuestion($lQuestion);
         }
-
 
         foreach ($this->languageQuestions($question) as $lQuestion) {
             $answers = $this->answersInThisLanguage($lQuestion);
@@ -246,14 +245,20 @@ class ExportQuestions extends AbstractExport
     }
 
     /**
+     * @param QuestionGroup $group
      * @return Question[]
      */
-    private function questionsInMainLanguage()
+    private function questionsInMainLanguage($group)
     {
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=' . $this->survey->primaryKey);
+        $criteria->addCondition('gid=:gid');
         $criteria->addCondition("language='" . $this->survey->language."'");
+
+        $criteria->params[':gid'] = $group->gid;
+
         $criteria->order = 'question_order ASC';
+
         return Question::model()->findAll($criteria);
     }
 
@@ -266,6 +271,7 @@ class ExportQuestions extends AbstractExport
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=' .  $this->survey->primaryKey);
         $criteria->addCondition('qid=' .  $question->qid);
+        $criteria->addCondition('parent_qid=0');
         return Question::model()->findAll($criteria);
     }
 

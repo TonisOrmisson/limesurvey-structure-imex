@@ -67,11 +67,27 @@ class RelevanceImEx extends PluginBase {
         return $url;
     }
 
+    private function testValidateion() {
+        $attributes = [
+            'parent_qid' => '1',
+            'sid' => $this->survey->primaryKey,
+            'gid' => '1',
+            'title' => 'Q1',
+            'question' => "Thid is question",
+            'relevance' => '1',
+        ];
+        $model = new Question();
+        $model->setAttributes($attributes);
+        var_dump($model->validate());
+    }
+
 
     public function actionIndex($sid)
     {
         $this->type = self::ACTION_RELEVANCES;
         $this->beforeAction($sid);
+        $this->testValidateion();
+
 
         $import = null;
 
@@ -99,8 +115,17 @@ class RelevanceImEx extends PluginBase {
         $import = null;
         $this->data['exportPlugin'] = $this;
 
+        foreach ($this->survey->quotableQuestions as $question) {
+            $question->question = "kjashdfjksdf";
+            if (!$question->save()) {
+                var_dump($question->isNewRecord);
+                var_dump($question->getErrors());
+                die;
+            }
+        }
+
         if (Yii::app()->request->isPostRequest){
-            $import = new ImportRelevance($this->survey);
+            $import = new ImportStructure($this->survey);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if(!$import->loadFile($oFile)){
                 $this->app->setFlashMessage($import->getError('file'), 'error');

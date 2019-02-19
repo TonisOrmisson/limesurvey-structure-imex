@@ -85,9 +85,6 @@ abstract class ImportFromFile extends CModel
      */
     function __construct($survey)
     {
-        if(!$this->importModelsClassName){
-            throw new ErrorException('You need to set importable models class name in: '.__CLASS__);
-        }
         if (!($survey instanceof Survey)) {
             throw new ErrorException(get_class($survey) .' used as Survey');
         }
@@ -254,7 +251,8 @@ abstract class ImportFromFile extends CModel
         $criteria->addCondition('parent_qid=0');
         $criteria->addCondition('title=:code');
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
-        return Question::model()->find($criteria);
+        $question = Question::model()->find($criteria);
+        return $question;
     }
 
 
