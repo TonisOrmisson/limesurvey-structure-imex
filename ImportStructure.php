@@ -182,7 +182,6 @@ class ImportStructure extends ImportFromFile
      */
     private function saveQuestion()
     {
-
         $this->currentModel->setAttributes([
             'sid' => $this->survey->sid,
             'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
@@ -195,7 +194,6 @@ class ImportStructure extends ImportFromFile
             'question_order' => $this->questionOrder,
         ]);
 
-
         if (!empty($this->question)) {
             $this->currentModel->qid = $this->question->qid;
         }
@@ -204,12 +202,18 @@ class ImportStructure extends ImportFromFile
 
         // the question is always the first row of questions inserted
         $result =  $this->currentModel->save();
+
+        if (!$result) {
+            throw new \Exception("Unable to save question. Errors: " . serialize($this->currentModel->errors));
+        }
+
         if (empty($this->question)) {
             $this->question = $this->currentModel;
             $this->questionOrder ++ ;
             $this->answerOrder = 1;
             $this->subQuestionOrder = 1;
         }
+        return true;
 
     }
 
@@ -242,13 +246,12 @@ class ImportStructure extends ImportFromFile
 
         $result = $this->currentModel->save();
         if (!$result) {
-            var_dump($this->rowAttributes);
-            var_dump($this->currentModel->attributes);
-            var_dump($this->currentModel->errors);
-            //var_dump($this->currentModel->getValidators());
-            die;
+            throw new \Exception("Unable to save sub-question. Errors: " . serialize($this->currentModel->errors));
         }
+
         $this->subQuestionOrder ++ ;
+        return true;
+
 
     }
 
