@@ -21,7 +21,7 @@ class StructureImEx extends PluginBase {
     const ACTION_RELEVANCES = "relevances";
 
     /** @var string */
-    private $type;
+    public $type;
 
     /* Register plugin on events*/
     public function init() {
@@ -69,7 +69,7 @@ class StructureImEx extends PluginBase {
 
 
 
-    public function actionIndex($sid)
+    public function actionRelevances($sid)
     {
         $this->type = self::ACTION_RELEVANCES;
         $this->beforeAction($sid);
@@ -90,11 +90,11 @@ class StructureImEx extends PluginBase {
         $this->data['import'] = $import;
         $this->data['exportPlugin'] = $this;
 
-        return $this->renderPartial('index', $this->data, true);
+        return $this->renderPartial('relevances', $this->data, true);
     }
 
 
-    public function actionQuestions($sid)
+    public function actionIndex($sid)
     {
         $this->type = self::ACTION_QUESTIONS;
         $this->beforeAction($sid);
@@ -111,7 +111,7 @@ class StructureImEx extends PluginBase {
             }
         }
 
-        return $this->renderPartial('questions', $this->data, true);
+        return $this->renderPartial('index', $this->data, true);
     }
 
     public function actionExport($sid)
@@ -159,8 +159,8 @@ class StructureImEx extends PluginBase {
 
     private function navigationUrls() {
         return [
-            self::ACTION_QUESTIONS => $this->createUrl('actionQuestions'),
-            self::ACTION_RELEVANCES => $this->createUrl('actionIndex'),
+            self::ACTION_QUESTIONS => $this->createUrl('actionIndex'),
+            self::ACTION_RELEVANCES => $this->createUrl('actionRelevances'),
         ];
     }
 

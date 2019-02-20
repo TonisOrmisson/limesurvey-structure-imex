@@ -10,42 +10,19 @@ use tonisormisson\version\Version;
 /** @var PluginBase $exportPlugin */
 
 $this->pageTitle = "import";
-
 ?>
 
 
 <div id='relevance-imex'>
-    <div class="page-header"><span class="h1">Import/Export survey relevance logic</span></div>
+    <div class="page-header"><span class="h1">Import/Export Questions</span> </div>
 
-    <?= $exportPlugin->renderPartial('_menu', ['navUrls' => $navUrls]) ;?>
+    <?= $exportPlugin->renderPartial('_menu', ['navUrls' => $navUrls, 'exportPlugin' => $exportPlugin]) ;?>
     <div class="tab-content">
 
-        <?php if($import instanceof ImportRelevance):?>
-            <div class="row">
-                <div class="col-md-12">
-                    <?php if(!empty($import->getErrors())):?>
-                        <div id="relevance-import-results" class="alert alert-danger">
-                            <div class="h4">Errors while importing the logic file!</div>
-                            <?php foreach($import->getErrors('currentModel') as $error): ?>
-                                <div class="h4 text-danger"><?= $error; ?></div>
-                            <?php endforeach;?>
-                        </div>
-                    <?php else:?>
-
-                    <div id="relevance-import-results" class="alert alert-success">
-                        <div class="h4">Successfully updated <?= $import->successfulModelsCount?> models logic.</div>
-                        <?php if ($import->failedModelsCount > 0): ?>
-                            <div class="h4 text-danger">Failed to find <?= $import->failedModelsCount?> models.</div>
-                        <?php endif;?>
-                    </div>
-                    <?php endif;?>
-                </div>
-            </div>
-        <?php endif;?>
 
         <div class="row">
             <?= CHtml::form(null, 'post',['enctype'=>'multipart/form-data']); ?>
-            <!-- Export relevances -->
+            <!-- Export -->
             <div class="col-md-12 col-lg-6">
                 <div class="panel panel-success">
                     <div class="panel-heading">
@@ -54,7 +31,7 @@ $this->pageTitle = "import";
                     <div class="alert">
                         <div class="h3">Download</div>
                         <p>
-                            Download the existing logic or base structure of the groups and questions for editing in your preferred spreadsheet editor.
+                            Download the existing groups and questions for editing in your preferred spreadsheet editor.
                         </p>
                     </div>
                     <div class="panel-body">
@@ -69,11 +46,12 @@ $this->pageTitle = "import";
                     <div class="panel-heading">
                         <strong> <?php eT("Import")?></strong>
                     </div>
+
                     <div class="panel-body">
                         <div class="alert">
-                            <div class="h3">NB! Conditions will be removed!</div>
+                            <div class="h3">NB! Existing questions will be overwritten</div>
                             <p>
-                                Note that by importing the relevances via the import file, will overwrite all relevances described in the file and will also remove all current question conditions (if defined).
+                                Importing will remove all existing groups & questions and replace them with the existing ones.
                             </p>
                         </div>
                         <div class="form-group">
@@ -91,12 +69,12 @@ $this->pageTitle = "import";
                 </div>
             </div>
 
-
             <input type='hidden' name='sid' value='<?= $survey->primaryKey;?>' />
             <?php echo CHtml::endForm() ?>
         </div>
     </div>
-
     <?= $exportPlugin->renderPartial('_footer', []);?>
+
+</div>
 
 </div>
