@@ -7,11 +7,11 @@ cd /LimeSurveyFolder/plugins
 
 
 ```
-git clone https://github.com/TonisOrmisson/limesurvey-relevance-imex.git  RelevanceImEx
+git clone https://github.com/TonisOrmisson/limesurvey-structure-imex.git  StructureImEx
 ```
 
 ```
-cd RelevanceImEx && composer install
+cd StructureImEx && composer install
 ```
 
 ##
@@ -31,7 +31,7 @@ Be careful. If you use the Import to upload survey logic, ALL MANUAL CONDITIONS 
 
 go to plugin folder
 ```
-cd /LimeSurveyFolder/plugins/RelevanceImEx
+cd /LimeSurveyFolder/plugins/StructureImEx
 ```
 
 Get updates via git.
