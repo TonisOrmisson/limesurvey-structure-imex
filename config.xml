@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <metadata>
-        <name>RelevanceImEx</name>
+        <name>StructureImEx</name>
         <type>plugin</type>
         <creationDate>2018-12-18</creationDate>
-        <last_update>2018-12-21</last_update>
+        <last_update>2019-02-20</last_update>
         <author>Tõnis Ormisson</author>
         <authorUrl>https://andmemasin.eu</authorUrl>
         <license>MIT</license>
-        <version>0.3.2</version>
+        <version>0.6.0</version>
         <description><![CDATA[Core: Connect to external API]]></description>
     </metadata>
 
     <compatibility>
-        <version>4.0</version>
         <version>3.0</version>
     </compatibility>
 </config>

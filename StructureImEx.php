@@ -2,13 +2,13 @@
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
  */
-class RelevanceImEx extends PluginBase {
+class StructureImEx extends PluginBase {
 
     /** @var LSYii_Application */
     protected $app;
 
     protected $storage = 'DbStorage';
-    static protected $description = 'Import-Export survey logic as file';
+    static protected $description = 'Import-Export survey structure & logic as file';
     static protected $name = 'Structure IMEX';
 
     /** @var array  */
@@ -59,7 +59,7 @@ class RelevanceImEx extends PluginBase {
             'admin/pluginhelper',
             array_merge([
                 'sa'     => 'sidebody',
-                'plugin' => 'RelevanceImEx',
+                'plugin' => 'StructureImEx',
                 'method' => $action,
                 'sid' => $this->survey->primaryKey,
             ], $params)
