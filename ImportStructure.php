@@ -28,6 +28,7 @@ class ImportStructure extends ImportFromFile
     /** @var int  */
     private $answerOrder = 1;
 
+
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
     const COLUMN_LANGUAGE = 'language';
@@ -65,6 +66,15 @@ class ImportStructure extends ImportFromFile
         $this->initType();
         $this->currentModel = $this->findModel();
 
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function beforeProcess()
+    {
+        parent::beforeProcess();
+        $this->validateStructure();
     }
 
     /**
@@ -425,6 +435,44 @@ class ImportStructure extends ImportFromFile
 
         return !empty($result);
     }
+
+    /**
+     * @return bool
+     */
+    private function validateStructure()
+    {
+        if (!$this->validateLanguages()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    private function validateLanguages()
+    {
+        $languages = [];
+
+        $surveyLanguages = $this->survey->allLanguages;
+        foreach ($this->readerData as $row) {
+            $language = strtolower(trim($row[self::COLUMN_LANGUAGE]));
+            if(empty($language)) {
+                $this->addError("file", "Language missing for: " . serialize($row));
+            }
+            if (!in_array($language, $surveyLanguages)) {
+                $this->addError("file", sprintf("Language %s not used in survey", $language));
+            }
+            if (!empty($this->errors)) {
+                return false;
+            }
+        }
+
+        return empty($this->errors);
+    }
+
+
+
 
 
 }

@@ -117,7 +117,14 @@ abstract class ImportFromFile extends CModel
 
     }
 
-    public function process(){
+    public function process()
+    {
+        $this->beforeProcess();
+
+        if (!empty($this->errors)) {
+            return false;
+        }
+
         if(empty($this->readerData)) {
             $this->addError('data',gT('No data to import!'));
         } else {
@@ -132,6 +139,15 @@ abstract class ImportFromFile extends CModel
         unlink($this->fileName);
         return null;
 
+    }
+
+
+    /**
+     * @return |null
+     */
+    protected function beforeProcess()
+    {
+        return null;
     }
 
     /**

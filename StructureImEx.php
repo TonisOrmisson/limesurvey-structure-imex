@@ -108,6 +108,16 @@ class StructureImEx extends PluginBase {
                 $this->app->setFlashMessage($import->getError('file'), 'error');
             } else {
                 $import->process();
+
+                $errors = $import->getErrors('file');
+
+                if (!empty($errors)) {
+                    foreach ($errors as $error) {
+                        Yii::app()->setFlashMessage($error, 'error');
+                    }
+                }
+
+
             }
         }
 
