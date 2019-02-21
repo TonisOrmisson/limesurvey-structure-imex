@@ -460,9 +460,16 @@ class ImportStructure extends ImportFromFile
             if(empty($language)) {
                 $this->addError("file", "Language missing for: " . serialize($row));
             }
-            if (!in_array($language, $surveyLanguages)) {
-                $this->addError("file", sprintf("Language %s not used in survey", $language));
+
+            if (!isset(getLanguageData()[$language])) {
+                $this->addError("file", sprintf("Invalid language '%s'", $language));
+                return false;
             }
+
+            if (!in_array($language, $surveyLanguages)) {
+                $this->addError("file", sprintf("Language '%s' not used in survey", $language));
+            }
+
             if (!empty($this->errors)) {
                 return false;
             }
