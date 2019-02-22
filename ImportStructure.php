@@ -444,7 +444,10 @@ class ImportStructure extends ImportFromFile
         if (!$this->validateLanguages()) {
             return false;
         }
-        if (!$this->validateGroups()) {
+        if (!$this->validateModels(ExportQuestions::TYPE_GROUP)) {
+            return false;
+        }
+        if (!$this->validateModels(ExportQuestions::TYPE_QUESTION)) {
             return false;
         }
         return true;
@@ -482,39 +485,44 @@ class ImportStructure extends ImportFromFile
     }
 
 
-    private function validateGroups()
+    /**
+     * @param $exportType
+     * @return bool
+     * @throws Exception
+     */
+    private function validateModels($exportType)
     {
-        $groupLanguages = [];
-        $thisGroup = null;
+        $modelLanguages = [];
+        $thisModel = null;
 
         foreach ($this->readerData as $row) {
             $this->rowAttributes = $row;
             $this->initType();
 
-            if ($this->type !== ExportQuestions::TYPE_GROUP) {
-                $this->validateGroup($groupLanguages, $thisGroup);
-                $groupLanguages = [];
-                $thisGroup = null;
+            if ($this->type !== $exportType) {
+                $this->validateModelLanguages($exportType, $modelLanguages, $thisModel);
+                $modelLanguages = [];
+                $thisModel = null;
                 continue;
             }
             $language = strtolower(trim($this->rowAttributes[self::COLUMN_LANGUAGE]));
-            $groupLanguages[] = $language;
-            $thisGroup = $this->rowAttributes;
+            $modelLanguages[] = $language;
+            $thisModel = $this->rowAttributes;
         }
         return empty($this->errors);
 
     }
 
-    private function validateGroup($groupLanguages, $row)
+    private function validateModelLanguages($type, $modelLanguages, $row)
     {
-        if (empty($groupLanguages)) {
+        if (empty($modelLanguages)) {
             return null;
         }
 
         $surveyLanguages = $this->survey->allLanguages;
         foreach ($surveyLanguages as $language) {
-            if (!in_array($language, $groupLanguages)) {
-                $this->addError("file", sprintf("Language '%s' is missing for group %s", $language, $row[self::COLUMN_TWO]));
+            if (!in_array($language, $modelLanguages)) {
+                $this->addError("file", sprintf("Language '%s' is missing for row '%s' key: '%s'", $language, $type, $row[self::COLUMN_TWO]));
             }
         }
 
