@@ -12,13 +12,16 @@ class ImportRelevance extends ImportFromFile
 
 
 
+
     /**
      * @inheritdoc
      */
     protected function importModel($attributes)
     {
         $this->currentModel = null;
+        $this->rowAttributes = $attributes;
         $this->currentModel = $this->findModel($attributes);
+
         $this->questionCodeColumn = 'code';
 
         if (empty($this->currentModel)) {
@@ -107,7 +110,7 @@ class ImportRelevance extends ImportFromFile
             return $model;
         }
 
-        if (($model = $this->findQuestion($row)) instanceof Question) {
+        if (($model = $this->findQuestion()) instanceof Question) {
             $this->type = self::TYPE_QUESTION;
             return $model;
         }
@@ -131,7 +134,8 @@ class ImportRelevance extends ImportFromFile
      * @return Question|null
      */
     private function findSubQuestion($row) {
-        $parent = $this->findQuestion(['code'=>$row['parent']]);
+        $this->questionCodeColumn = 'parent';
+        $parent = $this->findQuestion();
 
         if (empty($parent)) {
             $this->addError('currentModel', "Unable to find parent question {$row['parent']} for question {$row['code']}");
@@ -144,6 +148,7 @@ class ImportRelevance extends ImportFromFile
         $criteria->addCondition('title=:code');
         $criteria->params[':parent_qid'] =$parent->qid;
         $criteria->params[':code'] =$row['code'];
+        $this->questionCodeColumn = 'code';
 
         return Question::model()->find($criteria);
     }

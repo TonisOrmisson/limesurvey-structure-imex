@@ -264,6 +264,7 @@ abstract class ImportFromFile extends CModel
     {
         $criteria = $this->baseCriteria();
 
+
         $criteria->addCondition('parent_qid=0');
         $criteria->addCondition('title=:code');
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];

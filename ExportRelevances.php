@@ -1,12 +1,6 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use Box\Spout\Writer\WriterFactory;
-use Box\Spout\Common\Type;
-use Box\Spout\Writer\Style\StyleBuilder;
-use Box\Spout\Writer\Style\Color;
-use Box\Spout\Writer\Common\Sheet;
-
 class ExportRelevances extends AbstractExport
 {
 
