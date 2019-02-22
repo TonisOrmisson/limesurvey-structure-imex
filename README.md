@@ -22,11 +22,6 @@ Find the plugin Import / Export buttons from survey tools menu.
 
 ![menu](images/menu.png)
 
-# Usage
-# Conditions will be deleted!
-
-Be careful. If you use the Import to upload survey logic, ALL MANUAL CONDITIONS WILL BE REMOVED!
-
 # Updating
 
 go to plugin folder
