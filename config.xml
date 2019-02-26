@@ -4,11 +4,11 @@
         <name>StructureImEx</name>
         <type>plugin</type>
         <creationDate>2018-12-18</creationDate>
-        <last_update>2019-02-22</last_update>
+        <last_update>2019-02-26</last_update>
         <author>Tõnis Ormisson</author>
         <authorUrl>https://andmemasin.eu</authorUrl>
         <license>MIT</license>
-        <version>0.6.0</version>
+        <version>0.7.1</version>
         <description><![CDATA[Core: Connect to external API]]></description>
     </metadata>
 
