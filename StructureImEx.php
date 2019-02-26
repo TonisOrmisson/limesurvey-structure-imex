@@ -101,28 +101,35 @@ class StructureImEx extends PluginBase {
         $import = null;
         $this->data['exportPlugin'] = $this;
 
-        if (Yii::app()->request->isPostRequest){
-            $import = new ImportStructure($this->survey);
-            $oFile = CUploadedFile::getInstanceByName("the_file");
-            if(!$import->loadFile($oFile)){
-                $this->app->setFlashMessage($import->getError('file'), 'error');
+        if (Yii::app()->request->isPostRequest) {
+            if ($this->survey->isActive) {
+                Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
-                $import->process();
+                $import = new ImportStructure($this->survey);
+                $oFile = CUploadedFile::getInstanceByName("the_file");
+                if(!$import->loadFile($oFile)){
+                    $this->app->setFlashMessage($import->getError('file'), 'error');
+                } else {
+                    $import->process();
 
-                $errors = $import->getErrors('file');
+                    $errors = $import->getErrors('file');
 
-                if (!empty($errors)) {
-                    foreach ($errors as $error) {
-                        Yii::app()->setFlashMessage($error, 'error');
+                    if (!empty($errors)) {
+                        foreach ($errors as $error) {
+                            Yii::app()->setFlashMessage($error, 'error');
+                        }
                     }
+
                 }
 
-
             }
+
         }
 
         return $this->renderPartial('index', $this->data, true);
     }
+
+
 
     public function actionExport($sid)
     {
