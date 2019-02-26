@@ -22,7 +22,7 @@ $this->pageTitle = "import";
         <div class="row">
             <div class="alert alert-warning">
                 <div class="h3">This is an activated survey! You can not import & change the structure of this survey!</div>
-                <div>You can still import & export the <a href="<?= $navUrls[StructureImEx::ACTION_RELEVANCES];?>">relevances</a>0 (logic) of this survey</div>
+                <div>You can still import & export the <a href="<?= $navUrls[StructureImEx::ACTION_RELEVANCES];?>">relevances</a> (logic) of this survey</div>
             </div>
         </div>
 
