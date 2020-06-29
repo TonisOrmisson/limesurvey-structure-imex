@@ -14,6 +14,9 @@ abstract class AbstractExport extends CModel
     protected $survey;
 
     /** @var string */
+    public $path = "tmp/runtime/";
+
+    /** @var string */
     public $fileName;
 
     /** @var \Box\Spout\Writer\AbstractMultiSheetsWriter */
@@ -74,9 +77,7 @@ abstract class AbstractExport extends CModel
         $this->initStyles();
 
 
-
-
-        $this->writer->openToFile($this->fileName);
+        $this->writer->openToFile($this->path.$this->fileName);
         $this->setHeaders();
         $this->writeData();
         $this->writer->close();
