@@ -77,10 +77,15 @@ abstract class AbstractExport extends CModel
         $this->initStyles();
 
 
-        $this->writer->openToFile($this->path.$this->fileName);
+        $this->writer->openToFile($this->getFullFileName());
         $this->setHeaders();
         $this->writeData();
         $this->writer->close();
+    }
+
+    public function getFullFileName()
+    {
+        return $this->path.$this->fileName;
     }
 
     protected function initStyles()

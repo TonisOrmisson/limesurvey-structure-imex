@@ -148,16 +148,15 @@ class StructureImEx extends PluginBase {
                 throw new \Exception('Unknown type: ' . $type);
         }
 
-
         // headers
         header('Content-Type: application/excel');
         header('Content-Disposition: attachment; filename="'.$model->fileName.'"');
-        header('Content-Length: ' . filesize($model->fileName));
+        header('Content-Length: ' . filesize($model->getFullFileName()));
         header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Pragma: public");
-        readfile($model->fileName);
-        unlink($model->fileName);
+        readfile($model->getFullFileName());
+        unlink($model->getFullFileName());
         App()->end();
     }
 
