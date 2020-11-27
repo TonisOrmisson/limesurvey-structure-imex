@@ -28,6 +28,9 @@ class ImportStructure extends ImportFromFile
     /** @var int  */
     private $answerOrder = 1;
 
+    /** @var string[]  */
+    private $languages = [];
+
 
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
@@ -444,16 +447,30 @@ class ImportStructure extends ImportFromFile
      */
     private function validateStructure()
     {
+        $this->parseLanguages();
         if (!$this->validateLanguages()) {
             return false;
         }
-        if (!$this->validateModels(ExportQuestions::TYPE_GROUP)) {
-            return false;
-        }
-        if (!$this->validateModels(ExportQuestions::TYPE_QUESTION)) {
+
+        if (!$this->validateModels()) {
             return false;
         }
         return true;
+    }
+
+
+    private function parseLanguages()
+    {
+        $headerValues = array_keys($this->readerData[0]);
+        foreach ($headerValues as $value) {
+            $searchValue = static::COLUMN_VALUE;
+            $isLang = is_int(strpos($value, $searchValue));
+            if($isLang) {
+                $langStart = strpos($value, "-") +1;
+                $langugage = strtolower(trim(substr($value, $langStart, strlen($value))));
+                $this->languages[] =  $langugage;
+            }
+        }
     }
 
     /**
@@ -461,21 +478,12 @@ class ImportStructure extends ImportFromFile
      */
     private function validateLanguages()
     {
-        $languages = [];
+        if(empty($this->languages)) {
+            $this->addError("file", "Languages not defined in file. Must have cols like 'value-en' etc... ");
+        }
 
-        $surveyLanguages = $this->survey->allLanguages;
-        foreach ($this->readerData as $row) {
-            $language = strtolower(trim($row[self::COLUMN_LANGUAGE]));
-            if(empty($language)) {
-                $this->addError("file", "Language missing for: " . serialize($row));
-            }
-
-            if (!isset(getLanguageData()[$language])) {
-                $this->addError("file", sprintf("Invalid language '%s'", $language));
-                return false;
-            }
-
-            if (!in_array($language, $surveyLanguages)) {
+        foreach ($this->languages as $language) {
+            if(!in_array($language, $this->languages)) {
                 $this->addError("file", sprintf("Language '%s' not used in survey", $language));
             }
 
@@ -489,45 +497,23 @@ class ImportStructure extends ImportFromFile
 
 
     /**
-     * @param $exportType
      * @return bool
      * @throws Exception
      */
-    private function validateModels($exportType)
+    private function validateModels()
     {
-        $modelLanguages = [];
         $thisModel = null;
-
+        $i = 0;
         foreach ($this->readerData as $row) {
+            $i++;
             $this->rowAttributes = $row;
-            $this->initType();
-
-            if ($this->type !== $exportType) {
-                $this->validateModelLanguages($exportType, $modelLanguages, $thisModel);
-                $modelLanguages = [];
-                $thisModel = null;
-                continue;
+            try {
+                $this->initType();
+            } catch (\Exception $e) {
+                $this->addError("file", sprintf("Invaid row type '%s' on row %s", $this->rowAttributes[self::COLUMN_TYPE], $i));
             }
-            $language = strtolower(trim($this->rowAttributes[self::COLUMN_LANGUAGE]));
-            $modelLanguages[] = $language;
-            $thisModel = $this->rowAttributes;
         }
         return empty($this->errors);
-
-    }
-
-    private function validateModelLanguages($type, $modelLanguages, $row)
-    {
-        if (empty($modelLanguages)) {
-            return null;
-        }
-
-        $surveyLanguages = $this->survey->allLanguages;
-        foreach ($surveyLanguages as $language) {
-            if (!in_array($language, $modelLanguages)) {
-                $this->addError("file", sprintf("Language '%s' is missing for row '%s' key: '%s'", $language, $type, $row[self::COLUMN_TWO]));
-            }
-        }
 
     }
 
