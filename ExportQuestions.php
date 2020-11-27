@@ -117,12 +117,10 @@ class ExportQuestions extends AbstractExport
         $this->addQuestion($question);
 
 
-        foreach ($this->languageQuestions($question) as $lQuestion) {
-            $answers = $this->answersInThisLanguage($lQuestion);
-            if (!empty($answers)) {
-                foreach ($answers as $answer) {
-                    $this->processAnswer($answer);
-                }
+        $answers = $this->answersInThisLanguage($question);
+        if (!empty($answers)) {
+            foreach ($answers as $answer) {
+                $this->processAnswer($answer);
             }
         }
 
@@ -149,14 +147,20 @@ class ExportQuestions extends AbstractExport
     /**
      * @param Answer $answer
      */
-    private function processAnswer($answer)
+    private function processAnswer(Answer $answer)
     {
         $row = [
             self::TYPE_ANSWER,
             null,
             $answer->code,
-            $answer->answer,
         ];
+        foreach ($this->languages as $language) {
+            $lAnswer = $this->answerInLanguage($answer, $language);
+            $row[] = $lAnswer->answer;
+            $row[] = null; // no help texts for answers
+        }
+
+
         $this->writer->addRow($row);
     }
 
@@ -302,6 +306,25 @@ class ExportQuestions extends AbstractExport
         $criteria->params[':qid'] = $question->qid;
 
         return Answer::model()->findAll($criteria);
+    }
+
+    /**
+     * @param Answer $answer
+     * @param $language
+     * @return Answer|null
+     */
+    private function answerInLanguage(Answer $answer, $language) {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('qid=:qid');
+        $criteria->addCondition('language=:language');
+        $criteria->addCondition('code=:code');
+
+        $criteria->params[':language'] = $language;
+        $criteria->params[':code'] = $answer->code;
+        $criteria->params[':qid'] = $answer->qid;
+
+        return Answer::model()->find($criteria);
+
     }
 
     protected function loadHeader()
