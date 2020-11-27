@@ -102,7 +102,7 @@ class StructureImEx extends PluginBase {
         $this->data['exportPlugin'] = $this;
 
         if (Yii::app()->request->isPostRequest) {
-            if ($this->survey->isActive) {
+            if ($this->survey->getIsActive()) {
                 Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
                 $import = new ImportStructure($this->survey);

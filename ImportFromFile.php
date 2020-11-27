@@ -259,12 +259,17 @@ abstract class ImportFromFile extends CModel
     }
 
     /**
-     * @return Question|null
+     * @param string $language
+     * @return array|mixed|null
      */
-    protected function findQuestion()
+    protected function findQuestion($language)
     {
-        $criteria = $this->baseCriteria();
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->addCondition('sid=:sid');
 
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+        $criteria->params[':language'] = $language;
 
         $criteria->addCondition('parent_qid=0');
         $criteria->addCondition('title=:code');

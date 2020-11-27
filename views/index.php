@@ -18,13 +18,14 @@ $this->pageTitle = "import";
 
     <?= $exportPlugin->renderPartial('_menu', ['navUrls' => $navUrls, 'exportPlugin' => $exportPlugin]) ;?>
     <div class="tab-content">
-
+        <?php if($survey->getIsActive()):?>
         <div class="row">
             <div class="alert alert-warning">
                 <div class="h3">This is an activated survey! You can not import & change the structure of this survey!</div>
                 <div>You can still import & export the <a href="<?= $navUrls[StructureImEx::ACTION_RELEVANCES];?>">relevances</a> (logic) of this survey</div>
             </div>
         </div>
+        <?php endif;?>
 
         <div class="row">
             <?= CHtml::form(null, 'post',['enctype'=>'multipart/form-data']); ?>

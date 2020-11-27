@@ -57,10 +57,10 @@ class ImportStructure extends ImportFromFile
         switch ($this->type) {
             case ExportQuestions::TYPE_GROUP:
                 return $this->saveGroups();
+            case ExportQuestions::TYPE_QUESTION:
+                return $this->saveQuestions();
             case ExportQuestions::TYPE_ANSWER:
                 return $this->saveAnswers();
-            case ExportQuestions::TYPE_QUESTION:
-                return $this->saveQuestion();
             case ExportQuestions::TYPE_SUB_QUESTION:
                 return $this->saveSubQuestion();
 
@@ -68,14 +68,6 @@ class ImportStructure extends ImportFromFile
         $this->currentModel = null;
     }
 
-    /**
-     * @throws Exception
-     */
-    protected function initModel()
-    {
-        $this->currentModel = null;
-        $this->currentModel = $this->findModel();
-    }
 
     /**
      * {@inheritdoc}
@@ -123,18 +115,19 @@ class ImportStructure extends ImportFromFile
         }
         $criteria = new CDbCriteria();
         $criteria->addCondition('language=:language');
-        $criteria->addCondition('sid=:sid');
-
-        $criteria->params[':sid'] = $this->survey->primaryKey;
         $criteria->params[':language'] = $language;
-        $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
 
 
         // if the file is an export file, it will possibly contain group id
         if(!empty($this->rowAttributes[self::COLUMN_CODE])) {
+            $criteria->addCondition('gid=:gid');
             $criteria->params[':gid']= $this->rowAttributes[self::COLUMN_CODE];
         } else {
             // otherwise try to look by name and hope it has not been changed
+            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
             $criteria->addCondition('group_name=:name');
             $criteria->params[':name']= $this->rowAttributes[$languageValueKey];
         }
@@ -147,7 +140,10 @@ class ImportStructure extends ImportFromFile
      * @throws Exception
      */
     private function saveGroups(){
+        $i=0;
+        $this->questionGroup = null;
         foreach ($this->languages as $language) {
+            $i++;
             $this->currentModel = $this->findGroup($language);
             $languageValueKey = self::COLUMN_VALUE . "-" .$language;
             $languageHelpKey = self::COLUMN_HELP . "-" .$language;
@@ -164,6 +160,10 @@ class ImportStructure extends ImportFromFile
                 'language' => $language,
                 'group_order' => $this->groupOrder,
             ]);
+            // other languages take main language record gid
+            if ($this->questionGroup instanceof QuestionGroup) {
+                $this->currentModel->gid = $this->questionGroup->gid;
+            }
 
             // LS misses the validaion rule for 'sid' !!! so we must define this separately
             $this->currentModel->sid = $this->survey->sid;
@@ -173,7 +173,10 @@ class ImportStructure extends ImportFromFile
             if(!$result) {
                 throw new \Exception('Error saving group : ' . serialize($this->currentModel->getErrors()));
             }
-            $this->questionGroup = $this->currentModel;
+
+            if($i === 1) {
+                $this->questionGroup = $this->currentModel;
+            }
         }
 
         $this->groupOrder ++;
@@ -181,44 +184,54 @@ class ImportStructure extends ImportFromFile
     }
 
     /**
-     * @return bool
+     * @throws Exception
      */
-    private function saveQuestion()
-    {
-        $this->currentModel->setAttributes([
-            'sid' => $this->survey->sid,
-            'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
-            'gid' => $this->questionGroup->gid,
-            'title' => $this->rowAttributes[self::COLUMN_CODE],
-            'question' => $this->rowAttributes[self::COLUMN_TWO],
-            'help' => $this->rowAttributes[self::COLUMN_THREE],
-            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
-            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
-            'question_order' => $this->questionOrder,
-        ]);
+    private function saveQuestions(){
+        $i=0;
+        $this->question = null;
+        foreach ($this->languages as $language) {
+            $i++;
+            $this->currentModel = $this->findQuestion($language);
 
-        if (!empty($this->question)) {
-            $this->currentModel->qid = $this->question->qid;
+            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+            $languageHelpKey = self::COLUMN_HELP . "-" .$language;
+
+            if(!($this->currentModel instanceof Question)) {
+                $this->currentModel = new Question();
+            }
+
+            $this->currentModel->setAttributes([
+                'sid' => $this->survey->sid,
+                'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
+                'gid' => $this->questionGroup->gid,
+                'title' => $this->rowAttributes[self::COLUMN_CODE],
+                'question' => $this->rowAttributes[$languageValueKey],
+                'help' => $this->rowAttributes[$languageHelpKey],
+                'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+                'language' => $language,
+                'question_order' => $this->questionOrder,
+            ]);
+
+            // other languages take main language record gid
+            if ($this->question instanceof Question) {
+                $this->currentModel->qid = $this->question->qid;
+            }
+
+
+            $result = $this->currentModel->save();
+
+            if(!$result) {
+                throw new \Exception('Error saving baseQuestion : ' . serialize($this->currentModel->getErrors()));
+            }
+            if($i === 1) {
+                $this->question = $this->currentModel;
+            }
         }
-
-
-
-        // the question is always the first row of questions inserted
-        $result =  $this->currentModel->save();
-
-        if (!$result) {
-            throw new \Exception("Unable to save question. Errors: " . serialize($this->currentModel->errors));
-        }
-
-        if (empty($this->question)) {
-            $this->question = $this->currentModel;
-            $this->questionOrder ++ ;
-            $this->answerOrder = 1;
-            $this->subQuestionOrder = 1;
-        }
-        return true;
-
+        $this->groupOrder ++;
+        $this->questionOrder = 1;
     }
+
+
 
     /**
      * @return bool
@@ -444,19 +457,7 @@ class ImportStructure extends ImportFromFile
         return $this->currentModel->save();
     }
 
-    /**
-     * @param string $gid group id
-     * @return bool
-     */
-    private function surveyHasGroup($gid)
-    {
-        $criteria = $this->baseCriteria();
-        $criteria->addCondition('gid=:gid');
-        $criteria->params[':gid'] = $gid;
-        $result = QuestionGroup::model()->find($criteria);
 
-        return !empty($result);
-    }
 
     /**
      * @return bool
