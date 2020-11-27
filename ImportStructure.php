@@ -42,7 +42,7 @@ class ImportStructure extends ImportFromFile
     const COLUMN_OPTIONS = 'options';
     const COLUMN_VALUE = 'value';
     const COLUMN_HELP = 'help';
-
+    const COLUMN_MANDATORY = 'mandatory';
 
     /**
      * @inheritdoc
@@ -205,6 +205,11 @@ class ImportStructure extends ImportFromFile
                 $this->currentModel = new Question();
             }
 
+            $mandatory = "Y";
+            if(in_array(strtoupper($this->rowAttributes[self::COLUMN_MANDATORY]), ['Y', 'N'])) {
+                $mandatory = strtoupper($this->rowAttributes[self::COLUMN_MANDATORY]);
+            }
+
             $this->currentModel->setAttributes([
                 'sid' => $this->survey->sid,
                 'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
@@ -215,6 +220,7 @@ class ImportStructure extends ImportFromFile
                 'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
                 'language' => $language,
                 'question_order' => $this->questionOrder,
+                'mandatory' => $mandatory,
             ]);
 
             // other languages take main language record gid

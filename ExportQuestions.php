@@ -85,7 +85,7 @@ class ExportQuestions extends AbstractExport
             $row[] = $lQuestion->help;
         }
         $row[] = $question->relevance;
-        $row[] = $question->qid;
+        $row[] = $question->mandatory;
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
@@ -337,7 +337,7 @@ class ExportQuestions extends AbstractExport
         }
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;
-        $this->header[] = ImportStructure::COLUMN_OPTIONS;
+        $this->header[] = ImportStructure::COLUMN_MANDATORY;
     }
 
 }
