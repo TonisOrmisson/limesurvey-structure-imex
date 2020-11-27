@@ -27,16 +27,6 @@ class ExportQuestions extends AbstractExport
     const QT_HTML = 'X';
     const QT_MULTI_W_COMMENTS = 'P';
 
-    protected $header = [
-        ImportStructure::COLUMN_TYPE,
-        ImportStructure::COLUMN_SUBTYPE,
-        ImportStructure::COLUMN_LANGUAGE,
-        ImportStructure::COLUMN_CODE,
-        ImportStructure::COLUMN_TWO,
-        ImportStructure::COLUMN_THREE,
-        ImportStructure::COLUMN_RELEVANCE,
-        ImportStructure::COLUMN_OPTIONS,
-    ];
 
     protected $sheetName = "questions";
 
@@ -74,21 +64,26 @@ class ExportQuestions extends AbstractExport
     }
 
     /**
-     * @param $question Question
+     * @param $question Question in main language
      * @throws \Box\Spout\Common\Exception\IOException
      * @throws \Box\Spout\Common\Exception\SpoutException
      * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
      */
     private function addQuestion($question) {
+
         $row = [
             $this->type,
             ($this->type === self::TYPE_SUB_QUESTION ? null : $question->type),
-            $question->language,
             $question->title,
-            $question->question,
-            $question->help,
-            $question->relevance,
         ];
+
+        foreach ($this->languageQuestions($question) as $lQuestion) {
+            $row[] = $lQuestion->question;
+            $row[] = $lQuestion->help;
+        }
+        $row[] = $question->relevance;
+        $row[] = $question->qid;
+
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
         $this->writer->addRowWithStyle($row,  $style);
@@ -119,10 +114,8 @@ class ExportQuestions extends AbstractExport
      */
     private function processQuestion($question)
     {
+        $this->addQuestion($question);
 
-        foreach ($this->languageQuestions($question) as $lQuestion) {
-            $this->addQuestion($lQuestion);
-        }
 
         foreach ($this->languageQuestions($question) as $lQuestion) {
             $answers = $this->answersInThisLanguage($lQuestion);
@@ -132,6 +125,8 @@ class ExportQuestions extends AbstractExport
                 }
             }
         }
+
+
 
         if ($this->type === self::TYPE_SUB_QUESTION) {
             return;
@@ -158,8 +153,6 @@ class ExportQuestions extends AbstractExport
     {
         $row = [
             self::TYPE_ANSWER,
-            null,
-            $answer->language,
             null,
             $answer->code,
             $answer->answer,
@@ -253,6 +246,7 @@ class ExportQuestions extends AbstractExport
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=' . $this->survey->primaryKey);
         $criteria->addCondition('gid=:gid');
+        $criteria->addCondition('parent_qid=0 or parent_qid IS NULL');
         $criteria->addCondition("language='" . $this->survey->language."'");
 
         $criteria->params[':gid'] = $group->gid;
@@ -308,6 +302,23 @@ class ExportQuestions extends AbstractExport
         $criteria->params[':qid'] = $question->qid;
 
         return Answer::model()->findAll($criteria);
+    }
+
+    protected function loadHeader()
+    {
+        $this->header = [
+            ImportStructure::COLUMN_TYPE,
+            ImportStructure::COLUMN_SUBTYPE,
+            ImportStructure::COLUMN_CODE,
+        ];
+
+        foreach ($this->languages as $language) {
+            $this->header[] = ImportStructure::COLUMN_VALUE ."-".$language;
+            $this->header[] = ImportStructure::COLUMN_HELP ."-".$language;
+        }
+
+        $this->header[] = ImportStructure::COLUMN_RELEVANCE;
+        $this->header[] = ImportStructure::COLUMN_OPTIONS;
     }
 
 }

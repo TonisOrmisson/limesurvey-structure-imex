@@ -54,6 +54,9 @@ abstract class AbstractExport extends CModel
     /** @var \Box\Spout\Writer\Style\Style */
     protected $subQuestionStyle;
 
+    /** @var string[] survey languages */
+    protected $languages = [];
+
 
 
     /**
@@ -72,13 +75,14 @@ abstract class AbstractExport extends CModel
 
         $this->survey = $survey;
         $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_". substr(bin2hex(random_bytes(10)),0,4).".ods";
+        $this->languages = $survey->getAllLanguages();
 
         $this->writer = WriterFactory::create(Type::ODS);
         $this->initStyles();
 
 
         $this->writer->openToFile($this->getFullFileName());
-        $this->setHeaders();
+        $this->writeHeaders();
         $this->writeData();
         $this->writer->close();
     }
@@ -116,8 +120,9 @@ abstract class AbstractExport extends CModel
         // TODO: Implement attributeNames() method.
     }
 
-    protected function setHeaders()
+    protected function writeHeaders()
     {
+        $this->loadHeader();
         $this->setSheet($this->sheetName);
         $this->writer->addRowWithStyle($this->header, $this->headerStyle);
     }
@@ -138,5 +143,6 @@ abstract class AbstractExport extends CModel
     }
 
     protected  abstract function writeData();
+    protected  abstract function loadHeader();
 
 }

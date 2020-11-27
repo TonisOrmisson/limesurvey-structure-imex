@@ -37,6 +37,9 @@ class ImportStructure extends ImportFromFile
     const COLUMN_THREE = 'three';
     const COLUMN_RELEVANCE = 'relevance';
     const COLUMN_OPTIONS = 'options';
+    const COLUMN_VALUE = 'value';
+    const COLUMN_HELP = 'help';
+
 
     /**
      * @inheritdoc

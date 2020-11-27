@@ -9,10 +9,6 @@ class ImportRelevance extends ImportFromFile
     /** @var string */
     public $importModelsClassName = Question::class;
 
-
-
-
-
     /**
      * @inheritdoc
      */
@@ -30,7 +26,6 @@ class ImportRelevance extends ImportFromFile
         }
 
         $this->currentModel->{$this->relevanceAttribute} = $attributes['relevance'];
-
 
         if ($this->type === self::TYPE_GROUP) {
             $result = $this->updateGroup($this->currentModel);
