@@ -124,19 +124,15 @@ class ExportQuestions extends AbstractExport
             }
         }
 
-
-
         if ($this->type === self::TYPE_SUB_QUESTION) {
             return;
         }
 
-        foreach ($this->languageQuestions($question) as $lQuestion) {
-            $subQuestions = $this->subQuestionsInThisLanguage($lQuestion);
-            if (!empty($subQuestions)) {
-                foreach ($subQuestions as $subQuestion) {
-                    $this->type = self::TYPE_SUB_QUESTION;
-                    $this->addQuestion($subQuestion);
-                }
+        $subQuestions = $this->subQuestionsInThisLanguage($question);
+        if (!empty($subQuestions)) {
+            foreach ($subQuestions as $subQuestion) {
+                $this->type = self::TYPE_SUB_QUESTION;
+                $this->addQuestion($subQuestion);
             }
         }
 
@@ -269,7 +265,6 @@ class ExportQuestions extends AbstractExport
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=' .  $this->survey->primaryKey);
         $criteria->addCondition('qid=' .  $question->qid);
-        $criteria->addCondition('parent_qid=0');
         return Question::model()->findAll($criteria);
     }
 
