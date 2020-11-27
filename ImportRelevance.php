@@ -118,7 +118,13 @@ class ImportRelevance extends ImportFromFile
      * @return QuestionGroup|null
      */
     protected function findGroup($row) {
-        $criteria = $this->baseCriteria();
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->params[':language'] = $this->language;
+
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+
         $criteria->addCondition('group_name=:name');
         $criteria->params[':name']=$row['group'];
         return QuestionGroup::model()->find($criteria);
@@ -137,7 +143,12 @@ class ImportRelevance extends ImportFromFile
             return null;
         }
 
-        $criteria = $this->baseCriteria();
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->params[':language'] = $this->language;
+
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
 
         $criteria->addCondition('parent_qid=:parent_qid');
         $criteria->addCondition('title=:code');
@@ -149,5 +160,24 @@ class ImportRelevance extends ImportFromFile
     }
 
 
+    /**
+     * @return Question|null
+     */
+    protected function findQuestion()
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->params[':language'] = $this->language;
+
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+
+
+        $criteria->addCondition('parent_qid=0');
+        $criteria->addCondition('title=:code');
+        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
+        $question = Question::model()->find($criteria);
+        return $question;
+    }
 
 }

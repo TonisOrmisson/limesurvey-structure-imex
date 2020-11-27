@@ -239,25 +239,6 @@ abstract class ImportFromFile extends CModel
         throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
 
-    /**
-     * @return CDbCriteria
-     * @deprecated do not use that
-     */
-    protected function baseCriteria() {
-        $criteria = new CDbCriteria();
-        $criteria->addCondition('language=:language');
-        $criteria->params = [
-            ':language'=>$this->language,
-        ];
-
-        if ($this->hasSurveyColumn) {
-            $criteria->addCondition('sid=:survey_id');
-            $criteria->params[':survey_id'] = $this->survey->primaryKey;
-        }
-
-        return $criteria;
-    }
-
 
 
 }

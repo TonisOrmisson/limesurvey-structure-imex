@@ -4,7 +4,6 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 class ExportRelevances extends AbstractExport
 {
 
-    protected $header = ['group','code','parent','relevance'];
 
     protected $sheetName = "relevances";
 
@@ -41,4 +40,8 @@ class ExportRelevances extends AbstractExport
     }
 
 
+    protected function loadHeader()
+    {
+        $this->header = ['group','code','parent','relevance'];
+    }
 }
