@@ -241,6 +241,7 @@ abstract class ImportFromFile extends CModel
 
     /**
      * @return CDbCriteria
+     * @deprecated do not use that
      */
     protected function baseCriteria() {
         $criteria = new CDbCriteria();

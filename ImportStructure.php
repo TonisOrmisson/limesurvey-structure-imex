@@ -46,32 +46,35 @@ class ImportStructure extends ImportFromFile
 
     /**
      * @inheritdoc
+     * @throws Exception
      */
     protected function importModel($attributes)
     {
-        $this->questionCodeColumn = 'code';
-        $this->initModel($attributes);
+        $this->questionCodeColumn = static::COLUMN_CODE;
+        $this->rowAttributes = $attributes;
+        $this->initType();
 
+        switch ($this->type) {
+            case ExportQuestions::TYPE_GROUP:
+                return $this->saveGroups();
+            case ExportQuestions::TYPE_ANSWER:
+                return $this->saveAnswers();
+            case ExportQuestions::TYPE_QUESTION:
+                return $this->saveQuestion();
+            case ExportQuestions::TYPE_SUB_QUESTION:
+                return $this->saveSubQuestion();
 
-        if (empty($this->currentModel)) {
-            $this->createNewModel();
         }
-
-        $this->saveModel();
         $this->currentModel = null;
     }
 
     /**
-     * @param array attributes
      * @throws Exception
      */
-    protected function initModel($attributes)
+    protected function initModel()
     {
         $this->currentModel = null;
-        $this->rowAttributes = $attributes;
-        $this->initType();
         $this->currentModel = $this->findModel();
-
     }
 
     /**
@@ -88,7 +91,6 @@ class ImportStructure extends ImportFromFile
      */
     protected function initType()
     {
-        $this->language = $this->rowAttributes[self::COLUMN_LANGUAGE];
         switch (strtolower($this->rowAttributes[self::COLUMN_TYPE])) {
             case strtolower(ExportQuestions::TYPE_QUESTION):
                 $this->type = ExportQuestions::TYPE_QUESTION;
@@ -114,83 +116,68 @@ class ImportStructure extends ImportFromFile
     /**
      * @return QuestionGroup|null
      */
-    protected function findGroup()
+    protected function findGroup($language)
     {
         if ($this->type != ExportQuestions::TYPE_GROUP) {
             throw new \Exception('Not a group!');
         }
-        $criteria = $this->baseCriteria();
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->addCondition('sid=:sid');
 
-        if ($this->surveyHasGroup($this->rowAttributes[self::COLUMN_CODE])) {
-            $criteria->addCondition('gid=:gid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+        $criteria->params[':language'] = $language;
+        $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+
+
+        // if the file is an export file, it will possibly contain group id
+        if(!empty($this->rowAttributes[self::COLUMN_CODE])) {
             $criteria->params[':gid']= $this->rowAttributes[self::COLUMN_CODE];
         } else {
+            // otherwise try to look by name and hope it has not been changed
             $criteria->addCondition('group_name=:name');
-            $criteria->params[':name']= $this->rowAttributes[self::COLUMN_TWO];
+            $criteria->params[':name']= $this->rowAttributes[$languageValueKey];
         }
+
         $result = QuestionGroup::model()->find($criteria);
         return $result;
     }
 
     /**
-     * @return bool
+     * @throws Exception
      */
-    private function saveModel()
-    {
-        switch ($this->type) {
-            case ExportQuestions::TYPE_QUESTION:
-                return $this->saveQuestion();
-            case ExportQuestions::TYPE_SUB_QUESTION:
-                return $this->saveSubQuestion();
-            case ExportQuestions::TYPE_GROUP:
-                return $this->saveGroup();
-            case ExportQuestions::TYPE_ANSWER:
-                return $this->saveAnswer();
+    private function saveGroups(){
+        foreach ($this->languages as $language) {
+            $this->currentModel = $this->findGroup($language);
+            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+            $languageHelpKey = self::COLUMN_HELP . "-" .$language;
 
-        }
-        return false;
+            if(!($this->currentModel instanceof QuestionGroup)) {
+                $this->currentModel = new QuestionGroup();
+            }
 
-    }
+            $this->currentModel->setAttributes([
+                'sid' => (int) $this->survey->sid,
+                'group_name' => $this->rowAttributes[$languageValueKey],
+                'description' => $this->rowAttributes[$languageHelpKey],
+                'grelevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+                'language' => $language,
+                'group_order' => $this->groupOrder,
+            ]);
 
+            // LS misses the validaion rule for 'sid' !!! so we must define this separately
+            $this->currentModel->sid = $this->survey->sid;
 
-    /**
-     * @return bool
-     */
-    private function saveGroup()
-    {
-        $this->currentModel->setAttributes([
-            'sid' => $this->survey->sid,
-            'group_name' => $this->rowAttributes[self::COLUMN_TWO],
-            'description' => $this->rowAttributes[self::COLUMN_THREE],
-            'grelevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
-            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
-            'group_order' => $this->groupOrder,
-        ]);
+            $result = $this->currentModel->save();
 
-
-        $this->currentModel->sid = $this->survey->sid;
-        if (!empty($this->questionGroup)) {
-            $this->currentModel->gid = $this->questionGroup->gid;
-        }
-
-        $result = $this->currentModel->save();
-
-        if (empty($this->questionGroup)) {
+            if(!$result) {
+                throw new \Exception('Error saving group : ' . serialize($this->currentModel->getErrors()));
+            }
             $this->questionGroup = $this->currentModel;
-            $this->groupOrder ++;
-            $this->questionOrder = 1;
         }
 
-
-        if (!$result) {
-            var_dump($this->rowAttributes);
-            var_dump($this->currentModel->attributes);
-            var_dump($this->currentModel->errors);
-            //var_dump($this->currentModel->getValidators());
-            die;
-        }
-        return $result;
-
+        $this->groupOrder ++;
+        $this->questionOrder = 1;
     }
 
     /**
@@ -271,21 +258,23 @@ class ImportStructure extends ImportFromFile
 
     }
 
-    /**
-     * @return bool
-     */
-    private function saveAnswer()
+    private function saveAnswers()
     {
-        $this->currentModel->setAttributes([
-            'qid' => $this->question->qid,
-            'code' => $this->rowAttributes[self::COLUMN_TWO],
-            'answer' => $this->rowAttributes[self::COLUMN_THREE],
-            'sortorder' => $this->answerOrder,
-            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
-        ]);
-        $this->answerOrder ++;
-
-        return $this->currentModel->save();
+        foreach ($this->languages as $language) {
+            $this->currentModel = $this->findAnswer($language);
+            if(!($this->currentModel instanceof Answer)) {
+                $this->currentModel = new Answer();
+            }
+            $this->currentModel->setAttributes([
+                'sid' => $this->survey->primaryKey,
+                'language' => $language,
+                'qid' => $this->question->qid,
+            ]);
+            $result = $this->loadAnswer($language);
+            if(!$result) {
+                throw new \Exception('Error saving answer : ' . serialize($this->currentModel->getErrors()));
+            }
+        }
     }
 
     /**
@@ -324,7 +313,7 @@ class ImportStructure extends ImportFromFile
     /**
      * @return Answer|null
      */
-    protected function findAnswer()
+    protected function findAnswer($language)
     {
         if (empty($this->question)) {
             return null;
@@ -335,7 +324,7 @@ class ImportStructure extends ImportFromFile
         $criteria->addCondition('language=:language');
         $criteria->params[':qid'] = $this->question->qid;
         $criteria->params[':code'] = $this->rowAttributes[self::COLUMN_TWO];
-        $criteria->params[':language'] = $this->rowAttributes[self::COLUMN_LANGUAGE];
+        $criteria->params[':language'] = $language;
         return Answer::model()->find($criteria);
     }
 
@@ -359,11 +348,11 @@ class ImportStructure extends ImportFromFile
     /**
      * @return void|null
      */
-    private function createNewModel()
+    private function createNewModels()
     {
         switch ($this->type) {
             case ExportQuestions::TYPE_ANSWER:
-                $this->createNewAnswer();
+                $this->createNewAnswers();
                 return;
             case ExportQuestions::TYPE_QUESTION:
                 $this->createBaseQuestion();
@@ -381,6 +370,7 @@ class ImportStructure extends ImportFromFile
 
     private function createBaseQuestion()
     {
+
         $this->currentModel = new Question();
         $this->currentModel->setAttributes([
             'sid' => $this->survey->primaryKey,
@@ -420,12 +410,38 @@ class ImportStructure extends ImportFromFile
         ]);
     }
 
-    private function createNewAnswer()
+
+
+    private function createNewAnswers()
     {
-        $this->currentModel = new Answer();
+        foreach ($this->languages as $language) {
+            $this->currentModel = new Answer();
+            $this->currentModel->setAttributes([
+                'sid' => $this->survey->primaryKey,
+                'language' => $language,
+                'qid' => $this->question->qid,
+            ]);
+            $this->loadAnswer($language);
+        }
+    }
+
+    /**
+     * @param string $language
+     * @return bool
+     */
+    private function loadAnswer($language)
+    {
+        $languageValueKey = self::COLUMN_VALUE . "-" .$language;
         $this->currentModel->setAttributes([
             'sid' => $this->survey->primaryKey,
+            'code' => $this->rowAttributes[self::COLUMN_CODE],
+            'answer' => $this->rowAttributes[$languageValueKey],
+            'qid' => $this->question->qid,
+            'sortorder' => $this->answerOrder
         ]);
+        $this->answerOrder ++;
+
+        return $this->currentModel->save();
     }
 
     /**
