@@ -27,6 +27,7 @@ class ExportQuestions extends AbstractExport
     const QT_HTML = 'X';
     const QT_MULTI_W_COMMENTS = 'P';
     const QT_SHORT_FREE_TEXT = 'S';
+    const QT_EQUATION = '*';
 
 
     protected $sheetName = "questions";
@@ -211,6 +212,9 @@ class ExportQuestions extends AbstractExport
             ],
             self::QT_SHORT_FREE_TEXT => [
                 "name" => "Short free text",
+            ],
+            self::QT_EQUATION => [
+                "name" => "Equation",
             ],
         ];
     }
