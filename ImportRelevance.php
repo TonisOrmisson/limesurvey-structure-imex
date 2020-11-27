@@ -128,7 +128,7 @@ class ImportRelevance extends ImportFromFile
      * @param $row
      * @return Question|null
      */
-    private function findSubQuestion($row) {
+    protected function findSubQuestion($row) {
         $this->questionCodeColumn = 'parent';
         $parent = $this->findQuestion();
 

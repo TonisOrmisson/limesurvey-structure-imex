@@ -13,6 +13,9 @@ class ImportStructure extends ImportFromFile
     /** @var Question $question current question (main/parent) */
     private $question;
 
+    /** @var Question $subQuestion current subQuestion (main/parent) */
+    private $subQuestion;
+
     /** @var QuestionGroup $questionGroup current questionGroup */
     private $questionGroup;
 
@@ -34,10 +37,7 @@ class ImportStructure extends ImportFromFile
 
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
-    const COLUMN_LANGUAGE = 'language';
     const COLUMN_CODE = 'code';
-    const COLUMN_TWO = 'two';
-    const COLUMN_THREE = 'three';
     const COLUMN_RELEVANCE = 'relevance';
     const COLUMN_OPTIONS = 'options';
     const COLUMN_VALUE = 'value';
@@ -62,7 +62,7 @@ class ImportStructure extends ImportFromFile
             case ExportQuestions::TYPE_ANSWER:
                 return $this->saveAnswers();
             case ExportQuestions::TYPE_SUB_QUESTION:
-                return $this->saveSubQuestion();
+                return $this->saveSubQuestions();
 
         }
         $this->currentModel = null;
@@ -123,14 +123,19 @@ class ImportStructure extends ImportFromFile
 
         // if the file is an export file, it will possibly contain group id
         if(!empty($this->rowAttributes[self::COLUMN_CODE])) {
-            $criteria->addCondition('gid=:gid');
-            $criteria->params[':gid']= $this->rowAttributes[self::COLUMN_CODE];
-        } else {
-            // otherwise try to look by name and hope it has not been changed
-            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
-            $criteria->addCondition('group_name=:name');
-            $criteria->params[':name']= $this->rowAttributes[$languageValueKey];
+            $gidCriteria = clone $criteria;
+            $gidCriteria->addCondition('gid=:gid');
+            $gidCriteria->params[':gid']= $this->rowAttributes[self::COLUMN_CODE];
+            $result = QuestionGroup::model()->find($gidCriteria);
         }
+        if($result instanceof QuestionGroup) {
+            return $result;
+        }
+
+        // otherwise try to look by name and hope it has not been changed
+        $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+        $criteria->addCondition('group_name=:name');
+        $criteria->params[':name']= $this->rowAttributes[$languageValueKey];
 
         $result = QuestionGroup::model()->find($criteria);
         return $result;
@@ -227,49 +232,66 @@ class ImportStructure extends ImportFromFile
                 $this->question = $this->currentModel;
             }
         }
-        $this->groupOrder ++;
-        $this->questionOrder = 1;
+        $this->questionOrder ++;
+        $this->subQuestionOrder = 1;
+        $this->answerOrder = 1;
     }
-
-
 
     /**
-     * @return bool
+     * @throws Exception
      */
-    private function saveSubQuestion()
-    {
+    private function saveSubQuestions(){
+        $i=0;
+        $this->subQuestion = null;
+        foreach ($this->languages as $language) {
+            $i++;
+            $this->currentModel = $this->findSubQuestion($language);
 
-        if (empty($this->question)) {
-            throw new \Exception('Question missing for subquestion');
+            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+            $languageHelpKey = self::COLUMN_HELP . "-" .$language;
+
+            if(!($this->currentModel instanceof Question)) {
+                $this->currentModel = new Question();
+            }
+
+            // subquestion validation in yii model is broken, need to to an array and apply in loop
+            $attributes  = [
+                'sid' => $this->survey->sid,
+                'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
+                'gid' => $this->questionGroup->gid,
+                'title' => $this->rowAttributes[self::COLUMN_CODE],
+                'question' => $this->rowAttributes[$languageValueKey],
+                'help' => $this->rowAttributes[$languageHelpKey],
+                'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+                'language' => $language,
+                'question_order' => $this->subQuestionOrder,
+                'mandatory' => "N",
+                'parent_qid' => $this->question->qid,
+            ];
+            foreach ($attributes as $key => $value) {
+                $this->currentModel->{$key} = $value;
+            }
+
+
+            // other languages take main language record gid
+            if ($this->subQuestion instanceof Question) {
+                $this->currentModel->qid = $this->subQuestion->qid;
+            }
+
+            $result = $this->currentModel->save();
+
+            if(!$result) {
+                //var_dump($this->currentModel->getAttributes());die;
+                throw new \Exception('Error saving subQuestion : ' . serialize($this->currentModel->getErrors()));
+            }
+            if($i === 1) {
+                $this->subQuestion = $this->currentModel;
+            }
         }
 
-        $attributes = [
-            'sid' => $this->survey->sid,
-            'type' => $this->question->type,
-            'parent_qid' => $this->question->qid,
-            'gid' => $this->question->gid,
-            'title' => $this->rowAttributes[self::COLUMN_CODE],
-            'question' => $this->rowAttributes[self::COLUMN_TWO],
-            'help' => $this->rowAttributes[self::COLUMN_THREE],
-            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
-            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
-            'question_order' => $this->subQuestionOrder,
-        ];
-
-        foreach ($attributes as $key => $value) {
-            $this->currentModel->{$key} = $value;
-        }
-
-        $result = $this->currentModel->save();
-        if (!$result) {
-            throw new \Exception("Unable to save sub-question. Errors: " . serialize($this->currentModel->errors));
-        }
-
-        $this->subQuestionOrder ++ ;
-        return true;
-
-
+        $this->subQuestionOrder ++;
     }
+
 
     private function saveAnswers()
     {
@@ -290,38 +312,6 @@ class ImportStructure extends ImportFromFile
         }
     }
 
-    /**
-     * @return Answer|QuestionGroup|Question|null
-     * @throws Exception
-     */
-    private function findModel()
-    {
-        switch ($this->type) {
-            case ExportQuestions::TYPE_QUESTION:
-                $model = $this->findQuestion();
-
-                // a set of new questions
-                if (!empty($this->question) &&  $this->rowAttributes[self::COLUMN_CODE] !== $this->question->title) {
-                    $this->question = null;
-                }
-                return $model;
-            case ExportQuestions::TYPE_SUB_QUESTION:
-                return $this->findSubQuestion();
-            case ExportQuestions::TYPE_GROUP:
-                $model = $this->findGroup();
-                // a set of new questions
-                if (!empty($this->questionGroup) &&  $this->rowAttributes[self::COLUMN_TWO] !== $this->questionGroup->group_name) {
-                    $this->questionGroup = null;
-                    return $model;
-                }
-                return $model;
-            case ExportQuestions::TYPE_ANSWER:
-                return $this->findAnswer();
-            default:
-                throw new \InvalidArgumentException('Invalid type: ' . $this->type);
-        }
-    }
-
 
     /**
      * @return Answer|null
@@ -331,112 +321,22 @@ class ImportStructure extends ImportFromFile
         if (empty($this->question)) {
             return null;
         }
-        $criteria = $this->baseCriteria();
-        $criteria->addCondition('qid=:qid');
-        $criteria->addCondition('code=:code');
+        $criteria = new CDbCriteria();
         $criteria->addCondition('language=:language');
-        $criteria->params[':qid'] = $this->question->qid;
-        $criteria->params[':code'] = $this->rowAttributes[self::COLUMN_TWO];
         $criteria->params[':language'] = $language;
+
+        $criteria->addCondition('qid=:qid');
+        $criteria->params[':qid'] = $this->question->qid;
+
+        $criteria->addCondition('code=:code');
+        $criteria->params[':code'] = $this->rowAttributes[self::COLUMN_CODE];
+
+        $criteria->addCondition('language=:language');
+        $criteria->params[':language'] = $language;
+
         return Answer::model()->find($criteria);
     }
 
-
-    /**
-     * @return Question|null
-     */
-    private function findSubQuestion()
-    {
-
-        $criteria = $this->baseCriteria();
-
-        $criteria->addCondition('parent_qid=:qid');
-        $criteria->addCondition('title=:code');
-        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
-        $criteria->params[':qid'] = $this->question->qid;
-        $result = Question::model()->find($criteria);
-        return $result;
-    }
-
-    /**
-     * @return void|null
-     */
-    private function createNewModels()
-    {
-        switch ($this->type) {
-            case ExportQuestions::TYPE_ANSWER:
-                $this->createNewAnswers();
-                return;
-            case ExportQuestions::TYPE_QUESTION:
-                $this->createBaseQuestion();
-                return;
-            case ExportQuestions::TYPE_SUB_QUESTION:
-                $this->createSubQuestion();
-                return;
-            case ExportQuestions::TYPE_GROUP:
-                $this->createNewQuestionGroup();
-                return;
-        }
-        return null;
-    }
-
-
-    private function createBaseQuestion()
-    {
-
-        $this->currentModel = new Question();
-        $this->currentModel->setAttributes([
-            'sid' => $this->survey->primaryKey,
-            'gid' => $this->questionGroup->gid,
-            'title' => $this->rowAttributes[self::COLUMN_CODE],
-            'question' => $this->rowAttributes[self::COLUMN_TWO],
-            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
-        ]);
-    }
-
-    private function createSubQuestion()
-    {
-        $attributes = [
-            'sid' => $this->survey->sid,
-            'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
-            'gid' => $this->questionGroup->gid,
-            'title' => $this->rowAttributes[self::COLUMN_CODE],
-            'question' => $this->rowAttributes[self::COLUMN_TWO],
-            'help' => $this->rowAttributes[self::COLUMN_THREE],
-            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
-            'language' => $this->rowAttributes[self::COLUMN_LANGUAGE],
-            'question_order' => $this->questionOrder,
-        ];
-        $this->currentModel = null;
-        $this->currentModel = new Question();
-        foreach ($attributes as $key => $value) {
-            $this->currentModel->{$key} = $value;
-        }
-
-    }
-
-    private function createNewQuestionGroup()
-    {
-        $this->currentModel = new QuestionGroup();
-        $this->currentModel->setAttributes([
-            'sid' => $this->survey->primaryKey,
-        ]);
-    }
-
-
-
-    private function createNewAnswers()
-    {
-        foreach ($this->languages as $language) {
-            $this->currentModel = new Answer();
-            $this->currentModel->setAttributes([
-                'sid' => $this->survey->primaryKey,
-                'language' => $language,
-                'qid' => $this->question->qid,
-            ]);
-            $this->loadAnswer($language);
-        }
-    }
 
     /**
      * @param string $language
@@ -536,7 +436,48 @@ class ImportStructure extends ImportFromFile
 
 
 
+    /**
+     * @param string $language
+     * @return array|mixed|null
+     */
+    private function findSubQuestion($language)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->params[':language'] = $language;
+
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+
+        $criteria->addCondition('parent_qid=:parent_qid');
+        $criteria->params[':parent_qid'] = $this->question->qid;
+
+        $criteria->addCondition('title=:code');
+        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
+
+        $question = Question::model()->find($criteria);
+        return $question;
+    }
 
 
+    /**
+     * @param string $language
+     * @return array|mixed|null
+     */
+    private function findQuestion($language)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->addCondition('sid=:sid');
+
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+        $criteria->params[':language'] = $language;
+
+        $criteria->addCondition('parent_qid=0');
+        $criteria->addCondition('title=:code');
+        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
+        $question = Question::model()->find($criteria);
+        return $question;
+    }
 
 }
