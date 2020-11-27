@@ -51,13 +51,16 @@ class ExportQuestions extends AbstractExport
     private function addGroup($group) {
         $row = [
             self::TYPE_GROUP,
+            null,
             $group->gid,
-            $group->language,
-            $group->gid,
-            $group->group_name,
-            $group->description,
-            $group->grelevance,
         ];
+        foreach ($this->languageGroups($group) as $lGroup) {
+            $row[] = $lGroup->group_name;
+            $row[] = $lGroup->description;
+        }
+
+        $row[] = $lGroup->grelevance;
+        $row[] = null; // no options
 
         $this->writer->addRowWithStyle($row,  $this->groupStyle);
 
@@ -95,10 +98,8 @@ class ExportQuestions extends AbstractExport
      */
     private function processGroup($group) {
 
-        foreach ($this->languageGroups($group) as $lGroup) {
-            $this->type = self::TYPE_GROUP;
-            $this->addGroup($lGroup);
-        }
+        $this->type = self::TYPE_GROUP;
+        $this->addGroup($group);
 
         foreach ($this->questionsInMainLanguage($group) as $question)
         {
