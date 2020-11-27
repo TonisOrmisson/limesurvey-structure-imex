@@ -109,6 +109,9 @@ abstract class ImportFromFile extends CModel
         $sFileName = $sPath . '/' . $this->file->name;
         $this->fileName = $sFileName;
 
+        // delete if anything with same name in runtime
+        unlink($sFileName);
+
         if (!@$this->file->saveAs($sFileName)) {
             $this->addError('file',gT('Error saving file'));
             return false;

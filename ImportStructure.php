@@ -232,7 +232,7 @@ class ImportStructure extends ImportFromFile
             $result = $this->currentModel->save();
 
             if(!$result) {
-                throw new \Exception('Error saving baseQuestion : ' . serialize($this->currentModel->getErrors()));
+                throw new \Exception("Error saving baseQuestion nr $i: " . $this->rowAttributes[$languageValueKey] . serialize($this->currentModel->getErrors()));
             }
             if($i === 1) {
                 $this->question = $this->currentModel;
@@ -263,7 +263,7 @@ class ImportStructure extends ImportFromFile
             // subquestion validation in yii model is broken, need to to an array and apply in loop
             $attributes  = [
                 'sid' => $this->survey->sid,
-                'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
+                'type' => $this->question->type,
                 'gid' => $this->questionGroup->gid,
                 'title' => $this->rowAttributes[self::COLUMN_CODE],
                 'question' => $this->rowAttributes[$languageValueKey],
@@ -313,7 +313,7 @@ class ImportStructure extends ImportFromFile
             ]);
             $result = $this->loadAnswer($language);
             if(!$result) {
-                throw new \Exception('Error saving answer : ' . serialize($this->currentModel->getErrors()));
+                throw new \Exception('Error saving answer : ' .serialize($this->rowAttributes). serialize($this->currentModel->getErrors()));
             }
         }
     }
