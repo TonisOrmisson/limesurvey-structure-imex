@@ -288,7 +288,7 @@ class ImportStructure extends ImportFromFile
 
             if(!$result) {
                 //var_dump($this->currentModel->getAttributes());die;
-                throw new \Exception('Error saving subQuestion : ' . serialize($this->currentModel->getErrors()));
+                throw new \Exception('Error saving subQuestion : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
             }
             if($i === 1) {
                 $this->subQuestion = $this->currentModel;

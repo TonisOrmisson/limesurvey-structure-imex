@@ -41,6 +41,7 @@ class ExportQuestions extends AbstractExport
         }
 
         $this->writeHelpSheet();
+        $this->writeOptionsSheet();
     }
 
 
@@ -63,6 +64,7 @@ class ExportQuestions extends AbstractExport
 
         $row[] = $lGroup->grelevance;
         $row[] = null; // no options
+        $row[] = null; // no attributes
 
         $this->writer->addRowWithStyle($row,  $this->groupStyle);
 
@@ -88,6 +90,14 @@ class ExportQuestions extends AbstractExport
         }
         $row[] = $question->relevance;
         $row[] = $question->mandatory;
+        $attributes = $question->getQuestionAttributes();
+        $exportAttributes = [];
+        if(!empty($attributes)) {
+            foreach ($attributes as $attribute) {
+                $exportAttributes[$attribute->attribute] = $attribute->value;
+            }
+            $row[] = json_encode($exportAttributes);
+        }
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
@@ -176,6 +186,21 @@ class ExportQuestions extends AbstractExport
         $this->writer->addRows($data);
     }
 
+
+    private function writeOptionsSheet()
+    {
+        $this->setSheet('possibleAttributes');
+        $header = ['Attribute name', 'Attribute description', 'Value valiudation'];
+        $this->writer->addRowWithStyle($header,  $this->headerStyle);
+        $data = [];
+        $attributes = new MyQuestionAttribute();
+        $possibleValues = $attributes->allowedValues();
+        foreach ($attributes->attributeLabels() as $name => $label) {
+            $data[] = [$name, $label, $possibleValues[$name]];
+        }
+
+        $this->writer->addRows($data);
+    }
 
     private function qTypes()
     {
@@ -343,6 +368,7 @@ class ExportQuestions extends AbstractExport
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;
         $this->header[] = ImportStructure::COLUMN_MANDATORY;
+        $this->header[] = ImportStructure::COLUMN_OPTIONS;
     }
 
 }
