@@ -25,6 +25,7 @@ class MyQuestionAttribute extends CModel
     public function rules()
     {
         return [
+            [static::ATTRIBUTE_HIDDEN, 'filter', 'filter'=>'intval'],
             [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly'=>true,  'max'=>1],
             [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly'=>true,  'max'=>1],
             [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly'=>true,  'max'=>12],

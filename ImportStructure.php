@@ -234,6 +234,7 @@ class ImportStructure extends ImportFromFile
             if(!$result) {
                 throw new \Exception("Error saving baseQuestion nr $i: " . $this->rowAttributes[$languageValueKey] . serialize($this->currentModel->getErrors()));
             }
+            $this->saveQuestionAttributes();
             if($i === 1) {
                 $this->question = $this->currentModel;
             }
@@ -242,6 +243,55 @@ class ImportStructure extends ImportFromFile
         $this->subQuestionOrder = 1;
         $this->answerOrder = 1;
     }
+
+    private function saveQuestionAttributes()
+    {
+        $attributeInput =$this->rowAttributes[self::COLUMN_OPTIONS];
+        $attributeArray = (array) json_decode($attributeInput);
+        if(empty($attributeArray)) {
+            return;
+        }
+
+        $myAttributes = new MyQuestionAttribute();
+        $myAttributes->setAttributes($attributeArray, false);
+        $myAttributes->validate();
+        foreach ($myAttributes->attributes as $attributeName => $value) {
+            if(is_null($value)) {
+                continue;
+            }
+            $this->saveQuestionAttribute($attributeName, $value);
+
+        }
+
+    }
+
+    private function saveQuestionAttribute(string $attributeName, $value)
+    {
+        foreach ($this->languages as $language) {
+            $attributeModel = QuestionAttribute::model()
+                ->find("qid=:qid and attribute=:attributeName and language=:language",[
+                    ':qid' => $this->currentModel->qid,
+                    ':attributeName' => $attributeName,
+                    ':language' => $language
+                ]);
+
+            if(!($attributeModel instanceof QuestionAttribute)) {
+                $attributeModel = new QuestionAttribute();
+                $attributeValues = [
+                    'language' => $language,
+                    'qid' => $this->currentModel->qid,
+                    'attribute' => $attributeName,
+                    'value' => $value,
+                ];
+            }
+            $attributeModel->setAttributes($attributeValues);
+            if(!$attributeModel->save()) {
+                throw new \Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
+                    . serialize($attributeModel->errors));
+            }
+        }
+    }
+
 
     /**
      * @throws Exception

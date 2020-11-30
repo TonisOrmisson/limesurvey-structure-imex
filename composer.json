@@ -17,6 +17,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.3.0",
+        "ext-json": "*",
         "nuovo/spreadsheet-reader": "dev-master",
         "box/spout": ">=2.7.3",
         "tonisormisson/php-version" : ">=1.1.0"
