@@ -38,7 +38,7 @@ class MyQuestionAttribute extends CModel
             [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
             [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly'=>true,  'max'=>12, 'allowEmpty' => true],
             [static::ATTRIBUTE_MAX_ANSWERS, 'numerical', 'integerOnly'=>true,  'max'=>1000, 'allowEmpty' => true],
-            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
+            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly'=>true, 'min' => 0, 'max'=>1],
         ];
     }
 

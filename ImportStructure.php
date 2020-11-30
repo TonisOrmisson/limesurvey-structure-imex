@@ -274,7 +274,6 @@ class ImportStructure extends ImportFromFile
                     ':attributeName' => $attributeName,
                     ':language' => $language
                 ]);
-
             if(!($attributeModel instanceof QuestionAttribute)) {
                 $attributeModel = new QuestionAttribute();
                 $attributeValues = [
@@ -283,10 +282,13 @@ class ImportStructure extends ImportFromFile
                     'attribute' => $attributeName,
                     'value' => $value,
                 ];
+                $attributeModel->setAttributes($attributeValues);
             }
-            $attributeModel->setAttributes($attributeValues);
             // missing in LS validation, need to set again
             $attributeModel->language = $language;
+            $attributeModel->value = $value;
+
+            $attributeModel->validate();
             if(!$attributeModel->save()) {
                 throw new \Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
                     . serialize($attributeModel->errors));
