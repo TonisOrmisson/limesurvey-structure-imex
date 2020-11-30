@@ -8,6 +8,7 @@ class MyQuestionAttribute extends CModel
     const ATTRIBUTE_TEXT_INPUT_WIDTH = "text_input_width";
     const ATTRIBUTE_ANSWER_WIDTH = "answer_width";
     const ATTRIBUTE_MAX_ANSWERS = "max_answers";
+    const ATTRIBUTE_RANDOM_ORDER = "random_order";
 
     /** @var integer */
     public $hide_tip;
@@ -21,15 +22,23 @@ class MyQuestionAttribute extends CModel
     public $answer_width;
     /** @var integer */
     public $max_answers;
+    /** @var integer */
+    public $random_order;
 
     public function rules()
     {
         return [
             [static::ATTRIBUTE_HIDDEN, 'filter', 'filter'=>'intval'],
+            [static::ATTRIBUTE_RANDOM_ORDER, 'filter', 'filter'=>'intval'],
+            [static::ATTRIBUTE_HIDE_TIP, 'filter', 'filter'=>'intval'],
+            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'filter', 'filter'=>'intval'],
+            [static::ATTRIBUTE_MAX_ANSWERS, 'filter', 'filter'=>'intval'],
+
             [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly'=>true,  'max'=>1],
             [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly'=>true,  'max'=>1],
             [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly'=>true,  'max'=>12],
             [static::ATTRIBUTE_MAX_ANSWERS, 'numerical', 'integerOnly'=>true,  'max'=>1000],
+            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly'=>true,  'max'=>1],
         ];
     }
 
@@ -37,11 +46,12 @@ class MyQuestionAttribute extends CModel
     public function attributeLabels() {
         return [
             static::ATTRIBUTE_HIDE_TIP => "Hide tip",
-            static::ATTRIBUTE_EXCLUDE => "Exclusive option",
+            //static::ATTRIBUTE_EXCLUDE => "Exclusive option",
             static::ATTRIBUTE_HIDDEN => "Always hidden",
             static::ATTRIBUTE_TEXT_INPUT_WIDTH => "Text input width",
             static::ATTRIBUTE_ANSWER_WIDTH => "Answer width",
             static::ATTRIBUTE_MAX_ANSWERS => "Maximum answers",
+            static::ATTRIBUTE_RANDOM_ORDER => "Random order",
 
         ];
     }
@@ -50,11 +60,12 @@ class MyQuestionAttribute extends CModel
     {
         return [
             static::ATTRIBUTE_HIDE_TIP => "integer 0-1",
-            static::ATTRIBUTE_EXCLUDE => "eg '1;2;3'",
+            //static::ATTRIBUTE_EXCLUDE => "eg '1;2;3'",
             static::ATTRIBUTE_HIDDEN => "integer 0-1",
             static::ATTRIBUTE_TEXT_INPUT_WIDTH => "integer 1-12",
             static::ATTRIBUTE_ANSWER_WIDTH => "integer 1-12",
             static::ATTRIBUTE_MAX_ANSWERS => "integer 1-1000",
+            static::ATTRIBUTE_RANDOM_ORDER => "integer 0-1",
 
         ];
     }
@@ -67,11 +78,12 @@ class MyQuestionAttribute extends CModel
     {
         return  [
             static::ATTRIBUTE_HIDE_TIP,
-            static::ATTRIBUTE_EXCLUDE,
+            //static::ATTRIBUTE_EXCLUDE,
             static::ATTRIBUTE_HIDDEN,
             static::ATTRIBUTE_TEXT_INPUT_WIDTH,
             static::ATTRIBUTE_ANSWER_WIDTH,
             static::ATTRIBUTE_MAX_ANSWERS,
+            static::ATTRIBUTE_RANDOM_ORDER,
         ];
     }
 }
