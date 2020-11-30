@@ -28,18 +28,33 @@ class MyQuestionAttribute extends CModel
     public function rules()
     {
         return [
-            [static::ATTRIBUTE_HIDDEN, 'filter', 'filter'=>'intval'],
-            [static::ATTRIBUTE_RANDOM_ORDER, 'filter', 'filter'=>'intval'],
-            [static::ATTRIBUTE_HIDE_TIP, 'filter', 'filter'=>'intval'],
-            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'filter', 'filter'=>'intval'],
-            [static::ATTRIBUTE_MAX_ANSWERS, 'filter', 'filter'=>'intval'],
+            [static::ATTRIBUTE_HIDDEN, 'filterIntegers'],
+            [static::ATTRIBUTE_HIDE_TIP, 'filterIntegers'],
+            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'filterIntegers'],
+            [static::ATTRIBUTE_MAX_ANSWERS, 'filterIntegers'],
+            [static::ATTRIBUTE_RANDOM_ORDER, 'filterIntegers'],
 
-            [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly'=>true,  'max'=>1],
-            [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly'=>true,  'max'=>1],
-            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly'=>true,  'max'=>12],
-            [static::ATTRIBUTE_MAX_ANSWERS, 'numerical', 'integerOnly'=>true,  'max'=>1000],
-            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly'=>true,  'max'=>1],
+            [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
+            [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
+            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly'=>true,  'max'=>12, 'allowEmpty' => true],
+            [static::ATTRIBUTE_MAX_ANSWERS, 'numerical', 'integerOnly'=>true,  'max'=>1000, 'allowEmpty' => true],
+            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
         ];
+    }
+
+    /**
+     * Custom filter method to allow empty values
+     * @param $attributeName
+     * @return bool
+     */
+    public function  filterIntegers($attributeName)
+    {
+        // allow empty
+        if(is_null($this->{$attributeName})) {
+            return true;
+        }
+        $this->{$attributeName} = intval($this->{$attributeName});
+        return true;
     }
 
 

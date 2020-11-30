@@ -285,6 +285,8 @@ class ImportStructure extends ImportFromFile
                 ];
             }
             $attributeModel->setAttributes($attributeValues);
+            // missing in LS validation, need to set again
+            $attributeModel->language = $language;
             if(!$attributeModel->save()) {
                 throw new \Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
                     . serialize($attributeModel->errors));
@@ -337,7 +339,6 @@ class ImportStructure extends ImportFromFile
             $result = $this->currentModel->save();
 
             if(!$result) {
-                //var_dump($this->currentModel->getAttributes());die;
                 throw new \Exception('Error saving subQuestion : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
             }
             if($i === 1) {
