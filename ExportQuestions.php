@@ -19,6 +19,7 @@ class ExportQuestions extends AbstractExport
     const QT_LONG_FREE = 'T';
     const QT_DROPDOWN = 'L';
     const QT_RADIO = 'Z';
+    const QT_LIST_WITH_COMMENT = 'O';
     const QT_MULTI = 'M';
     const QT_ARRAY = 'F';
     const QT_MULTIPLE_SHORT_TEXT = 'Q';
@@ -28,7 +29,6 @@ class ExportQuestions extends AbstractExport
     const QT_MULTI_W_COMMENTS = 'P';
     const QT_SHORT_FREE_TEXT = 'S';
     const QT_EQUATION = '*';
-
 
     protected $sheetName = "questions";
 
@@ -213,6 +213,9 @@ class ExportQuestions extends AbstractExport
             ],
             self::QT_RADIO => [
                 "name" => "Radio list",
+            ],
+            self::QT_LIST_WITH_COMMENT => [
+                "name" => "Radio list with comment",
             ],
             self::QT_MULTI => [
                 "name" => "Multiple choice",

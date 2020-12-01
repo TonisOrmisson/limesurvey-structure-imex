@@ -147,6 +147,7 @@ class ImportStructure extends ImportFromFile
     private function saveGroups(){
         $i=0;
         $this->questionGroup = null;
+        $this->setGroupsInitialOrder();
         foreach ($this->languages as $language) {
             $i++;
             $this->currentModel = $this->findGroup($language);
@@ -186,6 +187,22 @@ class ImportStructure extends ImportFromFile
 
         $this->groupOrder ++;
         $this->questionOrder = 1;
+    }
+
+    private function setGroupsInitialOrder()
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('language=:language');
+        $criteria->params[':language'] = $this->language;
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+        $criteria->order = "group_order DESC";
+        $lastGroup = QuestionGroup::model()->find($criteria);
+
+        if($lastGroup instanceof QuestionGroup) {
+           $this->groupOrder = $lastGroup->group_order +1;
+        }
+
     }
 
     /**
