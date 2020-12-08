@@ -56,21 +56,25 @@ class ImportStructure extends ImportFromFile
 
         switch ($this->type) {
             case ExportQuestions::TYPE_GROUP:
-                return $this->saveGroups();
+                $this->saveGroups();
+                return null;
             case ExportQuestions::TYPE_QUESTION:
-                return $this->saveQuestions();
+                $this->saveQuestions();
+                return null;
             case ExportQuestions::TYPE_ANSWER:
-                return $this->saveAnswers();
+                $this->saveAnswers();
+                return null;
             case ExportQuestions::TYPE_SUB_QUESTION:
-                return $this->saveSubQuestions();
+                $this->saveSubQuestions();
+                return null;
 
         }
         $this->currentModel = null;
     }
 
-
     /**
-     * {@inheritdoc}
+     * @return void|null
+     * @throws Exception
      */
     protected function beforeProcess()
     {
@@ -101,17 +105,19 @@ class ImportStructure extends ImportFromFile
                 $this->type = ExportQuestions::TYPE_ANSWER;
                 break;
             default:
-                throw new \Exception('Invalid Type: ' . $this->rowAttributes[self::COLUMN_TYPE]);
+                throw new Exception('Invalid Type: ' . $this->rowAttributes[self::COLUMN_TYPE]);
         }
     }
 
     /**
+     * @param $language
      * @return QuestionGroup|null
+     * @throws Exception
      */
-    protected function findGroup($language)
+    protected function findGroup($language)  : ?QuestionGroup
     {
         if ($this->type != ExportQuestions::TYPE_GROUP) {
-            throw new \Exception('Not a group!');
+            throw new Exception('Not a group!');
         }
         $criteria = new CDbCriteria();
         $criteria->addCondition('language=:language');
@@ -120,6 +126,7 @@ class ImportStructure extends ImportFromFile
         $criteria->addCondition('sid=:sid');
         $criteria->params[':sid'] = $this->survey->primaryKey;
 
+        $result = null;
 
         // if the file is an export file, it will possibly contain group id
         if(!empty($this->rowAttributes[self::COLUMN_CODE])) {
@@ -144,7 +151,8 @@ class ImportStructure extends ImportFromFile
     /**
      * @throws Exception
      */
-    private function saveGroups(){
+    private function saveGroups()
+    {
         $i=0;
         $this->questionGroup = null;
         $this->setGroupsInitialOrder();
@@ -180,7 +188,7 @@ class ImportStructure extends ImportFromFile
             $result = $this->currentModel->save();
 
             if(!$result) {
-                throw new \Exception('Error saving group : ' . serialize($this->currentModel->getErrors()));
+                throw new Exception('Error saving group : ' . serialize($this->currentModel->getErrors()));
             }
 
             if($i === 1) {
@@ -252,7 +260,7 @@ class ImportStructure extends ImportFromFile
             $result = $this->currentModel->save();
 
             if(!$result) {
-                throw new \Exception("Error saving baseQuestion nr $i: " . $this->rowAttributes[$languageValueKey] . serialize($this->currentModel->getErrors()));
+                throw new Exception("Error saving baseQuestion nr $i: " . $this->rowAttributes[$languageValueKey] . serialize($this->currentModel->getErrors()));
             }
             $this->saveQuestionAttributes();
             if($i === 1) {
@@ -264,6 +272,9 @@ class ImportStructure extends ImportFromFile
         $this->answerOrder = 1;
     }
 
+    /**
+     * @throws Exception
+     */
     private function saveQuestionAttributes()
     {
         $attributeInput =$this->rowAttributes[self::COLUMN_OPTIONS];
@@ -310,7 +321,7 @@ class ImportStructure extends ImportFromFile
 
             $attributeModel->validate();
             if(!$attributeModel->save()) {
-                throw new \Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
+                throw new Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
                     . serialize($attributeModel->errors));
             }
         }
@@ -361,7 +372,7 @@ class ImportStructure extends ImportFromFile
             $result = $this->currentModel->save();
 
             if(!$result) {
-                throw new \Exception('Error saving subQuestion : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
+                throw new Exception('Error saving subQuestion : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
             }
             if($i === 1) {
                 $this->subQuestion = $this->currentModel;
@@ -371,7 +382,9 @@ class ImportStructure extends ImportFromFile
         $this->subQuestionOrder ++;
     }
 
-
+    /**
+     * @throws Exception
+     */
     private function saveAnswers()
     {
         foreach ($this->languages as $language) {
@@ -386,16 +399,16 @@ class ImportStructure extends ImportFromFile
             ]);
             $result = $this->loadAnswer($language);
             if(!$result) {
-                throw new \Exception('Error saving answer : ' .serialize($this->rowAttributes). serialize($this->currentModel->getErrors()));
+                throw new Exception('Error saving answer : ' .serialize($this->rowAttributes). serialize($this->currentModel->getErrors()));
             }
         }
     }
 
-
     /**
+     * @param string $language
      * @return Answer|null
      */
-    protected function findAnswer($language)
+    protected function findAnswer(string $language) : ?Answer
     {
         if (empty($this->question)) {
             return null;
@@ -421,7 +434,7 @@ class ImportStructure extends ImportFromFile
      * @param string $language
      * @return bool
      */
-    private function loadAnswer($language)
+    private function loadAnswer(string $language) : bool
     {
         $languageValueKey = self::COLUMN_VALUE . "-" .$language;
         $this->currentModel->setAttributes([
@@ -437,11 +450,11 @@ class ImportStructure extends ImportFromFile
     }
 
 
-
     /**
      * @return bool
+     * @throws Exception
      */
-    private function validateStructure()
+    private function validateStructure() : bool
     {
         $this->parseLanguages();
         if (!$this->validateLanguages()) {
@@ -472,7 +485,7 @@ class ImportStructure extends ImportFromFile
     /**
      * @return bool
      */
-    private function validateLanguages()
+    private function validateLanguages() : bool
     {
         if(empty($this->languages)) {
             $this->addError("file", "Languages not defined in file. Must have cols like 'value-en' etc... ");
@@ -496,7 +509,7 @@ class ImportStructure extends ImportFromFile
      * @return bool
      * @throws Exception
      */
-    private function validateModels()
+    private function validateModels() : bool
     {
         $thisModel = null;
         $i = 0;
@@ -505,7 +518,7 @@ class ImportStructure extends ImportFromFile
             $this->rowAttributes = $row;
             try {
                 $this->initType();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->addError("file", sprintf("Invaid row type '%s' on row %s", $this->rowAttributes[self::COLUMN_TYPE], $i));
             }
         }
@@ -514,12 +527,11 @@ class ImportStructure extends ImportFromFile
     }
 
 
-
     /**
      * @param string $language
-     * @return array|mixed|null
+     * @return Question|null
      */
-    private function findSubQuestion($language)
+    private function findSubQuestion(string $language) :?Question
     {
         $criteria = new CDbCriteria();
         $criteria->addCondition('language=:language');
@@ -534,16 +546,15 @@ class ImportStructure extends ImportFromFile
         $criteria->addCondition('title=:code');
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
 
-        $question = Question::model()->find($criteria);
-        return $question;
+        return Question::model()->find($criteria);
     }
 
 
     /**
      * @param string $language
-     * @return array|mixed|null
+     * @return Question|null
      */
-    private function findQuestion($language)
+    private function findQuestion(string  $language) :?Question
     {
         $criteria = new CDbCriteria();
         $criteria->addCondition('language=:language');
@@ -555,8 +566,7 @@ class ImportStructure extends ImportFromFile
         $criteria->addCondition('parent_qid=0');
         $criteria->addCondition('title=:code');
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
-        $question = Question::model()->find($criteria);
-        return $question;
+        return Question::model()->find($criteria);
     }
 
 }
