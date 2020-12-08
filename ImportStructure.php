@@ -166,6 +166,9 @@ class ImportStructure extends ImportFromFile
                 'language' => $language,
                 'group_order' => $this->groupOrder,
             ]);
+            // relevance not in LS model rules!!
+            $this->currentModel->grelevance = $this->rowAttributes[self::COLUMN_RELEVANCE];
+
             // other languages take main language record gid
             if ($this->questionGroup instanceof QuestionGroup) {
                 $this->currentModel->gid = $this->questionGroup->gid;

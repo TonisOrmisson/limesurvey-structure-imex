@@ -27,7 +27,7 @@ class ImportRelevance extends ImportFromFile
 
         $this->currentModel->{$this->relevanceAttribute} = $attributes['relevance'];
 
-        if ($this->type === self::TYPE_GROUP) {
+        if ($this->type === ExportQuestions::TYPE_GROUP) {
             $result = $this->updateGroup($this->currentModel);
         } else {
             $result = $this->updateQuestion($this->currentModel);
@@ -95,18 +95,18 @@ class ImportRelevance extends ImportFromFile
         $this->relevanceAttribute = 'relevance';
 
         if (!empty($row['group']) && ($model = $this->findGroup($row)) instanceof QuestionGroup) {
-            $this->type = self::TYPE_GROUP;
+            $this->type = ExportQuestions::TYPE_GROUP;
             $this->relevanceAttribute = 'grelevance';
             return $model;
         }
 
         if (empty($row['group']) && !empty($row['parent']) && ($model = $this->findSubQuestion($row)) instanceof Question) {
-            $this->type = self::TYPE_SUBQUESTION;
+            $this->type = ExportQuestions::TYPE_SUB_QUESTION;
             return $model;
         }
 
         if (($model = $this->findQuestion()) instanceof Question) {
-            $this->type = self::TYPE_QUESTION;
+            $this->type = ExportQuestions::TYPE_QUESTION;
             return $model;
         }
         $this->type = '';
