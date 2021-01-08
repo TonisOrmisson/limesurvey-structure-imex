@@ -282,7 +282,7 @@ class ImportStructure extends ImportFromFile
         if(empty($attributeArray)) {
             return;
         }
-
+        $this->validateAttributes($attributeArray);
         $myAttributes = new MyQuestionAttribute();
         $myAttributes->setAttributes($attributeArray, false);
         $myAttributes->validate();
@@ -292,6 +292,19 @@ class ImportStructure extends ImportFromFile
             }
             $this->saveQuestionAttribute($attributeName, $value);
 
+        }
+
+    }
+
+    private function validateAttributes($attributeArray){
+        $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
+        if(empty($attributeArray)) {
+            return;
+        }
+        foreach ($attributeArray as $attributeName => $value) {
+            if(!in_array($attributeName, $allowedAttributes)) {
+                throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
+            }
         }
 
     }
