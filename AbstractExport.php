@@ -1,11 +1,14 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use Box\Spout\Writer\WriterFactory;
+use Box\Spout\Common\Entity\Style\Style;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\Common\Creator\WriterFactory;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Common\Entity\Style\Color;
 use Box\Spout\Common\Type;
-use Box\Spout\Writer\Style\StyleBuilder;
-use Box\Spout\Writer\Style\Color;
-use Box\Spout\Writer\Common\Sheet;
+use Box\Spout\Writer\Common\Entity\Sheet;
+use Box\Spout\Writer\WriterMultiSheetsAbstract;
 
 abstract class AbstractExport extends CModel
 {
@@ -19,13 +22,13 @@ abstract class AbstractExport extends CModel
     /** @var string */
     public $fileName;
 
-    /** @var \Box\Spout\Writer\AbstractMultiSheetsWriter */
+    /** @var WriterMultiSheetsAbstract */
     public $writer;
 
     /** @var  string[] */
     protected $header = [];
 
-    /** @var \Box\Spout\Writer\Style\Style */
+    /** @var Style */
     public $headerStyle;
 
 
@@ -45,13 +48,13 @@ abstract class AbstractExport extends CModel
     /** @var integer */
     protected $sheetsCount = 0;
 
-    /** @var \Box\Spout\Writer\Style\Style */
+    /** @var Style */
     protected $groupStyle;
 
-    /** @var \Box\Spout\Writer\Style\Style */
+    /** @var Style */
     protected $questionStyle;
 
-    /** @var \Box\Spout\Writer\Style\Style */
+    /** @var Style */
     protected $subQuestionStyle;
 
     /** @var string[] survey languages */
@@ -77,7 +80,7 @@ abstract class AbstractExport extends CModel
         $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_". substr(bin2hex(random_bytes(10)),0,4).".ods";
         $this->languages = $survey->getAllLanguages();
 
-        $this->writer = WriterFactory::create(Type::ODS);
+        $this->writer = WriterFactory::createFromType(Type::ODS);
         $this->initStyles();
 
 
@@ -87,6 +90,9 @@ abstract class AbstractExport extends CModel
         $this->writer->close();
     }
 
+    /**
+     * @return string
+     */
     public function getFullFileName()
     {
         return $this->path.$this->fileName;
@@ -124,7 +130,8 @@ abstract class AbstractExport extends CModel
     {
         $this->loadHeader();
         $this->setSheet($this->sheetName);
-        $this->writer->addRowWithStyle($this->header, $this->headerStyle);
+        $row = WriterEntityFactory::createRowFromArray($this->header,$this->headerStyle);
+        $this->writer->addRow($row);
     }
 
     /**

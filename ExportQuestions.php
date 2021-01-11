@@ -1,4 +1,7 @@
 <?php
+
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
 
@@ -66,7 +69,9 @@ class ExportQuestions extends AbstractExport
         $row[] = null; // no options
         $row[] = null; // no attributes
 
-        $this->writer->addRowWithStyle($row,  $this->groupStyle);
+        $row = WriterEntityFactory::createRowFromArray($row,$this->groupStyle);
+        $this->writer->addRow($row);
+
 
     }
 
@@ -101,7 +106,9 @@ class ExportQuestions extends AbstractExport
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
-        $this->writer->addRowWithStyle($row,  $style);
+        $row = WriterEntityFactory::createRowFromArray($row, $style);
+        $this->writer->addRow($row);
+
 
     }
 
@@ -169,18 +176,22 @@ class ExportQuestions extends AbstractExport
             $row[] = null; // no help texts for answers
         }
 
-
+        $row = WriterEntityFactory::createRowFromArray($row);
         $this->writer->addRow($row);
+
     }
 
     private function writeHelpSheet()
     {
         $this->setSheet('helpSheet');
         $header = ['Question type code', 'Question type'];
-        $this->writer->addRowWithStyle($header,  $this->headerStyle);
+
+        $row = WriterEntityFactory::createRowFromArray($header,$this->headerStyle);
+        $this->writer->addRow($row);
+
         $data = [];
         foreach ($this->qTypes() as $code => $qType) {
-            $data[] = [$code, $qType['name']];
+            $data[] = WriterEntityFactory::createRowFromArray([$code, $qType['name']]);
         }
 
         $this->writer->addRows($data);
@@ -191,12 +202,15 @@ class ExportQuestions extends AbstractExport
     {
         $this->setSheet('possibleAttributes');
         $header = ['Attribute name', 'Attribute description', 'Value valiudation'];
-        $this->writer->addRowWithStyle($header,  $this->headerStyle);
+
+        $row = WriterEntityFactory::createRowFromArray($header,$this->headerStyle);
+        $this->writer->addRow($row);
+
         $data = [];
         $attributes = new MyQuestionAttribute();
         $possibleValues = $attributes->allowedValues();
         foreach ($attributes->attributeLabels() as $name => $label) {
-            $data[] = [$name, $label, $possibleValues[$name]];
+            $data[] = WriterEntityFactory::createRowFromArray([$name, $label, $possibleValues[$name]]);
         }
 
         $this->writer->addRows($data);

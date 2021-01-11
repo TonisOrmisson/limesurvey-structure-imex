@@ -19,13 +19,13 @@
         "php": ">=7.3.0",
         "ext-json": "*",
         "nuovo/spreadsheet-reader": "dev-master",
-        "box/spout": ">=2.7.3",
+        "box/spout": "^3.1.0",
         "tonisormisson/php-version" : ">=1.1.0"
 
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.7.x-dev"
+            "dev-master": "0.8.x-dev"
         }
     },
     "repositories": [

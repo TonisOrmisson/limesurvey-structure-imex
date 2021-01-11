@@ -277,6 +277,10 @@ class ImportStructure extends ImportFromFile
      */
     private function saveQuestionAttributes()
     {
+        if(!isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
+            return;
+        }
+
         $attributeInput =$this->rowAttributes[self::COLUMN_OPTIONS];
         $attributeArray = (array) json_decode($attributeInput);
         if(empty($attributeArray)) {

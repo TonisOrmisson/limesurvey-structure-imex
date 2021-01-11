@@ -45,6 +45,7 @@ class MyQuestionAttribute extends CModel
     public $prefix;
 
 
+
     public function rules()
     {
         return [
@@ -69,6 +70,7 @@ class MyQuestionAttribute extends CModel
             [static::ATTRIBUTE_INTEGER_ONLY, 'numerical', 'integerOnly'=>true, 'min' => 0, 'max'=>1,'allowEmpty' => true],
             [static::ATTRIBUTE_ARRAY_FILTER, 'length', 'max'=>1024, 'allowEmpty' => true],
             [static::ATTRIBUTE_PREFIX, 'length', 'max'=>1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_EXCLUDE, 'length', 'max'=>1024, 'allowEmpty' => true],
 
         ];
     }
@@ -92,14 +94,14 @@ class MyQuestionAttribute extends CModel
     public function attributeLabels() {
         return [
             static::ATTRIBUTE_HIDE_TIP => "Hide tip",
-            //static::ATTRIBUTE_EXCLUDE => "Exclusive option",
+            static::ATTRIBUTE_EXCLUDE => "Exclusive option",
             static::ATTRIBUTE_HIDDEN => "Always hidden",
             static::ATTRIBUTE_TEXT_INPUT_WIDTH => "Text input width",
             static::ATTRIBUTE_ANSWER_WIDTH => "Answer width",
             static::ATTRIBUTE_MIN_ANSWERS => "Minimum answers",
             static::ATTRIBUTE_MAX_ANSWERS => "Maximum answers",
             static::ATTRIBUTE_MIN_NUMERIC_VALUE => "Minimum value",
-            static::ATTRIBUTE_RANDOM_ORDER => "Maximum value",
+            static::ATTRIBUTE_RANDOM_ORDER => "Random Order",
             static::ATTRIBUTE_INTEGER_ONLY => "Integer Only",
             static::ATTRIBUTE_ARRAY_FILTER => "Array filter",
             static::ATTRIBUTE_PREFIX => "Prefix",
@@ -112,7 +114,7 @@ class MyQuestionAttribute extends CModel
     {
         return [
             static::ATTRIBUTE_HIDE_TIP => "integer 0-1",
-            //static::ATTRIBUTE_EXCLUDE => "eg '1;2;3'",
+            static::ATTRIBUTE_EXCLUDE => "string eg '1;2;3'",
             static::ATTRIBUTE_HIDDEN => "integer 0-1",
             static::ATTRIBUTE_TEXT_INPUT_WIDTH => "integer 1-12",
             static::ATTRIBUTE_ANSWER_WIDTH => "integer 1-12",
@@ -120,6 +122,7 @@ class MyQuestionAttribute extends CModel
             static::ATTRIBUTE_MAX_ANSWERS => "integer 1-1000",
             static::ATTRIBUTE_MIN_NUMERIC_VALUE => "integer",
             static::ATTRIBUTE_MAX_NUMERIC_VALUE => "integer",
+            static::ATTRIBUTE_RANDOM_ORDER => "integer 0-1",
             static::ATTRIBUTE_INTEGER_ONLY => "integer 0-1",
             static::ATTRIBUTE_ARRAY_FILTER => "string max 1024 chars",
             static::ATTRIBUTE_PREFIX => "string max 1024 chars",
@@ -135,7 +138,7 @@ class MyQuestionAttribute extends CModel
     {
         return  [
             static::ATTRIBUTE_HIDE_TIP,
-            //static::ATTRIBUTE_EXCLUDE,
+            static::ATTRIBUTE_EXCLUDE,
             static::ATTRIBUTE_HIDDEN,
             static::ATTRIBUTE_TEXT_INPUT_WIDTH,
             static::ATTRIBUTE_ANSWER_WIDTH,

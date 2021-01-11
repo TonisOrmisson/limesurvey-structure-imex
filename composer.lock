@@ -4,29 +4,30 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a6e1e8e3d10b37e3015f5e00f890eb9",
+    "content-hash": "5ad273bd56bf702eeffe6b7ba3d87580",
     "packages": [
         {
             "name": "box/spout",
-            "version": "v2.7.3",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/box/spout.git",
-                "reference": "3681a3421a868ab9a65da156c554f756541f452b"
+                "reference": "7964dadc2128f3a00ffa393395b618ea115c8032"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/box/spout/zipball/3681a3421a868ab9a65da156c554f756541f452b",
-                "reference": "3681a3421a868ab9a65da156c554f756541f452b",
+                "url": "https://api.github.com/repos/box/spout/zipball/7964dadc2128f3a00ffa393395b618ea115c8032",
+                "reference": "7964dadc2128f3a00ffa393395b618ea115c8032",
                 "shasum": ""
             },
             "require": {
                 "ext-xmlreader": "*",
                 "ext-zip": "*",
-                "php": ">=5.4.0"
+                "php": ">=7.1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8.0"
+                "friendsofphp/php-cs-fixer": "^2",
+                "phpunit/phpunit": "^7"
             },
             "suggest": {
                 "ext-iconv": "To handle non UTF-8 CSV files (if \"php-intl\" is not already installed or is too limited)",
@@ -35,7 +36,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8.x-dev"
+                    "dev-master": "3.1.x-dev"
                 }
             },
             "autoload": {
@@ -72,7 +73,11 @@
                 "write",
                 "xlsx"
             ],
-            "time": "2017-09-25T19:44:35+00:00"
+            "support": {
+                "issues": "https://github.com/box/spout/issues",
+                "source": "https://github.com/box/spout/tree/v3.1.0"
+            },
+            "time": "2019-12-02T21:21:41+00:00"
         },
         {
             "name": "nuovo/spreadsheet-reader",
@@ -92,6 +97,7 @@
                 "ext-zip": "*",
                 "php": ">= 5.3.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -120,20 +126,25 @@
                 "xls",
                 "xlsx"
             ],
-            "time": "2015-04-30T08:54:58+00:00"
+            "support": {
+                "email": "spreadsheet-reader@nuovo.lv",
+                "issues": "https://github.com/nuovo/spreadsheet-reader/issues",
+                "source": "https://github.com/nuovo/spreadsheet-reader/tree/v0.5.11"
+            },
+            "time": "2015-04-30T00:00:00+00:00"
         },
         {
             "name": "tonisormisson/php-version",
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TonisOrmisson/php-version.git",
-                "reference": "264a417e505db85264a4a1793472efc352fc4c81"
+                "reference": "0716361a46ffc1d659596a52c59b1230ae02ac88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/264a417e505db85264a4a1793472efc352fc4c81",
-                "reference": "264a417e505db85264a4a1793472efc352fc4c81",
+                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/0716361a46ffc1d659596a52c59b1230ae02ac88",
+                "reference": "0716361a46ffc1d659596a52c59b1230ae02ac88",
                 "shasum": ""
             },
             "require": {
@@ -142,7 +153,7 @@
             "type": "yii2-extension",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -166,7 +177,11 @@
                 "vcs",
                 "yii2"
             ],
-            "time": "2019-01-07T11:54:18+00:00"
+            "support": {
+                "issues": "https://github.com/TonisOrmisson/php-version/issues",
+                "source": "https://github.com/TonisOrmisson/php-version/tree/1.2.0"
+            },
+            "time": "2020-07-03T17:22:43+00:00"
         }
     ],
     "packages-dev": [],
@@ -177,6 +192,10 @@
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": []
+    "platform": {
+        "php": ">=7.3.0",
+        "ext-json": "*"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
 }
