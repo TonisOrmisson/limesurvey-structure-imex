@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
  */
@@ -74,7 +75,6 @@ class StructureImEx extends PluginBase {
         $this->type = self::ACTION_RELEVANCES;
         $this->beforeAction($sid);
 
-
         $import = null;
 
         if (Yii::app()->request->isPostRequest){
@@ -93,13 +93,12 @@ class StructureImEx extends PluginBase {
         return $this->renderPartial('relevances', $this->data, true);
     }
 
-
-    public function actionIndex($sid)
+    public function actionQuestions($sid)
     {
         $this->type = self::ACTION_QUESTIONS;
         $this->beforeAction($sid);
-        $import = null;
         $this->data['exportPlugin'] = $this;
+        $import = null;
 
         if (Yii::app()->request->isPostRequest) {
             if ($this->survey->getIsActive()) {
@@ -107,7 +106,7 @@ class StructureImEx extends PluginBase {
             } else {
                 $import = new ImportStructure($this->survey);
                 $oFile = CUploadedFile::getInstanceByName("the_file");
-                if(!$import->loadFile($oFile)){
+                if (!$import->loadFile($oFile)) {
                     $this->app->setFlashMessage($import->getError('file'), 'error');
                 } else {
                     $import->process();
@@ -125,8 +124,15 @@ class StructureImEx extends PluginBase {
             }
 
         }
+        $this->data['import'] = $import;
+        $this->data['exportPlugin'] = $this;
+        return $this->renderPartial('questions', $this->data, true);
+    }
 
-        return $this->renderPartial('index', $this->data, true);
+
+    public function actionIndex($sid)
+    {
+        return $this->actionRelevances($sid);
     }
 
 
@@ -175,7 +181,7 @@ class StructureImEx extends PluginBase {
 
     private function navigationUrls() {
         return [
-            self::ACTION_QUESTIONS => $this->createUrl('actionIndex'),
+            self::ACTION_QUESTIONS => $this->createUrl('actionQuestions'),
             self::ACTION_RELEVANCES => $this->createUrl('actionRelevances'),
         ];
     }
