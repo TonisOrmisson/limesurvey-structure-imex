@@ -3,6 +3,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'ImportFromFile.php';
 
 class ImportRelevance extends ImportFromFile
 {
+    use AppTrait;
+
     /** @var Question  */
     public $currentModel;
 
@@ -21,7 +23,7 @@ class ImportRelevance extends ImportFromFile
         $this->questionCodeColumn = 'code';
 
         if (empty($this->currentModel)) {
-            $this->addError('currentModel', "Unable to find model for row " . var_dump($attributes));
+            $this->addError('currentModel', "Unable to find model for row " . json_encode($attributes));
             return null;
         }
 
@@ -39,7 +41,7 @@ class ImportRelevance extends ImportFromFile
             return $result;
         }
 
-        $this->addError('currentModel', "Unable to save model for row: " . serialize($attributes));
+        $this->addError('currentModel', "Unable to save model for row: " . json_encode($attributes));
 
         $this->failedModelsCount ++;
         return $result;
@@ -50,16 +52,13 @@ class ImportRelevance extends ImportFromFile
      * @param QuestionGroup $model
      * @return bool|int
      */
-    private function  updateGroup($model) {
-        if($model instanceof QuestionGroup) {
-            if($model->validate([$this->relevanceAttribute])) {
-                $criteria = new CDbCriteria();
-                $criteria->addCondition('sid=:sid');
-                $criteria->addCondition('gid=:gid');
-                $criteria->params = [':gid' => $model->gid, ':sid'=> $this->survey->primaryKey];
-                return QuestionGroup::model()->updateAll([$this->relevanceAttribute => $model->{$this->relevanceAttribute}], $criteria);
-            }
-            // TODO error?
+    private function  updateGroup(QuestionGroup  $model) {
+        if($model->validate([$this->relevanceAttribute])) {
+            $criteria = new CDbCriteria();
+            $criteria->addCondition('sid=:sid');
+            $criteria->addCondition('gid=:gid');
+            $criteria->params = [':gid' => $model->gid, ':sid'=> $this->survey->primaryKey];
+            return QuestionGroup::model()->updateAll([$this->relevanceAttribute => $model->{$this->relevanceAttribute}], $criteria);
         }
         return false;
     }
@@ -68,19 +67,16 @@ class ImportRelevance extends ImportFromFile
      * @param Question $model
      * @return bool|int
      */
-    private function  updateQuestion($model) {
-        if($model instanceof Question) {
-            if($model->validate([$this->relevanceAttribute])) {
-                $criteria = new CDbCriteria();
-                $criteria->addCondition('qid=:qid');
-                $criteria->params = [':qid' => $model->qid];
+    private function  updateQuestion(Question $model) {
+        if($model->validate([$this->relevanceAttribute])) {
+            $criteria = new CDbCriteria();
+            $criteria->addCondition('qid=:qid');
+            $criteria->params = [':qid' => $model->qid];
 
-                // delete all manually set conditions
-                Condition::model()->deleteAll('qid=:qid', [':qid' => $model->qid]);
+            // delete all manually set conditions
+            Condition::model()->deleteAll('qid=:qid', [':qid' => $model->qid]);
 
-                return Question::model()->updateAll([$this->relevanceAttribute => $model->{$this->relevanceAttribute}], $criteria);
-            }
-            // TODO error?
+            return Question::model()->updateAll([$this->relevanceAttribute => $model->{$this->relevanceAttribute}], $criteria);
         }
         return false;
 
@@ -89,8 +85,10 @@ class ImportRelevance extends ImportFromFile
     /**
      * @param $row
      * @return Question|QuestionGroup|null
+     * @throws Exception
      */
-    private function findModel($row) {
+    private function findModel($row)
+    {
 
         $this->relevanceAttribute = 'relevance';
 
@@ -116,17 +114,33 @@ class ImportRelevance extends ImportFromFile
     /**
      * @param $row
      * @return QuestionGroup|null
+     * @throws Exception
      */
-    protected function findGroup($row) {
+    protected function findGroup($row)
+    {
         $criteria = new CDbCriteria();
-        $criteria->addCondition('language=:language');
         $criteria->params[':language'] = $this->language;
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+        $criteria->params[':name']=$row['group'];
+
+        $criteria->addCondition('t.language=:language');
+        $criteria->addCondition('t.group_name=:name');
+
+        if($this->isV4plusVersion()) {
+            $criteria->addCondition('group.sid=:sid');
+            /** @var QuestionGroupL10n $l10n */
+            $l10n = QuestionGroupL10n::model()
+                ->with('group')
+                ->find($criteria);
+            if($l10n === null) {
+                throw new ErrorException("Unable to find group with name: " . $row['group']);
+            }
+
+            return $l10n->group;
+
+        }
 
         $criteria->addCondition('sid=:sid');
-        $criteria->params[':sid'] = $this->survey->primaryKey;
-
-        $criteria->addCondition('group_name=:name');
-        $criteria->params[':name']=$row['group'];
         return QuestionGroup::model()->find($criteria);
     }
 
@@ -143,10 +157,9 @@ class ImportRelevance extends ImportFromFile
             return null;
         }
 
-        $criteria = new CDbCriteria();
-        $criteria->addCondition('language=:language');
-        $criteria->params[':language'] = $this->language;
 
+
+        $criteria = new CDbCriteria();
         $criteria->addCondition('sid=:sid');
         $criteria->params[':sid'] = $this->survey->primaryKey;
 
@@ -155,6 +168,11 @@ class ImportRelevance extends ImportFromFile
         $criteria->params[':parent_qid'] =$parent->qid;
         $criteria->params[':code'] =$row['code'];
         $this->questionCodeColumn = 'code';
+
+        if(!$this->isV4plusVersion()) {
+            $criteria->addCondition('language=:language');
+            $criteria->params[':language'] = $this->language;
+        }
 
         return Question::model()->find($criteria);
     }
@@ -166,18 +184,21 @@ class ImportRelevance extends ImportFromFile
     protected function findQuestion()
     {
         $criteria = new CDbCriteria();
-        $criteria->addCondition('language=:language');
-        $criteria->params[':language'] = $this->language;
-
         $criteria->addCondition('sid=:sid');
         $criteria->params[':sid'] = $this->survey->primaryKey;
-
-
-        $criteria->addCondition('parent_qid=0');
         $criteria->addCondition('title=:code');
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
-        $question = Question::model()->find($criteria);
-        return $question;
+        $criteria->addCondition('parent_qid=0');
+
+
+        if(!$this->isV4plusVersion()) {
+            $criteria->addCondition('language=:language');
+            $criteria->params[':language'] = $this->language;
+        }
+        return Question::model()->find($criteria);
     }
+
+
+
 
 }

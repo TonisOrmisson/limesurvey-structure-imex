@@ -3,7 +3,9 @@
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
  */
-class StructureImEx extends PluginBase {
+class StructureImEx extends PluginBase
+{
+    use AppTrait;
 
     /** @var LSYii_Application */
     protected $app;

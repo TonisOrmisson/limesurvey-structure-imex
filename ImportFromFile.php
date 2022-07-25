@@ -2,7 +2,7 @@
 
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use Box\Spout\Common\Type;
+use OpenSpout\Common\Type;
 
 /**
  * An abstract class for various file imports
@@ -46,7 +46,7 @@ abstract class ImportFromFile extends CModel
 
 
     /** @var string[] allowed extension types */
-    public $allowedTypes = [Type::ODS, Type::XLSX, 'xls'];
+    public $allowedTypes = ['ods', 'xlsx', 'xls'];
 
     /** @var integer Total number of processed records */
     public $processedModelsCount = 0;
