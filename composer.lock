@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "628de2716a29704e89bdba370c3a5a94",
+    "content-hash": "6c36a459703ac6f9e7e7f094f7f866bb",
     "packages": [
         {
             "name": "nuovo/spreadsheet-reader",
@@ -62,25 +62,26 @@
         },
         {
             "name": "openspout/openspout",
-            "version": "v4.6.2",
+            "version": "v4.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/openspout/openspout.git",
-                "reference": "89ec7cd49b1a8cbd0611cfc4dac50c35c4a6ba66"
+                "reference": "dd73318406b1fffdeaa333a32e175149d28224f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/openspout/openspout/zipball/89ec7cd49b1a8cbd0611cfc4dac50c35c4a6ba66",
-                "reference": "89ec7cd49b1a8cbd0611cfc4dac50c35c4a6ba66",
+                "url": "https://api.github.com/repos/openspout/openspout/zipball/dd73318406b1fffdeaa333a32e175149d28224f7",
+                "reference": "dd73318406b1fffdeaa333a32e175149d28224f7",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
+                "ext-fileinfo": "*",
                 "ext-filter": "*",
                 "ext-libxml": "*",
                 "ext-xmlreader": "*",
                 "ext-zip": "*",
-                "php": "~8.0.0 || ~8.1.0"
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0"
             },
             "require-dev": {
                 "ext-zlib": "*",
@@ -138,7 +139,7 @@
             ],
             "support": {
                 "issues": "https://github.com/openspout/openspout/issues",
-                "source": "https://github.com/openspout/openspout/tree/v4.6.2"
+                "source": "https://github.com/openspout/openspout/tree/v4.13.1"
             },
             "funding": [
                 {
@@ -150,20 +151,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-06-15T06:33:10+00:00"
+            "time": "2023-03-30T15:40:03+00:00"
         },
         {
             "name": "tonisormisson/php-version",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TonisOrmisson/php-version.git",
-                "reference": "0716361a46ffc1d659596a52c59b1230ae02ac88"
+                "reference": "c4d52cad321adc7549cedfad664bca4e25cc55e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/0716361a46ffc1d659596a52c59b1230ae02ac88",
-                "reference": "0716361a46ffc1d659596a52c59b1230ae02ac88",
+                "url": "https://api.github.com/repos/TonisOrmisson/php-version/zipball/c4d52cad321adc7549cedfad664bca4e25cc55e8",
+                "reference": "c4d52cad321adc7549cedfad664bca4e25cc55e8",
                 "shasum": ""
             },
             "require": {
@@ -198,9 +199,9 @@
             ],
             "support": {
                 "issues": "https://github.com/TonisOrmisson/php-version/issues",
-                "source": "https://github.com/TonisOrmisson/php-version/tree/1.2.0"
+                "source": "https://github.com/TonisOrmisson/php-version/tree/1.2.1"
             },
-            "time": "2020-07-03T17:22:43+00:00"
+            "time": "2023-02-22T11:56:12+00:00"
         }
     ],
     "packages-dev": [],
@@ -212,9 +213,12 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.3.0",
+        "php": ">=8.0.0",
         "ext-json": "*"
     },
     "platform-dev": [],
+    "platform-overrides": {
+        "php": "8.0.0"
+    },
     "plugin-api-version": "2.3.0"
 }
