@@ -92,7 +92,7 @@ class StructureImEx extends PluginBase
         $this->data['import'] = $import;
         $this->data['exportPlugin'] = $this;
 
-        return $this->renderPartial('relevances', $this->data, true);
+        return $this->renderPartial('index', $this->data, true);
     }
 
     public function actionQuestions($sid)

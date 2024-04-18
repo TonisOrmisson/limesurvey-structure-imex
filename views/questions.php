@@ -31,8 +31,8 @@ $this->pageTitle = "import";
             <?= CHtml::form(null, 'post',['enctype'=>'multipart/form-data']); ?>
             <!-- Export -->
             <div class="col-md-12 col-lg-6">
-                <div class="panel panel-success">
-                    <div class="panel-heading">
+                <div class="card card-success">
+                    <div class="card-header">
                         <?php eT("Export")?>
                     </div>
                     <div class="alert">
@@ -41,7 +41,7 @@ $this->pageTitle = "import";
                             Download the existing groups and questions for editing in your preferred spreadsheet editor.
                         </p>
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         <a role='button' class = "btn btn-success pull-right" href='<?= $exportUrl; ?>'>Export</a>
                     </div>
                 </div>
@@ -49,12 +49,12 @@ $this->pageTitle = "import";
 
             <!-- Import relevances -->
             <div class="col-md-12 col-lg-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
+                <div class="card card-danger">
+                    <div class="card-header">
                         <strong> <?php eT("Import")?></strong>
                     </div>
 
-                    <div class="panel-body">
+                    <div class="card-body">
                         <div class="alert">
                             <div class="h3">NB! Existing questions will be overwritten</div>
                             <p>
