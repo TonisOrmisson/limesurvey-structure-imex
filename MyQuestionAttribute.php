@@ -83,7 +83,7 @@ class MyQuestionAttribute extends CModel
     public function  filterIntegers($attributeName)
     {
         // allow empty
-        if(is_null($this->{$attributeName})) {
+        if(is_null($this->{$attributeName}) || $this->{$attributeName} === '') {
             return true;
         }
         $this->{$attributeName} = intval($this->{$attributeName});

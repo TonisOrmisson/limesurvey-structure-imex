@@ -1,11 +1,8 @@
 <?php
-
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
  */
-class StructureImEx extends PluginBase
-{
-    use AppTrait;
+class StructureImEx extends PluginBase {
 
     /** @var LSYii_Application */
     protected $app;
@@ -77,10 +74,11 @@ class StructureImEx extends PluginBase
         $this->type = self::ACTION_RELEVANCES;
         $this->beforeAction($sid);
 
+
         $import = null;
 
         if (Yii::app()->request->isPostRequest){
-            $import = new ImportRelevance($this->survey);
+            $import =  $this->isV4plusVersion() ? new ImportRelevanceV5($this->survey) : new ImportRelevance($this->survey);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if(!$import->loadFile($oFile)){
                 $this->app->setFlashMessage($import->getError('file'), 'error');
@@ -92,23 +90,24 @@ class StructureImEx extends PluginBase
         $this->data['import'] = $import;
         $this->data['exportPlugin'] = $this;
 
-        return $this->renderPartial('index', $this->data, true);
+        return $this->renderPartial('relevances', $this->data, true);
     }
 
-    public function actionQuestions($sid)
+
+    public function actionIndex($sid)
     {
         $this->type = self::ACTION_QUESTIONS;
         $this->beforeAction($sid);
-        $this->data['exportPlugin'] = $this;
         $import = null;
+        $this->data['exportPlugin'] = $this;
 
         if (Yii::app()->request->isPostRequest) {
             if ($this->survey->getIsActive()) {
                 Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
-                $import = new ImportStructure($this->survey);
+                $import = $this->isV4plusVersion() ? new ImportStructureV5($this->survey) : new ImportStructure($this->survey);
                 $oFile = CUploadedFile::getInstanceByName("the_file");
-                if (!$import->loadFile($oFile)) {
+                if(!$import->loadFile($oFile)){
                     $this->app->setFlashMessage($import->getError('file'), 'error');
                 } else {
                     $import->process();
@@ -126,15 +125,8 @@ class StructureImEx extends PluginBase
             }
 
         }
-        $this->data['import'] = $import;
-        $this->data['exportPlugin'] = $this;
-        return $this->renderPartial('questions', $this->data, true);
-    }
 
-
-    public function actionIndex($sid)
-    {
-        return $this->actionRelevances($sid);
+        return $this->renderPartial('index', $this->data, true);
     }
 
 
@@ -147,10 +139,10 @@ class StructureImEx extends PluginBase
 
         switch ($type) {
             case self::ACTION_RELEVANCES:
-                $model = new ExportRelevances($this->survey);
+                $model = $this->isV4plusVersion() ? new ExportRelevancesV5($this->survey) : new ExportRelevances($this->survey);
                 break;
             case self::ACTION_QUESTIONS:
-                $model = new ExportQuestions($this->survey);
+                $model = $this->isV4plusVersion() ? new ExportQuestionsV5($this->survey) : new ExportQuestions($this->survey);
                 break;
             default:
                 throw new \Exception('Unknown type: ' . $type);
@@ -183,11 +175,29 @@ class StructureImEx extends PluginBase
 
     private function navigationUrls() {
         return [
-            self::ACTION_QUESTIONS => $this->createUrl('actionQuestions'),
+            self::ACTION_QUESTIONS => $this->createUrl('actionIndex'),
             self::ACTION_RELEVANCES => $this->createUrl('actionRelevances'),
         ];
     }
 
+    public function isV4plusVersion() : bool
+    {
+        return $this->LSVersionCompare('4.0.0');
+    }
 
+    /**
+     * Get Current LS Version
+     */
+    public function LSVersion()
+    {
+        return \Yii::app()->getConfig('versionnumber');
+    }
 
+    /**
+     * Compare Current LS Version with requested
+     */
+    public function LSVersionCompare($version, $compare = ">=")
+    {
+        return version_compare($this->LSVersion(), $version, $compare);
+    }
 }

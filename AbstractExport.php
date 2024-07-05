@@ -1,16 +1,17 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use OpenSpout\Common\Entity\Row;
-use OpenSpout\Common\Entity\Style\Style;
-use OpenSpout\Writer\Common\Creator\WriterEntityFactory;
-use OpenSpout\Common\Entity\Style\Color;
-use OpenSpout\Writer\Common\Entity\Sheet;
-use OpenSpout\Writer\WriterMultiSheetsAbstract;
+use Box\Spout\Common\Entity\Style\Style;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\Common\Creator\WriterFactory;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Common\Entity\Style\Color;
+use Box\Spout\Common\Type;
+use Box\Spout\Writer\Common\Entity\Sheet;
+use Box\Spout\Writer\WriterMultiSheetsAbstract;
 
 abstract class AbstractExport extends CModel
 {
-    use AppTrait;
 
     /** @var Survey $survey */
     protected $survey;
@@ -59,9 +60,6 @@ abstract class AbstractExport extends CModel
     /** @var string[] survey languages */
     protected $languages = [];
 
-    /** @var integer main LimeSurvey application sw version number eg 3 etc */
-    protected $applicationMajorVersion = 3;
-
 
 
     /**
@@ -77,13 +75,12 @@ abstract class AbstractExport extends CModel
         if (!($survey instanceof Survey)) {
             throw new ErrorException(get_class($survey) .' used as Survey');
         }
-        $this->applicationMajorVersion = intval(Yii::app()->getConfig("versionnumber"));
 
         $this->survey = $survey;
         $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_". substr(bin2hex(random_bytes(10)),0,4).".ods";
         $this->languages = $survey->getAllLanguages();
 
-        $this->writer = new \OpenSpout\Writer\ODS\Writer();
+        $this->writer = WriterFactory::createFromType(Type::ODS);
         $this->initStyles();
 
 
@@ -103,21 +100,25 @@ abstract class AbstractExport extends CModel
 
     protected function initStyles()
     {
-        $this->headerStyle = new Style();
-        $this->headerStyle->setFontBold();
-        $this->headerStyle->setFontColor(Color::BLUE);
+        $this->headerStyle = (new StyleBuilder())
+            ->setFontBold()
+            ->setFontColor(Color::BLUE)
+            ->build();
 
 
-        $this->groupStyle = new Style();
-        $this->groupStyle->setFontColor(Color::WHITE);
-        $this->groupStyle->setBackgroundColor(Color::GREEN);
+        $this->groupStyle = (new StyleBuilder())
+            ->setFontColor(Color::WHITE)
+            ->setBackgroundColor(Color::GREEN)
+            ->build();
 
-        $this->questionStyle = new Style();
-        $this->questionStyle ->setFontBold();
-        $this->questionStyle ->setBackgroundColor(Color::LIGHT_GREEN);
+        $this->questionStyle = (new StyleBuilder())
+            ->setFontBold()
+            ->setBackgroundColor(Color::LIGHT_GREEN)
+            ->build();
 
-        $this->subQuestionStyle = new Style();
-        //$this->subQuestionStyle->setBackgroundColor(Color::LIGHT_GREEN)
+        $this->subQuestionStyle = (new StyleBuilder())
+            //->setBackgroundColor(Color::LIGHT_GREEN)
+            ->build();
     }
 
     public function attributeNames()
@@ -129,7 +130,7 @@ abstract class AbstractExport extends CModel
     {
         $this->loadHeader();
         $this->setSheet($this->sheetName);
-        $row = Row::fromValues($this->header, $this->headerStyle);
+        $row = WriterEntityFactory::createRowFromArray($this->header,$this->headerStyle);
         $this->writer->addRow($row);
     }
 
@@ -151,6 +152,14 @@ abstract class AbstractExport extends CModel
     protected  abstract function writeData();
     protected  abstract function loadHeader();
 
-
-
+    /**
+     * Escapes the text to avoid multi-line cells in ODS
+     */
+    protected function escapeString($text)
+    {
+        // Convert to json an remove wrapping quotes
+        $text = json_encode($text);
+        $text = substr($text, 1, -1);
+        return $text;
+    }
 }

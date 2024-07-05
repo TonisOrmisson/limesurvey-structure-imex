@@ -39,6 +39,7 @@ class ImportStructure extends ImportFromFile
     const COLUMN_SUBTYPE = 'subtype';
     const COLUMN_CODE = 'code';
     const COLUMN_RELEVANCE = 'relevance';
+    const COLUMN_THEME = 'theme';
     const COLUMN_OPTIONS = 'options';
     const COLUMN_VALUE = 'value';
     const COLUMN_HELP = 'help';
@@ -168,8 +169,8 @@ class ImportStructure extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'sid' => (int) $this->survey->sid,
-                'group_name' => $this->rowAttributes[$languageValueKey],
-                'description' => $this->rowAttributes[$languageHelpKey],
+                'group_name' => $this->unescapeString($this->rowAttributes[$languageValueKey]),
+                'description' => $this->unescapeString($this->rowAttributes[$languageHelpKey]),
                 'grelevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
                 'language' => $language,
                 'group_order' => $this->groupOrder,
@@ -243,8 +244,8 @@ class ImportStructure extends ImportFromFile
                 'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
                 'gid' => $this->questionGroup->gid,
                 'title' => $this->rowAttributes[self::COLUMN_CODE],
-                'question' => $this->rowAttributes[$languageValueKey],
-                'help' => $this->rowAttributes[$languageHelpKey],
+                'question' => $this->unescapeString($this->rowAttributes[$languageValueKey]),
+                'help' => $this->unescapeString($this->rowAttributes[$languageHelpKey]),
                 'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
                 'language' => $language,
                 'question_order' => $this->questionOrder,
@@ -256,12 +257,20 @@ class ImportStructure extends ImportFromFile
                 $this->currentModel->qid = $this->question->qid;
             }
 
-
             $result = $this->currentModel->save();
 
             if(!$result) {
                 throw new Exception("Error saving baseQuestion nr $i: " . $this->rowAttributes[$languageValueKey] . serialize($this->currentModel->getErrors()));
             }
+
+            $questionTheme = "";
+            if(!empty($this->rowAttributes[self::COLUMN_THEME])) {
+                $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
+            }
+            if (!empty($questionTheme)) {
+                $this->saveQuestionAttribute("question_template", $questionTheme);
+            }
+
             $this->saveQuestionAttributes();
             if($i === 1) {
                 $this->question = $this->currentModel;
@@ -282,7 +291,7 @@ class ImportStructure extends ImportFromFile
         }
 
         $attributeInput =$this->rowAttributes[self::COLUMN_OPTIONS];
-        $attributeArray = (array) json_decode($attributeInput);
+        $attributeArray = (array) json_decode((string) $attributeInput);
         if(empty($attributeArray)) {
             return;
         }
@@ -300,14 +309,15 @@ class ImportStructure extends ImportFromFile
 
     }
 
-    private function validateAttributes($attributeArray){
+    private function validateAttributes(&$attributeArray){
         $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
         if(empty($attributeArray)) {
             return;
         }
         foreach ($attributeArray as $attributeName => $value) {
             if(!in_array($attributeName, $allowedAttributes)) {
-                throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
+                unset($attributeArray[$attributeName]);
+                //throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
             }
         }
 
@@ -368,8 +378,8 @@ class ImportStructure extends ImportFromFile
                 'type' => $this->question->type,
                 'gid' => $this->questionGroup->gid,
                 'title' => $this->rowAttributes[self::COLUMN_CODE],
-                'question' => $this->rowAttributes[$languageValueKey],
-                'help' => $this->rowAttributes[$languageHelpKey],
+                'question' => $this->unescapeString($this->rowAttributes[$languageValueKey]),
+                'help' => $this->unescapeString($this->rowAttributes[$languageHelpKey]),
                 'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
                 'language' => $language,
                 'question_order' => $this->subQuestionOrder,
@@ -490,7 +500,7 @@ class ImportStructure extends ImportFromFile
         $headerValues = array_keys($this->readerData[0]);
         foreach ($headerValues as $value) {
             $searchValue = static::COLUMN_VALUE;
-            $isLang = is_int(strpos($value, $searchValue));
+            $isLang = is_int(strpos($value, (string) $searchValue));
             if($isLang) {
                 $langStart = strpos($value, "-") +1;
                 $langugage = strtolower(trim(substr($value, $langStart, strlen($value))));
@@ -585,5 +595,4 @@ class ImportStructure extends ImportFromFile
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
         return Question::model()->find($criteria);
     }
-
 }

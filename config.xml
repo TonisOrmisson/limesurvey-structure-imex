@@ -4,22 +4,17 @@
         <name>StructureImEx</name>
         <type>plugin</type>
         <creationDate>2018-12-18</creationDate>
-        <last_update>2024-04-18</last_update>
+        <last_update>2021-01-11</last_update>
         <author>Tõnis Ormisson</author>
         <authorUrl>https://andmemasin.eu</authorUrl>
         <license>MIT</license>
-        <version>1.1.0</version>
-        <description>Survey logic import/export</description>
+        <version>0.8.0</version>
+        <description><![CDATA[Core: Connect to external API]]></description>
     </metadata>
 
     <compatibility>
         <version>3.0</version>
-        <version>4.0</version>
         <version>5.0</version>
         <version>6.0</version>
     </compatibility>
-
-    <updaters disabled="disabled">
-    </updaters>
-
 </config>

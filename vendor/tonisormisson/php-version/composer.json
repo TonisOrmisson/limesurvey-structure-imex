@@ -1,0 +1,30 @@
+{
+  "name": "tonisormisson/php-version",
+  "type": "yii2-extension",
+  "license":"MIT",
+  "description": "get Git version information",
+  "keywords": [
+    "Yii2", "git", "vcs"
+  ],
+  "authors": [
+    {
+      "name": "Tõnis Ormisson",
+      "email": "tonis@andmemasin.eu"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "tonisormisson\\version\\": ""
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.2.x-dev"
+    }
+  }
+}

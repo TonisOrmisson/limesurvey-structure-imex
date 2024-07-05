@@ -61,13 +61,14 @@ class ExportQuestions extends AbstractExport
             $group->gid,
         ];
         foreach ($this->languageGroups($group) as $lGroup) {
-            $row[] = $lGroup->group_name;
-            $row[] = $lGroup->description;
+            $row[] = $this->escapeString($lGroup->group_name);
+            $row[] = $this->escapeString($lGroup->description);
         }
 
         $row[] = $lGroup->grelevance;
+        $row[] = null; // no mandatory
+        $row[] = null; // no theme
         $row[] = null; // no options
-        $row[] = null; // no attributes
 
         $row = WriterEntityFactory::createRowFromArray($row,$this->groupStyle);
         $this->writer->addRow($row);
@@ -90,11 +91,20 @@ class ExportQuestions extends AbstractExport
         ];
 
         foreach ($this->languageQuestions($question) as $lQuestion) {
-            $row[] = $lQuestion->question;
-            $row[] = $lQuestion->help;
+            $row[] = $this->escapeString($lQuestion->question);
+            $row[] = $this->escapeString($lQuestion->help);
         }
         $row[] = $question->relevance;
         $row[] = $question->mandatory;
+
+        if ($this->type !== self::TYPE_SUB_QUESTION) {
+            $questionTemplate = QuestionTemplate::getNewInstance($question);
+            $templateName = $questionTemplate->getQuestionTemplateFolderName();
+            $row[] = !(empty($templateName)) ? $templateName : null;
+        } else {
+            $row[] = null;
+        }
+
         $attributes = $question->getQuestionAttributes();
         $exportAttributes = [];
         if(!empty($attributes)) {
@@ -102,6 +112,8 @@ class ExportQuestions extends AbstractExport
                 $exportAttributes[$attribute->attribute] = $attribute->value;
             }
             $row[] = json_encode($exportAttributes);
+        } else {
+            $row[] = null;
         }
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
@@ -332,6 +344,8 @@ class ExportQuestions extends AbstractExport
         $criteria->params[':qid'] = $question->qid;
         $criteria->params[':sid'] =  $this->survey->primaryKey;
 
+        $criteria->order = 'question_order ASC';
+
         return Question::model()->findAll($criteria);
     }
     /**
@@ -385,6 +399,7 @@ class ExportQuestions extends AbstractExport
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;
         $this->header[] = ImportStructure::COLUMN_MANDATORY;
+        $this->header[] = ImportStructure::COLUMN_THEME;
         $this->header[] = ImportStructure::COLUMN_OPTIONS;
     }
 

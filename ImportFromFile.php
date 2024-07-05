@@ -2,7 +2,7 @@
 
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use OpenSpout\Common\Type;
+use Box\Spout\Common\Type;
 
 /**
  * An abstract class for various file imports
@@ -46,7 +46,7 @@ abstract class ImportFromFile extends CModel
 
 
     /** @var string[] allowed extension types */
-    public $allowedTypes = ['ods', 'xlsx', 'xls'];
+    public $allowedTypes = [Type::ODS, Type::XLSX, 'xls'];
 
     /** @var integer Total number of processed records */
     public $processedModelsCount = 0;
@@ -160,7 +160,14 @@ abstract class ImportFromFile extends CModel
      * @throws Exception
      */
     public function prepare(){
+        // Fix error on LS5
+        if (\PHP_VERSION_ID < 80000) {
+            $bOldEntityLoaderState = libxml_disable_entity_loader(false);
+        }
         $this->reader = new SpreadsheetReader($this->fileName);
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($bOldEntityLoaderState);
+        }
         $this->setReaderData();
         $this->prepareReaderData();
         return true;
@@ -244,6 +251,8 @@ abstract class ImportFromFile extends CModel
         throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
 
-
-
+    protected function unescapeString($text)
+    {
+        return json_decode('"' . $text . '"');
+    }
 }
