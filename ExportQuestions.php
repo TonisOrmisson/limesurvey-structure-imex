@@ -1,9 +1,8 @@
 <?php
 
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
+use OpenSpout\Common\Entity\Row;
 
 class ExportQuestions extends AbstractExport
 {
@@ -60,23 +59,33 @@ class ExportQuestions extends AbstractExport
             null,
             $group->gid,
         ];
-        foreach ($this->languageGroups($group) as $lGroup) {
-            $row[] = $lGroup->group_name;
-            $row[] = $lGroup->description;
+        if ($this->isV4plusVersion()) {
+            foreach ($this->languages as $language) {
+                if (!isset($group->questiongroupl10ns[$language])) {
+                    continue;
+                }
+                $row[] = $group->questiongroupl10ns[$language]->group_name;
+                $row[] = $group->questiongroupl10ns[$language]->description;
+            }
+        } else {
+            foreach ($this->languageGroups($group) as $lGroup) {
+                $row[] = $lGroup->group_name;
+                $row[] = $lGroup->description;
+            }
         }
 
-        $row[] = $lGroup->grelevance;
+        $row[] = $group->grelevance;
         $row[] = null; // no options
         $row[] = null; // no attributes
 
-        $row = WriterEntityFactory::createRowFromArray($row,$this->groupStyle);
+        $row = Row::fromValues($row,$this->groupStyle);
         $this->writer->addRow($row);
 
 
     }
 
     /**
-     * @param $question Question in main language
+     * @param Question $question Question in main language
      * @throws \Box\Spout\Common\Exception\IOException
      * @throws \Box\Spout\Common\Exception\SpoutException
      * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
@@ -89,13 +98,23 @@ class ExportQuestions extends AbstractExport
             $question->title,
         ];
 
-        foreach ($this->languageQuestions($question) as $lQuestion) {
-            $row[] = $lQuestion->question;
-            $row[] = $lQuestion->help;
+        if ($this->isV4plusVersion()) {
+            foreach ($this->languages as $language) {
+                if (!isset($question->questionl10ns[$language])) {
+                    continue;
+                }
+                $row[] = $question->questionl10ns[$language]->question;
+                $row[] = $question->questionl10ns[$language]->help;
+            }
+        } else {
+            foreach ($this->languageQuestions($question) as $lQuestion) {
+                $row[] = $lQuestion->question;
+                $row[] = $lQuestion->help;
+            }
         }
         $row[] = $question->relevance;
         $row[] = $question->mandatory;
-        $attributes = $question->getQuestionAttributes();
+        $attributes = $this->getQuestionAttributes($question);
         $exportAttributes = [];
         if(!empty($attributes)) {
             foreach ($attributes as $attribute) {
@@ -106,7 +125,7 @@ class ExportQuestions extends AbstractExport
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
-        $row = WriterEntityFactory::createRowFromArray($row, $style);
+        $row = Row::fromValues($row, $style);
         $this->writer->addRow($row);
 
 
@@ -137,7 +156,7 @@ class ExportQuestions extends AbstractExport
         $this->addQuestion($question);
 
 
-        $answers = $this->answersInThisLanguage($question);
+        $answers = $this->answersInMainLanguage($question);
         if (!empty($answers)) {
             foreach ($answers as $answer) {
                 $this->processAnswer($answer);
@@ -148,7 +167,7 @@ class ExportQuestions extends AbstractExport
             return;
         }
 
-        $subQuestions = $this->subQuestionsInThisLanguage($question);
+        $subQuestions = $this->subQuestionsInMainLanguage($question);
         if (!empty($subQuestions)) {
             foreach ($subQuestions as $subQuestion) {
                 $this->type = self::TYPE_SUB_QUESTION;
@@ -170,13 +189,23 @@ class ExportQuestions extends AbstractExport
             null,
             $answer->code,
         ];
-        foreach ($this->languages as $language) {
-            $lAnswer = $this->answerInLanguage($answer, $language);
-            $row[] = $lAnswer->answer;
-            $row[] = null; // no help texts for answers
+        if ($this->isV4plusVersion()) {
+            foreach ($this->languages as $language) {
+                if (!isset($answer->answerl10ns[$language])) {
+                    continue;
+                }
+                $row[] = $answer->answerl10ns[$language]->answer;
+                $row[] = null; // no help texts for answers
+            }
+        } else {
+            foreach ($this->languages as $language) {
+                $lAnswer = $this->answerInLanguage($answer, $language);
+                $row[] = $lAnswer->answer;
+                $row[] = null; // no help texts for answers
+            }
         }
 
-        $row = WriterEntityFactory::createRowFromArray($row);
+        $row = Row::fromValues($row);
         $this->writer->addRow($row);
 
     }
@@ -186,12 +215,12 @@ class ExportQuestions extends AbstractExport
         $this->setSheet('helpSheet');
         $header = ['Question type code', 'Question type'];
 
-        $row = WriterEntityFactory::createRowFromArray($header,$this->headerStyle);
+        $row = Row::fromValues($header,$this->headerStyle);
         $this->writer->addRow($row);
 
         $data = [];
         foreach ($this->qTypes() as $code => $qType) {
-            $data[] = WriterEntityFactory::createRowFromArray([$code, $qType['name']]);
+            $data[] = Row::fromValues([$code, $qType['name']]);
         }
 
         $this->writer->addRows($data);
@@ -203,14 +232,14 @@ class ExportQuestions extends AbstractExport
         $this->setSheet('possibleAttributes');
         $header = ['Attribute name', 'Attribute description', 'Value valiudation'];
 
-        $row = WriterEntityFactory::createRowFromArray($header,$this->headerStyle);
+        $row = Row::fromValues($header,$this->headerStyle);
         $this->writer->addRow($row);
 
         $data = [];
         $attributes = new MyQuestionAttribute();
         $possibleValues = $attributes->allowedValues();
         foreach ($attributes->attributeLabels() as $name => $label) {
-            $data[] = WriterEntityFactory::createRowFromArray([$name, $label, $possibleValues[$name]]);
+            $data[] = Row::fromValues([$name, $label, $possibleValues[$name]]);
         }
 
         $this->writer->addRows($data);
@@ -268,7 +297,9 @@ class ExportQuestions extends AbstractExport
     {
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=' . $this->survey->primaryKey);
-        $criteria->addCondition("language='" . $this->survey->language."'");
+        if (!$this->isV4plusVersion()) {
+            $criteria->addCondition("language='" . $this->survey->language."'");
+        }
         $criteria->order = 'group_order ASC';
         return QuestionGroup::model()->findAll($criteria);
     }
@@ -295,7 +326,9 @@ class ExportQuestions extends AbstractExport
         $criteria->addCondition('sid=' . $this->survey->primaryKey);
         $criteria->addCondition('gid=:gid');
         $criteria->addCondition('parent_qid=0 or parent_qid IS NULL');
-        $criteria->addCondition("language='" . $this->survey->language."'");
+        if (!$this->isV4plusVersion()) {
+            $criteria->addCondition("language='" . $this->survey->language."'");
+        }
 
         $criteria->params[':gid'] = $group->gid;
 
@@ -321,16 +354,18 @@ class ExportQuestions extends AbstractExport
      * @param Question $question
      * @return Question[]
      */
-    private function subQuestionsInThisLanguage($question)
+    private function subQuestionsInMainLanguage($question)
     {
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=:sid');
         $criteria->addCondition('parent_qid=:qid');
-        $criteria->addCondition('language=:language');
-
-        $criteria->params[':language'] = $question->language;
         $criteria->params[':qid'] = $question->qid;
         $criteria->params[':sid'] =  $this->survey->primaryKey;
+
+        if (!$this->isV4plusVersion()) {
+            $criteria->addCondition('language=:language');
+            $criteria->params[':language'] = $this->survey->language;
+        }
 
         return Question::model()->findAll($criteria);
     }
@@ -338,15 +373,17 @@ class ExportQuestions extends AbstractExport
      * @param Question $question
      * @return Answer[]
      */
-    private function answersInThisLanguage($question)
+    private function answersInMainLanguage($question)
     {
         $criteria = new CDbCriteria;
         $criteria->addCondition('qid=:qid');
-        $criteria->addCondition('language=:language');
         $criteria->order = 'sortorder ASC';
-
-        $criteria->params[':language'] = $question->language;
         $criteria->params[':qid'] = $question->qid;
+
+        if (!$this->isV4plusVersion()) {
+            $criteria->addCondition('language=:language');
+            $criteria->params[':language'] = $this->survey->language;
+        }
 
         return Answer::model()->findAll($criteria);
     }
@@ -388,4 +425,13 @@ class ExportQuestions extends AbstractExport
         $this->header[] = ImportStructure::COLUMN_OPTIONS;
     }
 
+    private function getQuestionAttributes($question)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('qid=:qid');
+
+        $criteria->params[':qid'] = $question->qid;
+
+        return QuestionAttribute::model()->findAll($criteria);
+    }
 }

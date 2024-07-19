@@ -106,7 +106,11 @@ class StructureImEx extends PluginBase
             if ($this->survey->getIsActive()) {
                 Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
-                $import = new ImportStructure($this->survey);
+                if ($this->isV4plusVersion()) {
+                    $import = new ImportStructureV4Plus($this->survey);
+                } else {
+                    $import = new ImportStructure($this->survey);
+                }
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
                     $this->app->setFlashMessage($import->getError('file'), 'error');
