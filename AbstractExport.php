@@ -3,7 +3,6 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
-use OpenSpout\Writer\Common\Creator\WriterEntityFactory;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Writer\Common\Entity\Sheet;
 use OpenSpout\Writer\WriterMultiSheetsAbstract;

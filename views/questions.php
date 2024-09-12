@@ -31,31 +31,32 @@ $this->pageTitle = "import";
             <?= CHtml::form(null, 'post',['enctype'=>'multipart/form-data']); ?>
             <!-- Export -->
             <div class="col-md-12 col-lg-6">
-                <div class="card card-success">
-                    <div class="card-header">
-                        <?php eT("Export")?>
-                    </div>
-                    <div class="alert">
-                        <div class="h3">Download</div>
-                        <p>
-                            Download the existing groups and questions for editing in your preferred spreadsheet editor.
-                        </p>
-                    </div>
+                <div class="card">
                     <div class="card-body">
-                        <a role='button' class = "btn btn-success pull-right" href='<?= $exportUrl; ?>'>Export</a>
+                        <div class="card-title">
+                            <strong> <?php eT("Export")?></strong>
+                        </div>
+                        <div class="alert alert-info">
+                            <div class="h3">Download</div>
+                            <p>
+                                Download the existing groups and questions for editing in your preferred spreadsheet editor.
+                            </p>
+                        </div>
+                        <div class="card-body">
+                            <a role='button' class = "btn btn-success pull-right" href='<?= $exportUrl; ?>'>Export</a>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Import relevances -->
             <div class="col-md-12 col-lg-6">
-                <div class="card card-danger">
-                    <div class="card-header">
-                        <strong> <?php eT("Import")?></strong>
-                    </div>
-
+                <div class="card card-danger mt-3">
                     <div class="card-body">
-                        <div class="alert">
+                        <div class="card-title">
+                            <strong> <?php eT("Import")?></strong>
+                        </div>
+                        <div class="alert alert-danger">
                             <div class="h3">NB! Existing questions will be overwritten</div>
                             <p>
                                 Importing will remove all existing groups & questions and replace them with the existing ones.
