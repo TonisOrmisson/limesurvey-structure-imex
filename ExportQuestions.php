@@ -75,8 +75,9 @@ class ExportQuestions extends AbstractExport
         }
 
         $row[] = $group->grelevance;
+        $row[] = null; // no mandatory
+        $row[] = null; // no theme
         $row[] = null; // no options
-        $row[] = null; // no attributes
 
         $row = Row::fromValues($row,$this->groupStyle);
         $this->writer->addRow($row);
@@ -114,10 +115,29 @@ class ExportQuestions extends AbstractExport
         }
         $row[] = $question->relevance;
         $row[] = $question->mandatory;
+
+        if ($this->type !== self::TYPE_SUB_QUESTION) {
+            if ($this->isV4plusVersion()) {
+                $questionTheme = $question->question_theme_name;
+                $row[] = ($questionTheme != 'core') ? $questionTheme : null;
+            } else {
+                $questionTemplate = QuestionTemplate::getNewInstance($question);
+                $questionTheme = $questionTemplate->getQuestionTemplateFolderName();
+                $row[] = !(empty($questionTheme)) ? $questionTheme : null;
+            }
+        } else {
+            $row[] = null;
+        }
+
         $attributes = $this->getQuestionAttributes($question);
         $exportAttributes = [];
         if(!empty($attributes)) {
             foreach ($attributes as $attribute) {
+                // We already exported the question template/theme on it's own column,
+                // so we don't need to export it again as part of the question attributes.
+                if ($attribute->attribute === 'question_template') {
+                    continue;
+                }
                 $exportAttributes[$attribute->attribute] = $attribute->value;
             }
             $row[] = json_encode($exportAttributes);
@@ -422,6 +442,7 @@ class ExportQuestions extends AbstractExport
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;
         $this->header[] = ImportStructure::COLUMN_MANDATORY;
+        $this->header[] = ImportStructure::COLUMN_THEME;
         $this->header[] = ImportStructure::COLUMN_OPTIONS;
     }
 
