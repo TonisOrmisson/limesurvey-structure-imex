@@ -150,6 +150,14 @@ abstract class AbstractExport extends CModel
     protected  abstract function writeData();
     protected  abstract function loadHeader();
 
-
-
+    /**
+     * Escapes the text to avoid multi-line cells in ODS
+     */
+    protected function escapeString($text)
+    {
+        // Convert to json an remove wrapping quotes
+        $text = json_encode($text);
+        $text = substr($text, 1, -1);
+        return $text;
+    }
 }

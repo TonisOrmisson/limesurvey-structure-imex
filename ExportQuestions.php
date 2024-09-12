@@ -64,13 +64,13 @@ class ExportQuestions extends AbstractExport
                 if (!isset($group->questiongroupl10ns[$language])) {
                     continue;
                 }
-                $row[] = $group->questiongroupl10ns[$language]->group_name;
-                $row[] = $group->questiongroupl10ns[$language]->description;
+                $row[] = $this->escapeString($group->questiongroupl10ns[$language]->group_name);
+                $row[] = $this->escapeString($group->questiongroupl10ns[$language]->description);
             }
         } else {
             foreach ($this->languageGroups($group) as $lGroup) {
-                $row[] = $lGroup->group_name;
-                $row[] = $lGroup->description;
+                $row[] = $this->escapeString($lGroup->group_name);
+                $row[] = $this->escapeString($lGroup->description);
             }
         }
 
@@ -103,13 +103,13 @@ class ExportQuestions extends AbstractExport
                 if (!isset($question->questionl10ns[$language])) {
                     continue;
                 }
-                $row[] = $question->questionl10ns[$language]->question;
-                $row[] = $question->questionl10ns[$language]->help;
+                $row[] = $this->escapeString($question->questionl10ns[$language]->question);
+                $row[] = $this->escapeString($question->questionl10ns[$language]->help);
             }
         } else {
             foreach ($this->languageQuestions($question) as $lQuestion) {
-                $row[] = $lQuestion->question;
-                $row[] = $lQuestion->help;
+                $row[] = $this->escapeString($lQuestion->question);
+                $row[] = $this->escapeString($lQuestion->help);
             }
         }
         $row[] = $question->relevance;
