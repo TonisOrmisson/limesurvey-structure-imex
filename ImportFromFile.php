@@ -244,6 +244,8 @@ abstract class ImportFromFile extends CModel
         throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
 
-
-
+    protected function unescapeString($text)
+    {
+        return json_decode('"' . $text . '"');
+    }
 }
