@@ -2,7 +2,7 @@
 
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use OpenSpout\Common\Type;
+use OpenSpout\Reader\ODS\Reader;
 
 /**
  * An abstract class for various file imports
@@ -15,7 +15,7 @@ abstract class ImportFromFile extends CModel
     /** @var string  */
     public $fileName;
 
-    /** @var SpreadsheetReader */
+    /** @var Reader */
     private $reader;
 
     /** @var array  */
@@ -160,7 +160,8 @@ abstract class ImportFromFile extends CModel
      * @throws Exception
      */
     public function prepare(){
-        $this->reader = new SpreadsheetReader($this->fileName);
+        $this->reader = new \OpenSpout\Reader\ODS\Reader();
+        $this->reader->open($this->fileName);
         $this->setReaderData();
         $this->prepareReaderData();
         return true;
@@ -184,13 +185,19 @@ abstract class ImportFromFile extends CModel
      */
     private function setReaderData(){
         $this->readerData = [];
-        foreach ($this->reader as $row) {
-            // skip empty rows
-            if(empty($row[0]) && empty($row[1]) && empty($row[2])){
-                continue;
+        foreach ($this->reader->getSheetIterator() as $sheet) {
+            foreach ($sheet->getRowIterator() as $row) {
+                $rowData = $row->toArray();
+                // skip empty rows
+                if(empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])){
+                    continue;
+                }
+                $this->readerData[] = $rowData;
             }
-            $this->readerData[] = $row;
+            // We only need the first sheet, so we can break the loop.
+            break;
         }
+        $this->reader->close();
     }
 
     /**
