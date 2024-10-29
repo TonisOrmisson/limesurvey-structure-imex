@@ -337,7 +337,11 @@ class ImportStructureV4Plus extends ImportFromFile
         if(empty($attributeArray)) {
             return;
         }
-        $this->validateAttributes($attributeArray);
+        // Filter the attributes to only those that need to be validated, unless the
+        // importUnknownAttributes setting is set.
+        if (!$this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false)) {
+            $this->validateAttributes($attributeArray);
+        }
         $myAttributes = new MyQuestionAttribute();
         $myAttributes->setAttributes($attributeArray, false);
         $myAttributes->validate();
@@ -346,9 +350,7 @@ class ImportStructureV4Plus extends ImportFromFile
                 continue;
             }
             $this->saveQuestionAttribute($attributeName, $value);
-
         }
-
     }
 
     private function validateAttributes($attributeArray){

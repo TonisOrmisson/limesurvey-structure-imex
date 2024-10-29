@@ -30,7 +30,45 @@ class StructureImEx extends PluginBase
     public function init() {
         require_once __DIR__.DIRECTORY_SEPARATOR.'ImportRelevance.php';
         $this->subscribe('beforeToolsMenuRender');
+        $this->subscribe('beforeSurveySettings');
+        $this->subscribe('newSurveySettings');
         $this->app = Yii::app();
+    }
+
+    /**
+     * Survey Settings
+     */
+    public function beforeSurveySettings()
+    {
+        $event = $this->event;
+        $surveyId = $event->get("survey");
+
+        $newSettings = [
+            'importUnknownAttributes' => [
+                'type' => 'boolean',
+                'label' => 'Import unknown attributes',
+                'help' => 'Allow importing unknown question attributes (i.e. plugin attributes).',
+                'current' => $this->get('importUnknownAttributes', 'Survey', $surveyId, false)
+            ],
+        ];
+
+        // Set all settings
+        $event->set("surveysettings.{$this->id}", [
+            'name' => self::getName(),
+            'settings' => $newSettings,
+        ]);
+    }
+
+    /**
+     * Handle Survey Settings Saving
+     */
+    public function newSurveySettings()
+    {
+        $event = $this->event;
+        foreach ($event->get('settings') as $name => $value)
+        {
+            $this->set($name, $value, 'Survey', $event->get('survey'));
+        }
     }
 
     public function beforeToolsMenuRender() {
