@@ -12,7 +12,7 @@ class StructureImEx extends PluginBase
 
     protected $storage = 'DbStorage';
     static protected $description = 'Import-Export survey structure & logic as file';
-    static protected $name = 'Structure IMEX';
+    static protected $name = 'StructureImEx';
 
     /** @var array  */
     private $data = [];
@@ -144,10 +144,13 @@ class StructureImEx extends PluginBase
             if ($this->survey->getIsActive()) {
                 Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
+                $options = [
+                    'importUnknownAttributes' => $this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false),
+                ];
                 if ($this->isV4plusVersion()) {
-                    $import = new ImportStructureV4Plus($this->survey);
+                    $import = new ImportStructureV4Plus($this->survey, $options);
                 } else {
-                    $import = new ImportStructure($this->survey);
+                    $import = new ImportStructure($this->survey, $options);
                 }
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
