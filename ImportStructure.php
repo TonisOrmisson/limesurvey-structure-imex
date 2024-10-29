@@ -286,11 +286,11 @@ class ImportStructure extends ImportFromFile
         if(empty($attributeArray)) {
             return;
         }
-        // Some attributes will be validated, but we will still import the rest
-        // of the attributes to avoid losing attributes added by other plugins/themes.
-        $allAttributes = $attributeArray;
-        // Filter the attributes to only those that need to be validated.
-        $this->validateAttributes($attributeArray);
+        // Filter the attributes to only those that need to be validated, unless the
+        // importUnknownAttributes setting is set.
+        if (!$this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false)) {
+            $this->validateAttributes($attributeArray);
+        }
         $myAttributes = new MyQuestionAttribute();
         $myAttributes->setAttributes($attributeArray, false);
         $myAttributes->validate();
@@ -298,12 +298,6 @@ class ImportStructure extends ImportFromFile
             if(is_null($value)) {
                 continue;
             }
-            $this->saveQuestionAttribute($attributeName, $value);
-        }
-
-        // Import the remaining attributes.
-        $unknownAttributes = array_diff_key($allAttributes, $attributeArray);
-        foreach ($unknownAttributes as $attributeName => $value) {
             $this->saveQuestionAttribute($attributeName, $value);
         }
     }
@@ -315,9 +309,7 @@ class ImportStructure extends ImportFromFile
         }
         foreach ($attributeArray as $attributeName => $value) {
             if(!in_array($attributeName, $allowedAttributes)) {
-                // Remove the attribute from the array so that only "safe" attributes remain.
-                unset($attributeArray[$attributeName]);
-                //throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
+                throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
             }
         }
 
