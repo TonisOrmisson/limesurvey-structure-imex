@@ -50,7 +50,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @inheritdoc
      * @throws Exception
      */
-    protected function importModel($attributes)
+    protected function importModel($attributes): void
     {
         $this->questionCodeColumn = static::COLUMN_CODE;
         $this->rowAttributes = $attributes;
@@ -59,16 +59,16 @@ class ImportStructureV4Plus extends ImportFromFile
         switch ($this->type) {
             case ExportQuestions::TYPE_GROUP:
                 $this->saveGroups();
-                return null;
+                return;
             case ExportQuestions::TYPE_QUESTION:
                 $this->saveQuestions();
-                return null;
+                return;
             case ExportQuestions::TYPE_ANSWER:
                 $this->saveAnswers();
-                return null;
+                return;
             case ExportQuestions::TYPE_SUB_QUESTION:
                 $this->saveSubQuestions();
-                return null;
+                return;
 
         }
         $this->currentModel = null;
