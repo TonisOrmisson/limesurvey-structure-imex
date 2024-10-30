@@ -212,8 +212,8 @@ class ImportStructureV4Plus extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'gid' => (int) $this->questionGroup->gid,
-                'group_name' => $this->rowAttributes[$languageValueKey],
-                'description' => $this->rowAttributes[$languageHelpKey],
+                'group_name' => $this->unescapeString($this->rowAttributes[$languageValueKey]),
+                'description' => $this->unescapeString($this->rowAttributes[$languageHelpKey]),
                 'language' => $language,
             ]);
 
@@ -307,8 +307,8 @@ class ImportStructureV4Plus extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'qid' => $this->question->qid,
-                'question' => $this->rowAttributes[$languageValueKey],
-                'help' => $this->rowAttributes[$languageHelpKey],
+                'question' => $this->unescapeString($this->rowAttributes[$languageValueKey]),
+                'help' => $this->unescapeString($this->rowAttributes[$languageHelpKey]),
                 'language' => $language,
             ]);
 
@@ -444,8 +444,8 @@ class ImportStructureV4Plus extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'qid' => $this->subQuestion->qid,
-                'question' => $this->rowAttributes[$languageValueKey],
-                'help' => $this->rowAttributes[$languageHelpKey],
+                'question' => $this->unescapeString($this->rowAttributes[$languageValueKey]),
+                'help' => $this->unescapeString($this->rowAttributes[$languageHelpKey]),
                 'language' => $language,
             ]);
 
