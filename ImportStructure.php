@@ -39,6 +39,7 @@ class ImportStructure extends ImportFromFile
     const COLUMN_SUBTYPE = 'subtype';
     const COLUMN_CODE = 'code';
     const COLUMN_RELEVANCE = 'relevance';
+    const COLUMN_THEME = 'theme';
     const COLUMN_OPTIONS = 'options';
     const COLUMN_VALUE = 'value';
     const COLUMN_HELP = 'help';
@@ -262,6 +263,15 @@ class ImportStructure extends ImportFromFile
             if(!$result) {
                 throw new Exception("Error saving baseQuestion nr $i: " . $this->rowAttributes[$languageValueKey] . serialize($this->currentModel->getErrors()));
             }
+
+            $questionTheme = "";
+            if(!empty($this->rowAttributes[self::COLUMN_THEME])) {
+                $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
+            }
+            if (!empty($questionTheme)) {
+                $this->saveQuestionAttribute("question_template", $questionTheme);
+            }
+
             $this->saveQuestionAttributes();
             if($i === 1) {
                 $this->question = $this->currentModel;
