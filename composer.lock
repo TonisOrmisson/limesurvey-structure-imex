@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "127bf5536afb2967dd12b029475c8a24",
+    "content-hash": "932adc7bfce11a7f3ae62b72711a95a5",
     "packages": [
         {
             "name": "nuovo/spreadsheet-reader",
