@@ -8,13 +8,11 @@ class ImportRelevance extends ImportFromFile
     /** @var Question  */
     public $currentModel;
 
-    /** @var string */
-    public $importModelsClassName = Question::class;
 
     /**
      * @inheritdoc
      */
-    protected function importModel($attributes)
+    protected function importModel($attributes) : void
     {
         $this->currentModel = null;
         $this->rowAttributes = $attributes;
@@ -24,7 +22,7 @@ class ImportRelevance extends ImportFromFile
 
         if (empty($this->currentModel)) {
             $this->addError('currentModel', "Unable to find model for row " . json_encode($attributes));
-            return null;
+            return;
         }
 
         $this->currentModel->{$this->relevanceAttribute} = $attributes['relevance'];
@@ -38,13 +36,12 @@ class ImportRelevance extends ImportFromFile
 
         if ($result !== false) {
             $this->successfulModelsCount ++;
-            return $result;
+            return;
         }
 
         $this->addError('currentModel', "Unable to save model for row: " . json_encode($attributes));
 
         $this->failedModelsCount ++;
-        return $result;
 
     }
 
@@ -199,6 +196,8 @@ class ImportRelevance extends ImportFromFile
     }
 
 
-
-
+    protected function beforeProcess(): void
+    {
+        return;
+    }
 }

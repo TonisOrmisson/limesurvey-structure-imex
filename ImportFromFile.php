@@ -1,76 +1,52 @@
 <?php
 
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Reader\ReaderInterface;
+use OpenSpout\Reader\SheetInterface;
+
 require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
-use OpenSpout\Common\Type;
 
 /**
  * An abstract class for various file imports
  */
 abstract class ImportFromFile extends CModel
 {
-    /** @var CUploadedFile imported file  */
-    public $file;
+    /** @var CUploadedFile $file imported file  */
+    public CUploadedFile $file;
 
-    /** @var string  */
-    public $fileName;
+    public string $fileName;
 
-    /** @var SpreadsheetReader */
-    private $reader;
+    private ReaderInterface $reader;
 
-    /** @var array  */
-    public $readerData;
+    protected ?SheetInterface $sheet = null;
 
-    /** @var array|bool imported raw data  */
-    public $data;
+    public array $readerData = [];
 
-    /** @var array|bool imported current row  */
-    public $row;
+    protected Survey $survey;
 
-    /** @var Survey $survey */
-    protected $survey;
+    protected string $type = "";
 
-    /** @var string  */
-    protected $type = "";
+    protected string $relevanceAttribute = "";
 
-    /** @var string  */
-    protected $relevanceAttribute = "";
+    protected string $language = "";
 
-    /** @var string  */
-    protected $language = "";
-
-    protected $hasSurveyColumn = true;
+    protected bool $hasSurveyColumn = true;
 
     /** @var string $questionCodeColumn column in import file where question code is located */
-    protected $questionCodeColumn = 'code';
+    protected string $questionCodeColumn = 'code';
 
+    /** @var int $successfulModelsCount Total number of successfully processed records */
+    public int $successfulModelsCount = 0;
 
-    /** @var string[] allowed extension types */
-    public $allowedTypes = ['ods', 'xlsx', 'xls'];
+    /** @var int $failedModelsCount Total number of records failed the processing */
+    public int $failedModelsCount = 0;
 
-    /** @var integer Total number of processed records */
-    public $processedModelsCount = 0;
+    protected LSYii_Application $app;
 
-    /** @var integer Total number of successfully processed records */
-    public $successfulModelsCount = 0;
+    public array $rowAttributes = [];
 
-    /** @var integer Total number of records failed the processing */
-    public $failedModelsCount = 0;
-
-    /** @var LSActiveRecord current model being processed */
-    public $currentModel;
-
-    /** @var LSActiveRecord[] Models that failed the processing */
-    public $failedModels;
-
-    /** @var string The Classname of importable models */
-    public $importModelsClassName;
-
-    /** @var LSYii_Application */
-    protected $app;
-
-    /** @var array */
-    public $rowAttributes = [];
+    protected StructureImEx $plugin;
 
     //FIXME validate filetypes (eg rules)
 
@@ -80,26 +56,20 @@ abstract class ImportFromFile extends CModel
 
 
     /**
-     * ImportFromFile constructor.
-     * @param Survey $survey
+     * @throws ErrorException
      */
-    function __construct($survey)
+    function __construct(StructureImEx $plugin)
     {
-        if (!($survey instanceof Survey)) {
-            throw new ErrorException(get_class($survey) .' used as Survey');
-        }
-        $this->survey = $survey;
-        $this->language = $survey->language;
-
+        $this->plugin = $plugin;
+        $this->survey = $plugin->getSurvey();
+        $this->language = $this->survey->language;
         $this->app = Yii::app();
-
     }
 
     /**
-     * @param CUploadedFile $file
      * @return bool
      */
-    public function loadFile($file){
+    public function loadFile(CUploadedFile $file){
         $this->file = $file;
         $this->validate(array('file'));
         if($this->hasErrors()){
@@ -147,56 +117,56 @@ abstract class ImportFromFile extends CModel
     }
 
 
-    /**
-     * @return |null
-     */
-    protected function beforeProcess()
-    {
-        return null;
-    }
+    abstract protected function beforeProcess() : void;
 
-    /**
-     * @return bool
-     * @throws Exception
-     */
-    public function prepare(){
-        $this->reader = new SpreadsheetReader($this->fileName);
+    public function prepare() : bool
+    {
+        $extension =pathinfo($this->fileName, PATHINFO_EXTENSION);
+        $this->reader = match($extension) {
+            'xlsx' => new \OpenSpout\Reader\XLSX\Reader(),
+            'ods' => new \OpenSpout\Reader\ODS\Reader(),
+        };
+        $this->reader->open($this->fileName);
         $this->setReaderData();
         $this->prepareReaderData();
         return true;
-
     }
 
-    protected function prepareReaderData(){
+    protected function prepareReaderData() : void
+    {
         if(!empty($this->readerData)){
             $this->readerData = self::indexByRow($this->readerData);
             foreach ($this->readerData as $key => $row) {
-                $this->row = $row;
                 $this->readerData[$key] = $row;
             }
         }
-
     }
 
 
     /**
      * read current worksheet row by row and set row data as readerData
      */
-    private function setReaderData(){
+    private function setReaderData() : void
+    {
         $this->readerData = [];
-        foreach ($this->reader as $row) {
-            // skip empty rows
-            if(empty($row[0]) && empty($row[1]) && empty($row[2])){
-                continue;
+        $this->setWorksheet();
+        foreach ($this->sheet->getRowIterator() as $row) {
+            if($row instanceof Row) {
+                $rowData = [];
+                $cells = $row->getCells();
+                foreach ($cells as $cell) {
+                    $rowData[] = $cell->getValue();
+                }
+                // skip empty rows
+                if(empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])){
+                    continue;
+                }
+                $this->readerData[] = $rowData;
             }
-            $this->readerData[] = $row;
         }
     }
 
-    /**
-     * @param array $attributes
-     */
-    abstract protected function importModel($attributes);
+    abstract protected function importModel(array $attributes) : void;
 
     /**
      * @inheritdoc
@@ -217,11 +187,9 @@ abstract class ImportFromFile extends CModel
      * into an indexed array based on the $i-th element in the array. By default its the
      * first [0] element (header row). The indexing element will be excluded from output
      * array
-     * @param array $array
-     * @param integer $i
      * @return array
      */
-    public static function indexByRow($array, $i = 0)
+    public static function indexByRow(array $array, int $i = 0) : array
     {
         $keys = $array[$i];
         if (is_array($array) && !empty($array)) {
@@ -244,6 +212,25 @@ abstract class ImportFromFile extends CModel
         throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
 
+    /**
+     * Changes the Excel reader active worksheet
+     * @return boolean
+     */
+    protected function setWorksheet(?string $sheetName = null) : bool
+    {
+        /** @var SheetInterface $sheet */
+        foreach ($this->reader->getSheetIterator() as $sheet) {
+            if(empty($sheetName)) {
+                $this->sheet = $sheet;
+                return true;
+            }
 
-
+            if (strtolower($sheet->getName()) === $sheetName) {
+                $this->sheet = $sheet;
+                return true;
+            }
+        }
+        $this->sheet = null;
+        return false;
+    }
 }

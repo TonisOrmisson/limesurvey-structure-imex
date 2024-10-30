@@ -3,37 +3,22 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'ImportFromFile.php';
 
 class ImportStructure extends ImportFromFile
 {
-    /** @var LSActiveRecord  */
-    public $currentModel;
-
-    /** @var string */
-    public $importModelsClassName = "";
+    public LSActiveRecord $currentModel;
 
 
-    /** @var Question $question current question (main/parent) */
-    private $question;
+    /** @var ?Question $question current question (main/parent) */
+    private ?Question $question;
 
-    /** @var Question $subQuestion current subQuestion (main/parent) */
-    private $subQuestion;
+    /** @var ?QuestionGroup $questionGroup current questionGroup */
+    private ?QuestionGroup $questionGroup;
 
-    /** @var QuestionGroup $questionGroup current questionGroup */
-    private $questionGroup;
-
-    /** @var int  */
-    private $groupOrder = 1;
-
-    /** @var int  */
-    private $questionOrder = 1;
-
-    /** @var int  */
-    private $subQuestionOrder = 1;
-
-    /** @var int  */
-    private $answerOrder = 1;
+    private int $groupOrder = 1;
+    private int $questionOrder = 1;
+    private int $subQuestionOrder = 1;
+    private int $answerOrder = 1;
 
     /** @var string[]  */
-    private $languages = [];
-
+    private array $languages = [];
 
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
@@ -49,7 +34,7 @@ class ImportStructure extends ImportFromFile
      * @inheritdoc
      * @throws Exception
      */
-    protected function importModel($attributes)
+    protected function importModel($attributes) : void
     {
         $this->questionCodeColumn = static::COLUMN_CODE;
         $this->rowAttributes = $attributes;
@@ -58,28 +43,23 @@ class ImportStructure extends ImportFromFile
         switch ($this->type) {
             case ExportQuestions::TYPE_GROUP:
                 $this->saveGroups();
-                return null;
+                return;
             case ExportQuestions::TYPE_QUESTION:
                 $this->saveQuestions();
-                return null;
+                return;
             case ExportQuestions::TYPE_ANSWER:
                 $this->saveAnswers();
-                return null;
+                return;
             case ExportQuestions::TYPE_SUB_QUESTION:
                 $this->saveSubQuestions();
-                return null;
+                return;
 
         }
         $this->currentModel = null;
     }
 
-    /**
-     * @return void|null
-     * @throws Exception
-     */
-    protected function beforeProcess()
+    protected function beforeProcess() : void
     {
-        parent::beforeProcess();
         $this->validateStructure();
     }
 
@@ -145,6 +125,7 @@ class ImportStructure extends ImportFromFile
         $criteria->addCondition('group_name=:name');
         $criteria->params[':name']= $this->rowAttributes[$languageValueKey];
 
+        /** @var ?QuestionGroup $result */
         $result = QuestionGroup::model()->find($criteria);
         return $result;
     }
@@ -362,7 +343,7 @@ class ImportStructure extends ImportFromFile
      */
     private function saveSubQuestions(){
         $i=0;
-        $this->subQuestion = null;
+        $subQuestion = null;
         foreach ($this->languages as $language) {
             $i++;
             $this->currentModel = $this->findSubQuestion($language);
@@ -394,8 +375,8 @@ class ImportStructure extends ImportFromFile
 
 
             // other languages take main language record gid
-            if ($this->subQuestion instanceof Question) {
-                $this->currentModel->qid = $this->subQuestion->qid;
+            if ($subQuestion instanceof Question) {
+                $this->currentModel->qid = $subQuestion->qid;
             }
 
             $result = $this->currentModel->save();
@@ -404,7 +385,7 @@ class ImportStructure extends ImportFromFile
                 throw new Exception('Error saving subQuestion : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
             }
             if($i === 1) {
-                $this->subQuestion = $this->currentModel;
+                $subQuestion = $this->currentModel;
             }
         }
 
@@ -540,7 +521,6 @@ class ImportStructure extends ImportFromFile
      */
     private function validateModels() : bool
     {
-        $thisModel = null;
         $i = 0;
         foreach ($this->readerData as $row) {
             $i++;
