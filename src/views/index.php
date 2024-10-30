@@ -1,6 +1,6 @@
 <?php
 
-use tonisormisson\version\Version;
+use tonisormisson\ls\structureimex\ImportRelevance;
 
 /** @var Survey $survey */
 /** @var AdminController $this */
@@ -8,8 +8,6 @@ use tonisormisson\version\Version;
 /** @var ImportRelevance $import */
 /** @var array $navUrls */
 /** @var PluginBase $exportPlugin */
-
-$this->pageTitle = "import";
 
 ?>
 
@@ -99,6 +97,6 @@ $this->pageTitle = "import";
         </div>
     </div>
 
-    <?= $exportPlugin->renderPartial('_footer', []);?>
+    <?= $exportPlugin->renderPartial('_footer', ['exportPlugin' => $exportPlugin]);?>
 
 </div>

@@ -1,18 +1,27 @@
 <?php
-require_once __DIR__ . DIRECTORY_SEPARATOR.'ImportFromFile.php';
+
+namespace tonisormisson\ls\structureimex;
+
+use CDbCriteria;
+use Condition;
+use Question;
+use QuestionGroup;
+use QuestionGroupL10n;
+use tonisormisson\ls\structureimex\exceptions\ImexException;
+
 
 class ImportRelevance extends ImportFromFile
 {
     use AppTrait;
 
-    /** @var Question  */
+    /** @var Question */
     public $currentModel;
 
 
     /**
      * @inheritdoc
      */
-    protected function importModel($attributes) : void
+    protected function importModel($attributes): void
     {
         $this->currentModel = null;
         $this->rowAttributes = $attributes;
@@ -35,13 +44,13 @@ class ImportRelevance extends ImportFromFile
 
 
         if ($result !== false) {
-            $this->successfulModelsCount ++;
+            $this->successfulModelsCount++;
             return;
         }
 
         $this->addError('currentModel', "Unable to save model for row: " . json_encode($attributes));
 
-        $this->failedModelsCount ++;
+        $this->failedModelsCount++;
 
     }
 
@@ -49,12 +58,13 @@ class ImportRelevance extends ImportFromFile
      * @param QuestionGroup $model
      * @return bool|int
      */
-    private function  updateGroup(QuestionGroup  $model) {
-        if($model->validate([$this->relevanceAttribute])) {
+    private function updateGroup(QuestionGroup $model)
+    {
+        if ($model->validate([$this->relevanceAttribute])) {
             $criteria = new CDbCriteria();
             $criteria->addCondition('sid=:sid');
             $criteria->addCondition('gid=:gid');
-            $criteria->params = [':gid' => $model->gid, ':sid'=> $this->survey->primaryKey];
+            $criteria->params = [':gid' => $model->gid, ':sid' => $this->survey->primaryKey];
             return QuestionGroup::model()->updateAll([$this->relevanceAttribute => $model->{$this->relevanceAttribute}], $criteria);
         }
         return false;
@@ -64,8 +74,9 @@ class ImportRelevance extends ImportFromFile
      * @param Question $model
      * @return bool|int
      */
-    private function  updateQuestion(Question $model) {
-        if($model->validate([$this->relevanceAttribute])) {
+    private function updateQuestion(Question $model)
+    {
+        if ($model->validate([$this->relevanceAttribute])) {
             $criteria = new CDbCriteria();
             $criteria->addCondition('qid=:qid');
             $criteria->params = [':qid' => $model->qid];
@@ -118,19 +129,19 @@ class ImportRelevance extends ImportFromFile
         $criteria = new CDbCriteria();
         $criteria->params[':language'] = $this->language;
         $criteria->params[':sid'] = $this->survey->primaryKey;
-        $criteria->params[':name']=$row['group'];
+        $criteria->params[':name'] = $row['group'];
 
         $criteria->addCondition('t.language=:language');
         $criteria->addCondition('t.group_name=:name');
 
-        if($this->isV4plusVersion()) {
+        if ($this->isV4plusVersion()) {
             $criteria->addCondition('group.sid=:sid');
             /** @var QuestionGroupL10n $l10n */
             $l10n = QuestionGroupL10n::model()
                 ->with('group')
                 ->find($criteria);
-            if($l10n === null) {
-                throw new ErrorException("Unable to find group with name: " . $row['group']);
+            if ($l10n === null) {
+                throw new ImexException("Unable to find group with name: " . $row['group']);
             }
 
             return $l10n->group;
@@ -145,7 +156,8 @@ class ImportRelevance extends ImportFromFile
      * @param $row
      * @return Question|null
      */
-    protected function findSubQuestion($row) {
+    protected function findSubQuestion($row)
+    {
         $this->questionCodeColumn = 'parent';
         $parent = $this->findQuestion();
 
@@ -155,18 +167,17 @@ class ImportRelevance extends ImportFromFile
         }
 
 
-
         $criteria = new CDbCriteria();
         $criteria->addCondition('sid=:sid');
         $criteria->params[':sid'] = $this->survey->primaryKey;
 
         $criteria->addCondition('parent_qid=:parent_qid');
         $criteria->addCondition('title=:code');
-        $criteria->params[':parent_qid'] =$parent->qid;
-        $criteria->params[':code'] =$row['code'];
+        $criteria->params[':parent_qid'] = $parent->qid;
+        $criteria->params[':code'] = $row['code'];
         $this->questionCodeColumn = 'code';
 
-        if(!$this->isV4plusVersion()) {
+        if (!$this->isV4plusVersion()) {
             $criteria->addCondition('language=:language');
             $criteria->params[':language'] = $this->language;
         }
@@ -188,7 +199,7 @@ class ImportRelevance extends ImportFromFile
         $criteria->addCondition('parent_qid=0');
 
 
-        if(!$this->isV4plusVersion()) {
+        if (!$this->isV4plusVersion()) {
             $criteria->addCondition('language=:language');
             $criteria->params[':language'] = $this->language;
         }

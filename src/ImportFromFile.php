@@ -1,10 +1,17 @@
 <?php
 
+namespace tonisormisson\ls\structureimex;
+
+use CModel;
+use CUploadedFile;
+use LSYii_Application;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Reader\ReaderInterface;
 use OpenSpout\Reader\SheetInterface;
+use Survey;
+use tonisormisson\ls\structureimex\exceptions\ImexException;
+use Yii;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
 
 /**
@@ -12,7 +19,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
  */
 abstract class ImportFromFile extends CModel
 {
-    /** @var CUploadedFile $file imported file  */
+    /** @var CUploadedFile $file imported file */
     public CUploadedFile $file;
 
     public string $fileName;
@@ -69,10 +76,11 @@ abstract class ImportFromFile extends CModel
     /**
      * @return bool
      */
-    public function loadFile(CUploadedFile $file){
+    public function loadFile(CUploadedFile $file)
+    {
         $this->file = $file;
-        $this->validate(array('file'));
-        if($this->hasErrors()){
+        $this->validate(['file']);
+        if ($this->hasErrors()) {
             return false;
         }
         $sPath = $this->app->getConfig('tempdir');
@@ -80,12 +88,12 @@ abstract class ImportFromFile extends CModel
         $this->fileName = $sFileName;
 
         // delete if anything with same name in runtime
-        if(is_file($sFileName)) {
+        if (is_file($sFileName)) {
             unlink($sFileName);
         }
 
         if (!@$this->file->saveAs($sFileName)) {
-            $this->addError('file',gT('Error saving file'));
+            $this->addError('file', gT('Error saving file'));
             return false;
         }
         return $this->prepare();
@@ -100,8 +108,8 @@ abstract class ImportFromFile extends CModel
             return false;
         }
 
-        if(empty($this->readerData)) {
-            $this->addError('data',gT('No data to import!'));
+        if (empty($this->readerData)) {
+            $this->addError('data', gT('No data to import!'));
         } else {
             foreach ($this->readerData as $key => $row) {
                 $this->importModel($row);
@@ -117,13 +125,14 @@ abstract class ImportFromFile extends CModel
     }
 
 
-    abstract protected function beforeProcess() : void;
+    abstract protected function beforeProcess(): void;
 
-    public function prepare() : bool
+    public function prepare(): bool
     {
-        $extension =pathinfo($this->fileName, PATHINFO_EXTENSION);
-        $this->reader = match($extension) {
+        $extension = pathinfo($this->fileName, PATHINFO_EXTENSION);
+        $this->reader = match ($extension) {
             'xlsx' => new \OpenSpout\Reader\XLSX\Reader(),
+            'xls' => new \OpenSpout\Reader\XLSX\Reader(),
             'ods' => new \OpenSpout\Reader\ODS\Reader(),
         };
         $this->reader->open($this->fileName);
@@ -132,9 +141,9 @@ abstract class ImportFromFile extends CModel
         return true;
     }
 
-    protected function prepareReaderData() : void
+    protected function prepareReaderData(): void
     {
-        if(!empty($this->readerData)){
+        if (!empty($this->readerData)) {
             $this->readerData = self::indexByRow($this->readerData);
             foreach ($this->readerData as $key => $row) {
                 $this->readerData[$key] = $row;
@@ -146,19 +155,19 @@ abstract class ImportFromFile extends CModel
     /**
      * read current worksheet row by row and set row data as readerData
      */
-    private function setReaderData() : void
+    private function setReaderData(): void
     {
         $this->readerData = [];
         $this->setWorksheet();
         foreach ($this->sheet->getRowIterator() as $row) {
-            if($row instanceof Row) {
+            if ($row instanceof Row) {
                 $rowData = [];
                 $cells = $row->getCells();
                 foreach ($cells as $cell) {
                     $rowData[] = $cell->getValue();
                 }
                 // skip empty rows
-                if(empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])){
+                if (empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])) {
                     continue;
                 }
                 $this->readerData[] = $rowData;
@@ -166,19 +175,19 @@ abstract class ImportFromFile extends CModel
         }
     }
 
-    abstract protected function importModel(array $attributes) : void;
+    abstract protected function importModel(array $attributes): void;
 
     /**
      * @inheritdoc
      */
     public function attributeNames()
     {
-        return array(
-            'file'=> gT('Import file'),
-            'processedModelsCount'=> gT('Total records processed'),
-            'successfulModelsCount'=> gT('Successful records'),
-            'failedModelsCount'=> gT('Failed records'),
-        );
+        return [
+            'file' => gT('Import file'),
+            'processedModelsCount' => gT('Total records processed'),
+            'successfulModelsCount' => gT('Successful records'),
+            'failedModelsCount' => gT('Failed records'),
+        ];
     }
 
 
@@ -189,7 +198,7 @@ abstract class ImportFromFile extends CModel
      * array
      * @return array
      */
-    public static function indexByRow(array $array, int $i = 0) : array
+    public static function indexByRow(array $array, int $i = 0): array
     {
         $keys = $array[$i];
         if (is_array($array) && !empty($array)) {
@@ -209,18 +218,18 @@ abstract class ImportFromFile extends CModel
 
             return $newArray;
         }
-        throw new InvalidArgumentException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
+        throw new ImexException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
     }
 
     /**
      * Changes the Excel reader active worksheet
      * @return boolean
      */
-    protected function setWorksheet(?string $sheetName = null) : bool
+    protected function setWorksheet(?string $sheetName = null): bool
     {
         /** @var SheetInterface $sheet */
         foreach ($this->reader->getSheetIterator() as $sheet) {
-            if(empty($sheetName)) {
+            if (empty($sheetName)) {
                 $this->sheet = $sheet;
                 return true;
             }

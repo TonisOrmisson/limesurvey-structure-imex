@@ -1,8 +1,10 @@
 <?php
+use tonisormisson\ls\structureimex\StructureImEx;
 
 /** @var AdminController $this */
 /** @var array $navUrls */
 /** @var StructureImEx $exportPlugin */
+
 
 // Questions imex not working 4+ versions
 ?>

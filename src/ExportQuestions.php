@@ -1,8 +1,14 @@
 <?php
 
-require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
+namespace tonisormisson\ls\structureimex;
 
+use Answer;
+use CDbCriteria;
 use OpenSpout\Common\Entity\Row;
+use Question;
+use QuestionAttribute;
+use QuestionGroup;
+use QuestionTemplate;
 
 class ExportQuestions extends AbstractExport
 {
@@ -53,7 +59,8 @@ class ExportQuestions extends AbstractExport
      * @throws \Box\Spout\Common\Exception\SpoutException
      * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
      */
-    private function addGroup($group) {
+    private function addGroup($group)
+    {
         $row = [
             self::TYPE_GROUP,
             null,
@@ -79,7 +86,7 @@ class ExportQuestions extends AbstractExport
         $row[] = null; // no theme
         $row[] = null; // no options
 
-        $row = Row::fromValues($row,$this->groupStyle);
+        $row = Row::fromValues($row, $this->groupStyle);
         $this->writer->addRow($row);
 
 
@@ -91,7 +98,8 @@ class ExportQuestions extends AbstractExport
      * @throws \Box\Spout\Common\Exception\SpoutException
      * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
      */
-    private function addQuestion($question) {
+    private function addQuestion($question)
+    {
 
         $row = [
             $this->type,
@@ -131,7 +139,7 @@ class ExportQuestions extends AbstractExport
 
         $attributes = $this->getQuestionAttributes($question);
         $exportAttributes = [];
-        if(!empty($attributes)) {
+        if (!empty($attributes)) {
             foreach ($attributes as $attribute) {
                 // We already exported the question template/theme on it's own column,
                 // so we don't need to export it again as part of the question attributes.
@@ -154,13 +162,13 @@ class ExportQuestions extends AbstractExport
     /**
      * @param QuestionGroup $group
      */
-    private function processGroup($group) {
+    private function processGroup($group)
+    {
 
         $this->type = self::TYPE_GROUP;
         $this->addGroup($group);
 
-        foreach ($this->questionsInMainLanguage($group) as $question)
-        {
+        foreach ($this->questionsInMainLanguage($group) as $question) {
             $this->question = $question;
             $this->type = self::TYPE_QUESTION;
             $this->processQuestion($question);
@@ -235,7 +243,7 @@ class ExportQuestions extends AbstractExport
         $this->setSheet('helpSheet');
         $header = ['Question type code', 'Question type'];
 
-        $row = Row::fromValues($header,$this->headerStyle);
+        $row = Row::fromValues($header, $this->headerStyle);
         $this->writer->addRow($row);
 
         $data = [];
@@ -252,7 +260,7 @@ class ExportQuestions extends AbstractExport
         $this->setSheet('possibleAttributes');
         $header = ['Attribute name', 'Attribute description', 'Value valiudation'];
 
-        $row = Row::fromValues($header,$this->headerStyle);
+        $row = Row::fromValues($header, $this->headerStyle);
         $this->writer->addRow($row);
 
         $data = [];
@@ -318,7 +326,7 @@ class ExportQuestions extends AbstractExport
         $criteria = new CDbCriteria;
         $criteria->addCondition('sid=' . $this->survey->primaryKey);
         if (!$this->isV4plusVersion()) {
-            $criteria->addCondition("language='" . $this->survey->language."'");
+            $criteria->addCondition("language='" . $this->survey->language . "'");
         }
         $criteria->order = 'group_order ASC';
         return QuestionGroup::model()->findAll($criteria);
@@ -331,8 +339,8 @@ class ExportQuestions extends AbstractExport
     private function languageGroups($group)
     {
         $criteria = new CDbCriteria;
-        $criteria->addCondition('sid=' .  $this->survey->primaryKey);
-        $criteria->addCondition('gid=' .  $group->gid);
+        $criteria->addCondition('sid=' . $this->survey->primaryKey);
+        $criteria->addCondition('gid=' . $group->gid);
         return QuestionGroup::model()->findAll($criteria);
     }
 
@@ -347,7 +355,7 @@ class ExportQuestions extends AbstractExport
         $criteria->addCondition('gid=:gid');
         $criteria->addCondition('parent_qid=0 or parent_qid IS NULL');
         if (!$this->isV4plusVersion()) {
-            $criteria->addCondition("language='" . $this->survey->language."'");
+            $criteria->addCondition("language='" . $this->survey->language . "'");
         }
 
         $criteria->params[':gid'] = $group->gid;
@@ -364,8 +372,8 @@ class ExportQuestions extends AbstractExport
     private function languageQuestions($question)
     {
         $criteria = new CDbCriteria;
-        $criteria->addCondition('sid=' .  $this->survey->primaryKey);
-        $criteria->addCondition('qid=' .  $question->qid);
+        $criteria->addCondition('sid=' . $this->survey->primaryKey);
+        $criteria->addCondition('qid=' . $question->qid);
         return Question::model()->findAll($criteria);
     }
 
@@ -380,7 +388,7 @@ class ExportQuestions extends AbstractExport
         $criteria->addCondition('sid=:sid');
         $criteria->addCondition('parent_qid=:qid');
         $criteria->params[':qid'] = $question->qid;
-        $criteria->params[':sid'] =  $this->survey->primaryKey;
+        $criteria->params[':sid'] = $this->survey->primaryKey;
 
         if (!$this->isV4plusVersion()) {
             $criteria->addCondition('language=:language');
@@ -389,6 +397,7 @@ class ExportQuestions extends AbstractExport
 
         return Question::model()->findAll($criteria);
     }
+
     /**
      * @param Question $question
      * @return Answer[]
@@ -413,7 +422,8 @@ class ExportQuestions extends AbstractExport
      * @param $language
      * @return Answer|null
      */
-    private function answerInLanguage(Answer $answer, $language) {
+    private function answerInLanguage(Answer $answer, $language)
+    {
         $criteria = new CDbCriteria;
         $criteria->addCondition('qid=:qid');
         $criteria->addCondition('language=:language');
@@ -436,8 +446,8 @@ class ExportQuestions extends AbstractExport
         ];
 
         foreach ($this->languages as $language) {
-            $this->header[] = ImportStructure::COLUMN_VALUE ."-".$language;
-            $this->header[] = ImportStructure::COLUMN_HELP ."-".$language;
+            $this->header[] = ImportStructure::COLUMN_VALUE . "-" . $language;
+            $this->header[] = ImportStructure::COLUMN_HELP . "-" . $language;
         }
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;

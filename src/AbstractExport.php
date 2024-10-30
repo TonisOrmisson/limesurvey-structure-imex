@@ -1,11 +1,15 @@
 <?php
-require_once __DIR__ . DIRECTORY_SEPARATOR.'vendor/autoload.php';
 
+namespace tonisormisson\ls\structureimex;
+
+use CModel;
 use OpenSpout\Common\Entity\Row;
-use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\Common\Entity\Sheet;
-use OpenSpout\Writer\WriterMultiSheetsAbstract;
+use OpenSpout\Writer\WriterInterface;
+use Survey;
+use Yii;
 
 abstract class AbstractExport extends CModel
 {
@@ -20,7 +24,7 @@ abstract class AbstractExport extends CModel
     /** @var string */
     public $fileName;
 
-    /** @var WriterMultiSheetsAbstract */
+    /** @var WriterInterface */
     public $writer;
 
     /** @var  string[] */
@@ -34,7 +38,7 @@ abstract class AbstractExport extends CModel
     protected $columns = [];
 
     /** @var array Currently processed rows */
-    protected $rows  = [];
+    protected $rows = [];
 
 
     /** @var Sheet */
@@ -62,24 +66,13 @@ abstract class AbstractExport extends CModel
     protected $applicationMajorVersion = 3;
 
 
-
-    /**
-     * Export constructor.
-     * @param $survey
-     * @throws ErrorException
-     * @throws \Box\Spout\Common\Exception\IOException
-     * @throws \Box\Spout\Common\Exception\UnsupportedTypeException
-     */
-    public function __construct($survey)
+    public function __construct(Survey $survey)
     {
 
-        if (!($survey instanceof Survey)) {
-            throw new ErrorException(get_class($survey) .' used as Survey');
-        }
         $this->applicationMajorVersion = intval(Yii::app()->getConfig("versionnumber"));
 
         $this->survey = $survey;
-        $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_". substr(bin2hex(random_bytes(10)),0,4).".ods";
+        $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_" . substr(bin2hex(random_bytes(10)), 0, 4) . ".ods";
         $this->languages = $survey->getAllLanguages();
 
         $this->writer = new \OpenSpout\Writer\ODS\Writer();
@@ -97,7 +90,7 @@ abstract class AbstractExport extends CModel
      */
     public function getFullFileName()
     {
-        return $this->path.$this->fileName;
+        return $this->path . $this->fileName;
     }
 
     protected function initStyles()
@@ -112,8 +105,8 @@ abstract class AbstractExport extends CModel
         $this->groupStyle->setBackgroundColor(Color::GREEN);
 
         $this->questionStyle = new Style();
-        $this->questionStyle ->setFontBold();
-        $this->questionStyle ->setBackgroundColor(Color::LIGHT_GREEN);
+        $this->questionStyle->setFontBold();
+        $this->questionStyle->setBackgroundColor(Color::LIGHT_GREEN);
 
         $this->subQuestionStyle = new Style();
         //$this->subQuestionStyle->setBackgroundColor(Color::LIGHT_GREEN)
@@ -135,21 +128,22 @@ abstract class AbstractExport extends CModel
     /**
      * @param string $sheetName
      */
-    protected function setSheet($sheetName){
+    protected function setSheet($sheetName)
+    {
         $this->sheetName = $sheetName;
 
-        if($this->sheetsCount === 0) {
+        if ($this->sheetsCount === 0) {
             $this->sheet = $this->writer->getCurrentSheet();
         } else {
             $this->sheet = $this->writer->addNewSheetAndMakeItCurrent();
         }
         $this->sheet->setName($this->sheetName);
-        $this->sheetsCount ++;
+        $this->sheetsCount++;
     }
 
-    protected  abstract function writeData();
-    protected  abstract function loadHeader();
+    protected abstract function writeData();
 
+    protected abstract function loadHeader();
 
 
 }

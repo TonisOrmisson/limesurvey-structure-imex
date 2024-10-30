@@ -1,10 +1,23 @@
 <?php
-require_once __DIR__ . DIRECTORY_SEPARATOR.'ImportFromFile.php';
+
+namespace tonisormisson\ls\structureimex;
+
+use Answer;
+use AnswerL10n;
+use CDbCriteria;
+use LSActiveRecord;
+use Question;
+use QuestionAttribute;
+use QuestionGroup;
+use QuestionGroupL10n;
+use QuestionL10n;
+use Exception;
+
 
 class ImportStructureV4Plus extends ImportFromFile
 {
 
-    /** @var LSActiveRecord  */
+    /** @var LSActiveRecord */
     public $currentModel;
 
     /** @var string */
@@ -20,19 +33,19 @@ class ImportStructureV4Plus extends ImportFromFile
     /** @var QuestionGroup $questionGroup current questionGroup */
     private $questionGroup;
 
-    /** @var int  */
+    /** @var int */
     private $groupOrder = 1;
 
-    /** @var int  */
+    /** @var int */
     private $questionOrder = 1;
 
-    /** @var int  */
+    /** @var int */
     private $subQuestionOrder = 1;
 
-    /** @var int  */
+    /** @var int */
     private $answerOrder = 1;
 
-    /** @var string[]  */
+    /** @var string[] */
     private $languages = [];
 
 
@@ -74,7 +87,7 @@ class ImportStructureV4Plus extends ImportFromFile
         $this->currentModel = null;
     }
 
-    protected function beforeProcess() : void
+    protected function beforeProcess(): void
     {
         $this->validateStructure();
     }
@@ -110,7 +123,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @return QuestionGroup|null
      * @throws Exception
      */
-    protected function findGroup($language)  : ?QuestionGroup
+    protected function findGroup($language): ?QuestionGroup
     {
         if ($this->type != ExportQuestions::TYPE_GROUP) {
             throw new Exception('Not a group!');
@@ -122,20 +135,20 @@ class ImportStructureV4Plus extends ImportFromFile
         $result = null;
 
         // if the file is an export file, it will possibly contain group id
-        if(!empty($this->rowAttributes[self::COLUMN_CODE])) {
+        if (!empty($this->rowAttributes[self::COLUMN_CODE])) {
             $gidCriteria = clone $criteria;
             $gidCriteria->addCondition('gid=:gid');
-            $gidCriteria->params[':gid']= $this->rowAttributes[self::COLUMN_CODE];
+            $gidCriteria->params[':gid'] = $this->rowAttributes[self::COLUMN_CODE];
             $result = QuestionGroup::model()->find($gidCriteria);
         }
-        if($result instanceof QuestionGroup) {
+        if ($result instanceof QuestionGroup) {
             return $result;
         }
 
         // otherwise try to look by name and hope it has not been changed
-        $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+        $languageValueKey = self::COLUMN_VALUE . "-" . $language;
         $criteria->addCondition('questiongroupl10ns.group_name=:name');
-        $criteria->params[':name']= $this->rowAttributes[$languageValueKey];
+        $criteria->params[':name'] = $this->rowAttributes[$languageValueKey];
 
         $result = QuestionGroup::model()->with('questiongroupl10ns')->find($criteria);
         return $result;
@@ -175,12 +188,12 @@ class ImportStructureV4Plus extends ImportFromFile
         $language = $this->survey->language;
         $this->currentModel = $this->findGroup($language);
 
-        if(!($this->currentModel instanceof QuestionGroup)) {
+        if (!($this->currentModel instanceof QuestionGroup)) {
             $this->currentModel = new QuestionGroup();
         }
 
         $this->currentModel->setAttributes([
-            'sid' => (int) $this->survey->sid,
+            'sid' => (int)$this->survey->sid,
             'grelevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
             'group_order' => $this->groupOrder,
         ]);
@@ -191,7 +204,7 @@ class ImportStructureV4Plus extends ImportFromFile
         $this->currentModel->sid = $this->survey->sid;
 
         $result = $this->currentModel->save();
-        if(!$result) {
+        if (!$result) {
             throw new Exception('Error saving group : ' . serialize($this->currentModel->getErrors()));
         }
 
@@ -199,15 +212,15 @@ class ImportStructureV4Plus extends ImportFromFile
 
         foreach ($this->languages as $language) {
             $this->currentModel = $this->findGroupL10n($this->questionGroup->gid, $language);
-            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
-            $languageHelpKey = self::COLUMN_HELP . "-" .$language;
+            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $languageHelpKey = self::COLUMN_HELP . "-" . $language;
 
-            if(!($this->currentModel instanceof QuestionGroupL10n)) {
+            if (!($this->currentModel instanceof QuestionGroupL10n)) {
                 $this->currentModel = new QuestionGroupL10n();
             }
 
             $this->currentModel->setAttributes([
-                'gid' => (int) $this->questionGroup->gid,
+                'gid' => (int)$this->questionGroup->gid,
                 'group_name' => $this->rowAttributes[$languageValueKey],
                 'description' => $this->rowAttributes[$languageHelpKey],
                 'language' => $language,
@@ -219,7 +232,7 @@ class ImportStructureV4Plus extends ImportFromFile
             }
         }
 
-        $this->groupOrder ++;
+        $this->groupOrder++;
         $this->questionOrder = 1;
     }
 
@@ -231,8 +244,8 @@ class ImportStructureV4Plus extends ImportFromFile
         $criteria->order = "group_order DESC";
         $lastGroup = QuestionGroup::model()->find($criteria);
 
-        if($lastGroup instanceof QuestionGroup) {
-           $this->groupOrder = $lastGroup->group_order +1;
+        if ($lastGroup instanceof QuestionGroup) {
+            $this->groupOrder = $lastGroup->group_order + 1;
         }
 
     }
@@ -240,7 +253,8 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @throws Exception
      */
-    private function saveQuestions(){
+    private function saveQuestions()
+    {
         $i = 1;
         $this->question = null;
 
@@ -267,12 +281,12 @@ class ImportStructureV4Plus extends ImportFromFile
         ];
 
         $questionTheme = "";
-        if(!empty($this->rowAttributes[self::COLUMN_THEME])) {
+        if (!empty($this->rowAttributes[self::COLUMN_THEME])) {
             $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
         }
         if (empty($questionTheme)) {
-            $attributeInput =$this->rowAttributes[self::COLUMN_OPTIONS];
-            $attributeArray = (array) json_decode((string) $attributeInput);
+            $attributeInput = $this->rowAttributes[self::COLUMN_OPTIONS];
+            $attributeArray = (array)json_decode((string)$attributeInput);
             if (!empty($attributeArray['question_template'])) {
                 $questionTheme = $attributeArray['question_template'];
             }
@@ -294,8 +308,8 @@ class ImportStructureV4Plus extends ImportFromFile
         foreach ($this->languages as $language) {
             $this->currentModel = $this->findQuestionL10n($this->question->qid, $language);
 
-            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
-            $languageHelpKey = self::COLUMN_HELP . "-" .$language;
+            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $languageHelpKey = self::COLUMN_HELP . "-" . $language;
 
             if (!($this->currentModel instanceof QuestionL10n)) {
                 $this->currentModel = new QuestionL10n();
@@ -314,7 +328,7 @@ class ImportStructureV4Plus extends ImportFromFile
                 throw new Exception("Error saving baseQuestion nr $i language '$language': " . serialize($this->rowAttributes[$languageValueKey]) . serialize($this->currentModel->getErrors()));
             }
         }
-        $this->questionOrder ++;
+        $this->questionOrder++;
         $this->subQuestionOrder = 1;
         $this->answerOrder = 1;
     }
@@ -324,13 +338,13 @@ class ImportStructureV4Plus extends ImportFromFile
      */
     private function saveQuestionAttributes()
     {
-        if(!isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
+        if (!isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
             return;
         }
 
-        $attributeInput =$this->rowAttributes[self::COLUMN_OPTIONS];
-        $attributeArray = (array) json_decode($attributeInput);
-        if(empty($attributeArray)) {
+        $attributeInput = $this->rowAttributes[self::COLUMN_OPTIONS];
+        $attributeArray = (array)json_decode($attributeInput);
+        if (empty($attributeArray)) {
             return;
         }
         // Filter the attributes to only those that need to be validated, unless the
@@ -342,20 +356,21 @@ class ImportStructureV4Plus extends ImportFromFile
         $myAttributes->setAttributes($attributeArray, false);
         $myAttributes->validate();
         foreach ($myAttributes->attributes as $attributeName => $value) {
-            if(is_null($value)) {
+            if (is_null($value)) {
                 continue;
             }
             $this->saveQuestionAttribute($attributeName, $value);
         }
     }
 
-    private function validateAttributes($attributeArray){
+    private function validateAttributes($attributeArray)
+    {
         $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
-        if(empty($attributeArray)) {
+        if (empty($attributeArray)) {
             return;
         }
         foreach ($attributeArray as $attributeName => $value) {
-            if(!in_array($attributeName, $allowedAttributes)) {
+            if (!in_array($attributeName, $allowedAttributes)) {
                 throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
             }
         }
@@ -366,12 +381,12 @@ class ImportStructureV4Plus extends ImportFromFile
     {
         foreach ($this->languages as $language) {
             $attributeModel = QuestionAttribute::model()
-                ->find("qid=:qid and attribute=:attributeName and language=:language",[
+                ->find("qid=:qid and attribute=:attributeName and language=:language", [
                     ':qid' => $this->currentModel->qid,
                     ':attributeName' => $attributeName,
-                    ':language' => $language
+                    ':language' => $language,
                 ]);
-            if(!($attributeModel instanceof QuestionAttribute)) {
+            if (!($attributeModel instanceof QuestionAttribute)) {
                 $attributeModel = new QuestionAttribute();
                 $attributeValues = [
                     'language' => $language,
@@ -386,7 +401,7 @@ class ImportStructureV4Plus extends ImportFromFile
             $attributeModel->value = $value;
 
             $attributeModel->validate();
-            if(!$attributeModel->save()) {
+            if (!$attributeModel->save()) {
                 throw new Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
                     . serialize($attributeModel->errors));
             }
@@ -397,7 +412,8 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @throws Exception
      */
-    private function saveSubQuestions(){
+    private function saveSubQuestions()
+    {
         $i = 1;
         $this->subQuestion = null;
         $this->currentModel = $this->findSubQuestion();
@@ -407,7 +423,7 @@ class ImportStructureV4Plus extends ImportFromFile
         }
 
         // subquestion validation in yii model is broken, need to make an array and apply in loop
-        $attributes  = [
+        $attributes = [
             'sid' => $this->survey->sid,
             'type' => $this->question->type,
             'gid' => $this->questionGroup->gid,
@@ -431,8 +447,8 @@ class ImportStructureV4Plus extends ImportFromFile
         foreach ($this->languages as $language) {
             $this->currentModel = $this->findQuestionL10n($this->subQuestion->qid, $language);
 
-            $languageValueKey = self::COLUMN_VALUE . "-" .$language;
-            $languageHelpKey = self::COLUMN_HELP . "-" .$language;
+            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $languageHelpKey = self::COLUMN_HELP . "-" . $language;
 
             if (!($this->currentModel instanceof QuestionL10n)) {
                 $this->currentModel = new QuestionL10n();
@@ -460,7 +476,7 @@ class ImportStructureV4Plus extends ImportFromFile
     private function saveAnswers()
     {
         $this->currentModel = $this->findAnswer();
-        if(!($this->currentModel instanceof Answer)) {
+        if (!($this->currentModel instanceof Answer)) {
             $this->currentModel = new Answer();
         }
         $this->currentModel->setAttributes([
@@ -469,7 +485,7 @@ class ImportStructureV4Plus extends ImportFromFile
         ]);
         $result = $this->saveAnswer();
         if (!$result) {
-            throw new Exception('Error saving answer : ' .serialize($this->rowAttributes). serialize($this->currentModel->getErrors()));
+            throw new Exception('Error saving answer : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
         }
         $answerId = $this->currentModel->aid;
         foreach ($this->languages as $language) {
@@ -482,8 +498,8 @@ class ImportStructureV4Plus extends ImportFromFile
                 'language' => $language,
             ]);
             $result = $this->saveAnswerL10n($language);
-            if(!$result) {
-                throw new Exception('Error saving answer : ' .serialize($this->rowAttributes). serialize($this->currentModel->getErrors()));
+            if (!$result) {
+                throw new Exception('Error saving answer : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
             }
         }
     }
@@ -491,7 +507,7 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @return Answer|null
      */
-    protected function findAnswer() : ?Answer
+    protected function findAnswer(): ?Answer
     {
         if (empty($this->question)) {
             return null;
@@ -511,7 +527,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @param string $language
      * @return AnswerL10n|null
      */
-    protected function findAnswerL10n(int $answerId, string $language) : ?AnswerL10n
+    protected function findAnswerL10n(int $answerId, string $language): ?AnswerL10n
     {
         if (empty($this->question)) {
             return null;
@@ -529,15 +545,15 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @return bool
      */
-    private function saveAnswer() : bool
+    private function saveAnswer(): bool
     {
         $this->currentModel->setAttributes([
             'sid' => $this->survey->primaryKey,
             'code' => $this->rowAttributes[self::COLUMN_CODE],
             'qid' => $this->question->qid,
-            'sortorder' => $this->answerOrder
+            'sortorder' => $this->answerOrder,
         ]);
-        $this->answerOrder ++;
+        $this->answerOrder++;
 
         return $this->currentModel->save();
     }
@@ -546,9 +562,9 @@ class ImportStructureV4Plus extends ImportFromFile
      * @param string $language
      * @return bool
      */
-    private function saveAnswerL10n(string $language) : bool
+    private function saveAnswerL10n(string $language): bool
     {
-        $languageValueKey = self::COLUMN_VALUE . "-" .$language;
+        $languageValueKey = self::COLUMN_VALUE . "-" . $language;
         $this->currentModel->setAttributes([
             'answer' => $this->rowAttributes[$languageValueKey],
         ]);
@@ -560,7 +576,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @return bool
      * @throws Exception
      */
-    private function validateStructure() : bool
+    private function validateStructure(): bool
     {
         $this->parseLanguages();
         if (!$this->validateLanguages()) {
@@ -579,11 +595,11 @@ class ImportStructureV4Plus extends ImportFromFile
         $headerValues = array_keys($this->readerData[0]);
         foreach ($headerValues as $value) {
             $searchValue = static::COLUMN_VALUE;
-            $isLang = is_int(strpos($value, (string) $searchValue));
-            if($isLang) {
-                $langStart = strpos($value, "-") +1;
+            $isLang = is_int(strpos($value, (string)$searchValue));
+            if ($isLang) {
+                $langStart = strpos($value, "-") + 1;
                 $langugage = strtolower(trim(substr($value, $langStart, strlen($value))));
-                $this->languages[] =  $langugage;
+                $this->languages[] = $langugage;
             }
         }
     }
@@ -591,14 +607,14 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @return bool
      */
-    private function validateLanguages() : bool
+    private function validateLanguages(): bool
     {
-        if(empty($this->languages)) {
+        if (empty($this->languages)) {
             $this->addError("file", "Languages not defined in file. Must have cols like 'value-en' etc... ");
         }
 
         foreach ($this->languages as $language) {
-            if(!in_array($language, $this->languages)) {
+            if (!in_array($language, $this->languages)) {
                 $this->addError("file", sprintf("Language '%s' not used in survey", $language));
             }
 
@@ -615,7 +631,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @return bool
      * @throws Exception
      */
-    private function validateModels() : bool
+    private function validateModels(): bool
     {
         $thisModel = null;
         $i = 0;
@@ -636,7 +652,7 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @return Question|null
      */
-    private function findSubQuestion() :?Question
+    private function findSubQuestion(): ?Question
     {
         $criteria = new CDbCriteria();
         $criteria->addCondition('sid=:sid');
@@ -655,7 +671,7 @@ class ImportStructureV4Plus extends ImportFromFile
     /**
      * @return Question|null
      */
-    private function findQuestion() :?Question
+    private function findQuestion(): ?Question
     {
         $criteria = new CDbCriteria();
         $criteria->addCondition('sid=:sid');
@@ -672,7 +688,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @param string $language
      * @return QuestionL10n|null
      */
-    private function findQuestionL10n(int $qid, string  $language) :?QuestionL10n
+    private function findQuestionL10n(int $qid, string $language): ?QuestionL10n
     {
         $criteria = new CDbCriteria();
         $criteria->addCondition('language=:language');

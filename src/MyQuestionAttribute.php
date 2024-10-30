@@ -1,5 +1,8 @@
 <?php
 
+namespace tonisormisson\ls\structureimex;
+use CModel;
+
 class MyQuestionAttribute extends CModel
 {
     const ATTRIBUTE_HIDE_TIP = "hide_tip";
@@ -45,7 +48,6 @@ class MyQuestionAttribute extends CModel
     public $prefix;
 
 
-
     public function rules()
     {
         return [
@@ -59,18 +61,18 @@ class MyQuestionAttribute extends CModel
             [static::ATTRIBUTE_MAX_NUMERIC_VALUE, 'filterIntegers'],
             [static::ATTRIBUTE_INTEGER_ONLY, 'filterIntegers'],
 
-            [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
-            [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly'=>true,  'max'=>1, 'allowEmpty' => true],
-            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly'=>true,  'max'=>12, 'allowEmpty' => true],
-            [static::ATTRIBUTE_MIN_ANSWERS, 'numerical', 'integerOnly'=>true,  'max'=>1000, 'allowEmpty' => true],
-            [static::ATTRIBUTE_MAX_ANSWERS, 'numerical', 'integerOnly'=>true,  'max'=>1000, 'allowEmpty' => true],
-            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly'=>true, 'min' => 0, 'max'=>1],
-            [static::ATTRIBUTE_MIN_NUMERIC_VALUE, 'numerical', 'integerOnly'=>true,'allowEmpty' => true],
-            [static::ATTRIBUTE_MAX_NUMERIC_VALUE, 'numerical', 'integerOnly'=>true,'allowEmpty' => true],
-            [static::ATTRIBUTE_INTEGER_ONLY, 'numerical', 'integerOnly'=>true, 'min' => 0, 'max'=>1,'allowEmpty' => true],
-            [static::ATTRIBUTE_ARRAY_FILTER, 'length', 'max'=>1024, 'allowEmpty' => true],
-            [static::ATTRIBUTE_PREFIX, 'length', 'max'=>1024, 'allowEmpty' => true],
-            [static::ATTRIBUTE_EXCLUDE, 'length', 'max'=>1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly' => true, 'max' => 1, 'allowEmpty' => true],
+            [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly' => true, 'max' => 1, 'allowEmpty' => true],
+            [static::ATTRIBUTE_TEXT_INPUT_WIDTH, 'numerical', 'integerOnly' => true, 'max' => 12, 'allowEmpty' => true],
+            [static::ATTRIBUTE_MIN_ANSWERS, 'numerical', 'integerOnly' => true, 'max' => 1000, 'allowEmpty' => true],
+            [static::ATTRIBUTE_MAX_ANSWERS, 'numerical', 'integerOnly' => true, 'max' => 1000, 'allowEmpty' => true],
+            [static::ATTRIBUTE_RANDOM_ORDER, 'numerical', 'integerOnly' => true, 'min' => 0, 'max' => 1],
+            [static::ATTRIBUTE_MIN_NUMERIC_VALUE, 'numerical', 'integerOnly' => true, 'allowEmpty' => true],
+            [static::ATTRIBUTE_MAX_NUMERIC_VALUE, 'numerical', 'integerOnly' => true, 'allowEmpty' => true],
+            [static::ATTRIBUTE_INTEGER_ONLY, 'numerical', 'integerOnly' => true, 'min' => 0, 'max' => 1, 'allowEmpty' => true],
+            [static::ATTRIBUTE_ARRAY_FILTER, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_PREFIX, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_EXCLUDE, 'length', 'max' => 1024, 'allowEmpty' => true],
 
         ];
     }
@@ -80,10 +82,10 @@ class MyQuestionAttribute extends CModel
      * @param $attributeName
      * @return bool
      */
-    public function  filterIntegers($attributeName)
+    public function filterIntegers($attributeName)
     {
         // allow empty
-        if(is_null($this->{$attributeName})) {
+        if (is_null($this->{$attributeName})) {
             return true;
         }
         $this->{$attributeName} = intval($this->{$attributeName});
@@ -91,7 +93,8 @@ class MyQuestionAttribute extends CModel
     }
 
 
-    public function attributeLabels() {
+    public function attributeLabels()
+    {
         return [
             static::ATTRIBUTE_HIDE_TIP => "Hide tip",
             static::ATTRIBUTE_EXCLUDE => "Exclusive option",
@@ -110,7 +113,7 @@ class MyQuestionAttribute extends CModel
         ];
     }
 
-    public function allowedValues() : array
+    public function allowedValues(): array
     {
         return [
             static::ATTRIBUTE_HIDE_TIP => "integer 0-1",
@@ -136,7 +139,7 @@ class MyQuestionAttribute extends CModel
      */
     public function attributeNames()
     {
-        return  [
+        return [
             static::ATTRIBUTE_HIDE_TIP,
             static::ATTRIBUTE_EXCLUDE,
             static::ATTRIBUTE_HIDDEN,
