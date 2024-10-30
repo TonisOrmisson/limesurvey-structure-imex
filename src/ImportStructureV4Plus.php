@@ -20,9 +20,6 @@ class ImportStructureV4Plus extends ImportFromFile
     /** @var LSActiveRecord */
     public $currentModel;
 
-    /** @var string */
-    public $importModelsClassName = "";
-
 
     /** @var Question $question current question (main/parent) */
     private $question;

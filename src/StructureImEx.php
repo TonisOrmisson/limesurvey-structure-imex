@@ -3,7 +3,6 @@
 namespace tonisormisson\ls\structureimex;
 
 use CUploadedFile;
-use kcfinder\dir;
 use LSYii_Application;
 use PluginBase;
 use Survey;
@@ -153,7 +152,7 @@ class StructureImEx extends PluginBase
 
         if (Yii::app()->request->isPostRequest) {
             if ($this->survey->getIsActive()) {
-                Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
+                $this->app->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
                 if ($this->isV4plusVersion()) {
                     $import = new ImportStructureV4Plus($this);
@@ -170,7 +169,7 @@ class StructureImEx extends PluginBase
 
                     if (!empty($errors)) {
                         foreach ($errors as $error) {
-                            Yii::app()->setFlashMessage($error, 'error');
+                            $this->app->setFlashMessage($error, 'error');
                         }
                     }
 
@@ -199,10 +198,10 @@ class StructureImEx extends PluginBase
 
         switch ($type) {
             case self::ACTION_RELEVANCES:
-                $model = new ExportRelevances($this->survey);
+                $model = new ExportRelevances($this);
                 break;
             case self::ACTION_QUESTIONS:
-                $model = new ExportQuestions($this->survey);
+                $model = new ExportQuestions($this);
                 break;
             default:
                 throw new \Exception('Unknown type: ' . $type);

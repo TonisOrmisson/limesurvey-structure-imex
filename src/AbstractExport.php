@@ -6,8 +6,8 @@ use CModel;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Writer\AbstractWriterMultiSheets;
 use OpenSpout\Writer\Common\Entity\Sheet;
-use OpenSpout\Writer\WriterInterface;
 use Survey;
 use Yii;
 
@@ -24,7 +24,7 @@ abstract class AbstractExport extends CModel
     /** @var string */
     public $fileName;
 
-    /** @var WriterInterface */
+    /** @var AbstractWriterMultiSheets */
     public $writer;
 
     /** @var  string[] */
@@ -65,15 +65,20 @@ abstract class AbstractExport extends CModel
     /** @var integer main LimeSurvey application sw version number eg 3 etc */
     protected $applicationMajorVersion = 3;
 
+    protected StructureImEx $plugin;
 
-    public function __construct(Survey $survey)
+    use AppTrait;
+
+
+    public function __construct(StructureImEx $plugin)
     {
+        $this->plugin = $plugin;
 
-        $this->applicationMajorVersion = intval(Yii::app()->getConfig("versionnumber"));
+        $this->applicationMajorVersion = intval($this->app()->getConfig("versionnumber"));
 
-        $this->survey = $survey;
+        $this->survey = $plugin->getSurvey();
         $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_" . substr(bin2hex(random_bytes(10)), 0, 4) . ".ods";
-        $this->languages = $survey->getAllLanguages();
+        $this->languages = $this->survey->getAllLanguages();
 
         $this->writer = new \OpenSpout\Writer\ODS\Writer();
         $this->initStyles();
@@ -91,6 +96,11 @@ abstract class AbstractExport extends CModel
     public function getFullFileName()
     {
         return $this->path . $this->fileName;
+    }
+
+    public function attributeNames()
+    {
+        return [];
     }
 
     protected function initStyles()
@@ -112,10 +122,6 @@ abstract class AbstractExport extends CModel
         //$this->subQuestionStyle->setBackgroundColor(Color::LIGHT_GREEN)
     }
 
-    public function attributeNames()
-    {
-        // TODO: Implement attributeNames() method.
-    }
 
     protected function writeHeaders()
     {

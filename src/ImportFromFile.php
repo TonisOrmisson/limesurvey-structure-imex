@@ -62,9 +62,6 @@ abstract class ImportFromFile extends CModel
     const TYPE_SUBQUESTION = 3;
 
 
-    /**
-     * @throws ErrorException
-     */
     function __construct(StructureImEx $plugin)
     {
         $this->plugin = $plugin;
@@ -196,7 +193,6 @@ abstract class ImportFromFile extends CModel
      * into an indexed array based on the $i-th element in the array. By default its the
      * first [0] element (header row). The indexing element will be excluded from output
      * array
-     * @return array
      */
     public static function indexByRow(array $array, int $i = 0): array
     {
@@ -223,7 +219,6 @@ abstract class ImportFromFile extends CModel
 
     /**
      * Changes the Excel reader active worksheet
-     * @return boolean
      */
     protected function setWorksheet(?string $sheetName = null): bool
     {

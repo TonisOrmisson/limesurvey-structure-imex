@@ -54,11 +54,7 @@ class ImportRelevance extends ImportFromFile
 
     }
 
-    /**
-     * @param QuestionGroup $model
-     * @return bool|int
-     */
-    private function updateGroup(QuestionGroup $model)
+    private function updateGroup(QuestionGroup $model) : bool|int
     {
         if ($model->validate([$this->relevanceAttribute])) {
             $criteria = new CDbCriteria();
@@ -70,11 +66,7 @@ class ImportRelevance extends ImportFromFile
         return false;
     }
 
-    /**
-     * @param Question $model
-     * @return bool|int
-     */
-    private function updateQuestion(Question $model)
+    private function updateQuestion(Question $model) : bool|int
     {
         if ($model->validate([$this->relevanceAttribute])) {
             $criteria = new CDbCriteria();
@@ -90,12 +82,7 @@ class ImportRelevance extends ImportFromFile
 
     }
 
-    /**
-     * @param $row
-     * @return Question|QuestionGroup|null
-     * @throws Exception
-     */
-    private function findModel($row)
+    private function findModel(array $row) : Question|QuestionGroup|null
     {
 
         $this->relevanceAttribute = 'relevance';
@@ -119,12 +106,7 @@ class ImportRelevance extends ImportFromFile
         return null;
     }
 
-    /**
-     * @param $row
-     * @return QuestionGroup|null
-     * @throws Exception
-     */
-    protected function findGroup($row)
+    protected function findGroup(array $row) : ?QuestionGroup
     {
         $criteria = new CDbCriteria();
         $criteria->params[':language'] = $this->language;
@@ -152,11 +134,7 @@ class ImportRelevance extends ImportFromFile
         return QuestionGroup::model()->find($criteria);
     }
 
-    /**
-     * @param $row
-     * @return Question|null
-     */
-    protected function findSubQuestion($row)
+    protected function findSubQuestion(array $row) : ?Question
     {
         $this->questionCodeColumn = 'parent';
         $parent = $this->findQuestion();
@@ -186,10 +164,7 @@ class ImportRelevance extends ImportFromFile
     }
 
 
-    /**
-     * @return Question|null
-     */
-    protected function findQuestion()
+    protected function findQuestion() : ?Question
     {
         $criteria = new CDbCriteria();
         $criteria->addCondition('sid=:sid');

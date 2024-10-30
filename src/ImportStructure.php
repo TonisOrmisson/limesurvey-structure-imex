@@ -131,9 +131,6 @@ class ImportStructure extends ImportFromFile
         return $result;
     }
 
-    /**
-     * @throws Exception
-     */
     private function saveGroups()
     {
         $i = 0;
@@ -199,9 +196,6 @@ class ImportStructure extends ImportFromFile
 
     }
 
-    /**
-     * @throws Exception
-     */
     private function saveQuestions()
     {
         $i = 0;
@@ -390,9 +384,6 @@ class ImportStructure extends ImportFromFile
         $this->subQuestionOrder++;
     }
 
-    /**
-     * @throws Exception
-     */
     private function saveAnswers()
     {
         foreach ($this->languages as $language) {

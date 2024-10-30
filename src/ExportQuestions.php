@@ -41,6 +41,7 @@ class ExportQuestions extends AbstractExport
     protected $sheetName = "questions";
 
 
+
     protected function writeData()
     {
 
@@ -53,13 +54,7 @@ class ExportQuestions extends AbstractExport
     }
 
 
-    /**
-     * @param QuestionGroup $group
-     * @throws \Box\Spout\Common\Exception\IOException
-     * @throws \Box\Spout\Common\Exception\SpoutException
-     * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
-     */
-    private function addGroup($group)
+    private function addGroup(QuestionGroup $group)
     {
         $row = [
             self::TYPE_GROUP,
@@ -92,13 +87,7 @@ class ExportQuestions extends AbstractExport
 
     }
 
-    /**
-     * @param Question $question Question in main language
-     * @throws \Box\Spout\Common\Exception\IOException
-     * @throws \Box\Spout\Common\Exception\SpoutException
-     * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
-     */
-    private function addQuestion($question)
+    private function addQuestion(Question $question)
     {
 
         $row = [
@@ -465,4 +454,6 @@ class ExportQuestions extends AbstractExport
 
         return QuestionAttribute::model()->findAll($criteria);
     }
+
+
 }
