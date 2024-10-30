@@ -48,7 +48,7 @@ class StructureImEx extends PluginBase
                 'type' => 'boolean',
                 'label' => 'Import unknown attributes',
                 'help' => 'Allow importing unknown question attributes (i.e. plugin attributes).',
-                'current' => $this->get('importUnknownAttributes', 'Survey', $surveyId, false)
+                'current' => $this->get('importUnknownAttributes', 'Survey', $surveyId, false),
             ],
         ];
 
@@ -118,7 +118,7 @@ class StructureImEx extends PluginBase
         $import = null;
 
         if (Yii::app()->request->isPostRequest){
-            $import = new ImportRelevance($this->survey);
+            $import = new ImportRelevance($this);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if(!$import->loadFile($oFile)){
                 $this->app->setFlashMessage($import->getError('file'), 'error');
@@ -145,9 +145,9 @@ class StructureImEx extends PluginBase
                 Yii::app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
                 if ($this->isV4plusVersion()) {
-                    $import = new ImportStructureV4Plus($this->survey);
+                    $import = new ImportStructureV4Plus($this);
                 } else {
-                    $import = new ImportStructure($this->survey);
+                    $import = new ImportStructure($this);
                 }
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
@@ -208,6 +208,22 @@ class StructureImEx extends PluginBase
         readfile($model->getFullFileName());
         unlink($model->getFullFileName());
         App()->end();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getImportUnknownAttributes()
+    {
+        return boolval($this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false));
+    }
+
+    /**
+     * @return Survey
+     */
+    public function getSurvey()
+    {
+        return $this->survey;
     }
 
     private function beforeAction($sid) {

@@ -3,6 +3,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR.'ImportFromFile.php';
 
 class ImportStructureV4Plus extends ImportFromFile
 {
+
     /** @var LSActiveRecord  */
     public $currentModel;
 
@@ -49,7 +50,7 @@ class ImportStructureV4Plus extends ImportFromFile
      * @inheritdoc
      * @throws Exception
      */
-    protected function importModel($attributes)
+    protected function importModel($attributes): void
     {
         $this->questionCodeColumn = static::COLUMN_CODE;
         $this->rowAttributes = $attributes;
@@ -58,28 +59,23 @@ class ImportStructureV4Plus extends ImportFromFile
         switch ($this->type) {
             case ExportQuestions::TYPE_GROUP:
                 $this->saveGroups();
-                return null;
+                return;
             case ExportQuestions::TYPE_QUESTION:
                 $this->saveQuestions();
-                return null;
+                return;
             case ExportQuestions::TYPE_ANSWER:
                 $this->saveAnswers();
-                return null;
+                return;
             case ExportQuestions::TYPE_SUB_QUESTION:
                 $this->saveSubQuestions();
-                return null;
+                return;
 
         }
         $this->currentModel = null;
     }
 
-    /**
-     * @return void|null
-     * @throws Exception
-     */
-    protected function beforeProcess()
+    protected function beforeProcess() : void
     {
-        parent::beforeProcess();
         $this->validateStructure();
     }
 
@@ -339,7 +335,7 @@ class ImportStructureV4Plus extends ImportFromFile
         }
         // Filter the attributes to only those that need to be validated, unless the
         // importUnknownAttributes setting is set.
-        if (!$this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false)) {
+        if (!$this->plugin->getImportUnknownAttributes()) {
             $this->validateAttributes($attributeArray);
         }
         $myAttributes = new MyQuestionAttribute();

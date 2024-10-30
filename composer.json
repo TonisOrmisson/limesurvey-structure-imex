@@ -18,7 +18,6 @@
     "require": {
         "php": ">=8.0.4",
         "ext-json": "*",
-        "nuovo/spreadsheet-reader": "dev-master",
         "openspout/openspout": "^4.0",
         "sebastian/version": "^3.0"
     },
