@@ -2,7 +2,6 @@
 
 namespace tonisormisson\ls\structureimex;
 
-include 'vendor/yiisoft/yii/framework/base/CModel.php';
 use CModel;
 
 class MyQuestionAttribute extends CModel
@@ -20,6 +19,8 @@ class MyQuestionAttribute extends CModel
     const ATTRIBUTE_INTEGER_ONLY = "num_value_int_only";
     const ATTRIBUTE_ARRAY_FILTER = "array_filter";
     const ATTRIBUTE_PREFIX = "prefix";
+
+    public $attributes;
 
 
     /** @var integer */
@@ -52,6 +53,7 @@ class MyQuestionAttribute extends CModel
 
     public function rules()
     {
+        parent::rules();
         return [
             [static::ATTRIBUTE_HIDDEN, 'filterIntegers'],
             [static::ATTRIBUTE_HIDE_TIP, 'filterIntegers'],
