@@ -14,8 +14,6 @@ class ExportQuestions extends AbstractExport
 {
     private $type = "";
 
-    /** @var Question $question Main / parent question */
-    private $question;
 
 
     const TYPE_GROUP = 'G';
@@ -158,7 +156,6 @@ class ExportQuestions extends AbstractExport
         $this->addGroup($group);
 
         foreach ($this->questionsInMainLanguage($group) as $question) {
-            $this->question = $question;
             $this->type = self::TYPE_QUESTION;
             $this->processQuestion($question);
         }

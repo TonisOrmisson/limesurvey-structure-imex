@@ -130,6 +130,7 @@ abstract class ImportFromFile extends CModel
             'xlsx' => new \OpenSpout\Reader\XLSX\Reader(),
             'xls' => new \OpenSpout\Reader\XLSX\Reader(),
             'ods' => new \OpenSpout\Reader\ODS\Reader(),
+            default => throw new ImexException("invalid extension '$extension'"),
         };
         $this->reader->open($this->fileName);
         $this->setReaderData();

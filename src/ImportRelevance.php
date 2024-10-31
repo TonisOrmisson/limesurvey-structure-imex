@@ -117,7 +117,7 @@ class ImportRelevance extends ImportFromFile
 
         if ($this->isV4plusVersion()) {
             $criteria->addCondition('group.sid=:sid');
-            /** @var QuestionGroupL10n $l10n */
+            /** @var ?QuestionGroupL10n $l10n */
             $l10n = QuestionGroupL10n::model()
                 ->with('group')
                 ->find($criteria);
