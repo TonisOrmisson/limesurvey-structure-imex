@@ -13,7 +13,7 @@ use tonisormisson\ls\structureimex\exceptions\ImexException;
 
 class ImportStructure extends ImportFromFile
 {
-    public LSActiveRecord $currentModel;
+    public ?LSActiveRecord $currentModel;
 
 
     /** @var ?Question $question current question (main/parent) */

@@ -14,8 +14,7 @@ class ImportRelevance extends ImportFromFile
 {
     use AppTrait;
 
-    /** @var Question */
-    public $currentModel;
+    public ?Question $currentModel = null;
 
 
     /**

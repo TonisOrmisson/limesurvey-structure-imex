@@ -49,8 +49,6 @@ abstract class ImportFromFile extends CModel
     /** @var int $failedModelsCount Total number of records failed the processing */
     public int $failedModelsCount = 0;
 
-    protected LSYii_Application $app;
-
     public array $rowAttributes = [];
 
     protected StructureImEx $plugin;
@@ -61,13 +59,14 @@ abstract class ImportFromFile extends CModel
     const TYPE_QUESTION = 2;
     const TYPE_SUBQUESTION = 3;
 
+    use AppTrait;
+
 
     function __construct(StructureImEx $plugin)
     {
         $this->plugin = $plugin;
         $this->survey = $plugin->getSurvey();
         $this->language = $this->survey->language;
-        $this->app = Yii::app();
     }
 
     /**
@@ -80,7 +79,7 @@ abstract class ImportFromFile extends CModel
         if ($this->hasErrors()) {
             return false;
         }
-        $sPath = $this->app->getConfig('tempdir');
+        $sPath = $this->app()->getConfig('tempdir');
         $sFileName = $sPath . '/' . $this->file->name;
         $this->fileName = $sFileName;
 

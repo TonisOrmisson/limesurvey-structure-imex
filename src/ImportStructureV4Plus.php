@@ -12,40 +12,33 @@ use QuestionGroup;
 use QuestionGroupL10n;
 use QuestionL10n;
 use Exception;
-use tonisormisson\ls\structureimex\exceptions\ImexException;
 use tonisormisson\ls\structureimex\exceptions\InvalidModelTypeException;
 
 
 class ImportStructureV4Plus extends ImportFromFile
 {
 
-    /** @var LSActiveRecord */
+    /** @var ?LSActiveRecord */
     public $currentModel;
 
 
-    /** @var Question $question current question (main/parent) */
-    private $question;
+    /** @var ?Question $question current question (main/parent) */
+    private ?Question $question;
 
-    /** @var Question $subQuestion current subQuestion (main/parent) */
-    private $subQuestion;
+    /** @var ?Question $subQuestion current subQuestion (main/parent) */
+    private ?Question $subQuestion;
 
-    /** @var QuestionGroup $questionGroup current questionGroup */
-    private $questionGroup;
+    /** @var ?QuestionGroup $questionGroup current questionGroup */
+    private ?QuestionGroup $questionGroup;
 
-    /** @var int */
-    private $groupOrder = 1;
+    private int $groupOrder = 1;
 
-    /** @var int */
-    private $questionOrder = 1;
-
-    /** @var int */
-    private $subQuestionOrder = 1;
-
-    /** @var int */
-    private $answerOrder = 1;
+    private int $questionOrder = 1;
+    private int $subQuestionOrder = 1;
+    private int $answerOrder = 1;
 
     /** @var string[] */
-    private $languages = [];
+    private array $languages = [];
 
 
     const COLUMN_TYPE = 'type';

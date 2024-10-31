@@ -16,8 +16,6 @@ class StructureImEx extends PluginBase
 
     use AppTrait;
 
-    /** @var LSYii_Application */
-    protected $app;
 
     protected $storage = 'DbStorage';
     static protected $description = 'Import-Export survey structure & logic as file';
@@ -42,7 +40,6 @@ class StructureImEx extends PluginBase
         $this->subscribe('beforeToolsMenuRender');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
-        $this->app = Yii::app();
     }
 
     /**
