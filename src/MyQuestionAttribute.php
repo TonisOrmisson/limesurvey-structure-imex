@@ -20,7 +20,9 @@ class MyQuestionAttribute extends CModel
     const ATTRIBUTE_ARRAY_FILTER = "array_filter";
     const ATTRIBUTE_PREFIX = "prefix";
 
+    // phpstan somehow fails to pick up these 2 from parent
     public $attributes;
+    public $errors;
 
 
     /** @var integer */
