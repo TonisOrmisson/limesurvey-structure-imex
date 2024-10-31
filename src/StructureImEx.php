@@ -128,7 +128,8 @@ class StructureImEx extends PluginBase
 
         $import = null;
 
-        if (Yii::app()->request->isPostRequest) {
+
+        if ($this->app->request->isPostRequest) {
             $import = new ImportRelevance($this);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if (!$import->loadFile($oFile)) {
@@ -151,7 +152,7 @@ class StructureImEx extends PluginBase
         $this->data['exportPlugin'] = $this;
         $import = null;
 
-        if (Yii::app()->request->isPostRequest) {
+        if ($this->app->request->isPostRequest) {
             if ($this->survey->getIsActive()) {
                 $this->app->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
@@ -195,7 +196,7 @@ class StructureImEx extends PluginBase
     {
 
         $this->survey = Survey::model()->findByPk($sid);
-        $type = Yii::app()->request->getParam('type');
+        $type = $this->app->request->getParam('type');
 
         switch ($type) {
             case self::ACTION_RELEVANCES:
