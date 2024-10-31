@@ -64,7 +64,7 @@ class StructureImEx extends PluginBase
 
         // Set all settings
         $event->set("surveysettings.{$this->id}", [
-            'name' => self::getName(),
+            'name' =>  get_class($this),
             'settings' => $newSettings,
         ]);
     }
@@ -79,6 +79,7 @@ class StructureImEx extends PluginBase
             $this->set($name, $value, 'Survey', $event->get('survey'));
         }
     }
+
 
     public function beforeToolsMenuRender()
     {
@@ -224,7 +225,7 @@ class StructureImEx extends PluginBase
      */
     public function getImportUnknownAttributes()
     {
-        return boolval($this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false));
+        return $this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false);
     }
 
     /**

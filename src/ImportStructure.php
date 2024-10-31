@@ -246,10 +246,10 @@ class ImportStructure extends ImportFromFile
                 $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
             }
             if (!empty($questionTheme)) {
-                $this->saveQuestionAttribute("question_template", $questionTheme);
+                $this->saveQuestionAttribute($this->currentModel, "question_template", $questionTheme);
             }
 
-            $this->saveQuestionAttributes();
+            $this->saveQuestionAttributes($this->currentModel);
             if ($i === 1) {
                 $this->question = $this->currentModel;
             }
@@ -259,7 +259,7 @@ class ImportStructure extends ImportFromFile
         $this->answerOrder = 1;
     }
 
-    private function saveQuestionAttributes()
+    private function saveQuestionAttributes(Question $question)
     {
         if (!isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
             return;
@@ -282,7 +282,7 @@ class ImportStructure extends ImportFromFile
             if (is_null($value)) {
                 continue;
             }
-            $this->saveQuestionAttribute($attributeName, $value);
+            $this->saveQuestionAttribute($question, $attributeName, $value);
         }
     }
 
@@ -300,12 +300,13 @@ class ImportStructure extends ImportFromFile
 
     }
 
-    private function saveQuestionAttribute(string $attributeName, $value)
+    private function saveQuestionAttribute(Question $question, string $attributeName, $value)
     {
+
         foreach ($this->languages as $language) {
             $attributeModel = QuestionAttribute::model()
                 ->find("qid=:qid and attribute=:attributeName and language=:language", [
-                    ':qid' => $this->currentModel->qid,
+                    ':qid' => $question->qid,
                     ':attributeName' => $attributeName,
                     ':language' => $language,
                 ]);
@@ -313,7 +314,7 @@ class ImportStructure extends ImportFromFile
                 $attributeModel = new QuestionAttribute();
                 $attributeValues = [
                     'language' => $language,
-                    'qid' => $this->currentModel->qid,
+                    'qid' => $question->qid,
                     'attribute' => $attributeName,
                     'value' => $value,
                 ];
@@ -325,7 +326,7 @@ class ImportStructure extends ImportFromFile
 
             $attributeModel->validate();
             if (!$attributeModel->save()) {
-                throw new ImexException("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
+                throw new ImexException("error creating question attribute '{$attributeName}' for question {$question->title}, errors: "
                     . serialize($attributeModel->errors));
             }
         }

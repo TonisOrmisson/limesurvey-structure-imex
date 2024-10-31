@@ -12,6 +12,8 @@ use QuestionGroup;
 use QuestionGroupL10n;
 use QuestionL10n;
 use Exception;
+use tonisormisson\ls\structureimex\exceptions\ImexException;
+use tonisormisson\ls\structureimex\exceptions\InvalidModelTypeException;
 
 
 class ImportStructureV4Plus extends ImportFromFile
@@ -281,7 +283,7 @@ class ImportStructureV4Plus extends ImportFromFile
         if (!empty($this->rowAttributes[self::COLUMN_THEME])) {
             $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
         }
-        if (empty($questionTheme)) {
+        if (empty($questionTheme) && isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
             $attributeInput = $this->rowAttributes[self::COLUMN_OPTIONS];
             $attributeArray = (array)json_decode((string)$attributeInput);
             if (!empty($attributeArray['question_template'])) {
@@ -376,10 +378,15 @@ class ImportStructureV4Plus extends ImportFromFile
 
     private function saveQuestionAttribute(string $attributeName, $value)
     {
+
+        $model = $this->currentModel;
+        if(!($model instanceof Question)) {
+            throw new InvalidModelTypeException();
+        }
         foreach ($this->languages as $language) {
             $attributeModel = QuestionAttribute::model()
                 ->find("qid=:qid and attribute=:attributeName and language=:language", [
-                    ':qid' => $this->currentModel->qid,
+                    ':qid' => $model->qid,
                     ':attributeName' => $attributeName,
                     ':language' => $language,
                 ]);
@@ -387,7 +394,7 @@ class ImportStructureV4Plus extends ImportFromFile
                 $attributeModel = new QuestionAttribute();
                 $attributeValues = [
                     'language' => $language,
-                    'qid' => $this->currentModel->qid,
+                    'qid' => $model->qid,
                     'attribute' => $attributeName,
                     'value' => $value,
                 ];
@@ -399,7 +406,7 @@ class ImportStructureV4Plus extends ImportFromFile
 
             $attributeModel->validate();
             if (!$attributeModel->save()) {
-                throw new Exception("error creating question attribute '{$attributeName}' for question {$this->currentModel->name}, errors: "
+                throw new Exception("error creating question attribute '{$attributeName}' for question {$model->title}, errors: "
                     . serialize($attributeModel->errors));
             }
         }
