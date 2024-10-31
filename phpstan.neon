@@ -6,6 +6,7 @@ parameters:
         - src
     scanDirectories:
         - vendor
-        - vendor/yiisoft/yii/framework
     excludePaths:
         - vendor/yiisoft/yii/framework/yiilite.php
+    bootstrapFiles:
+        - stan_autoload.php

@@ -1,6 +1,7 @@
 <?php
 
 namespace tonisormisson\ls\structureimex;
+
 use CModel;
 
 class MyQuestionAttribute extends CModel
