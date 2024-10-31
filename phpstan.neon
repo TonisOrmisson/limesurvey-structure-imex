@@ -5,6 +5,7 @@ parameters:
     paths:
         - src
     scanDirectories:
-        - ./vendor
+        - vendor
+        - vendor/yiisoft/yii/framework
     excludePaths:
         - vendor/yiisoft/yii/framework/yiilite.php

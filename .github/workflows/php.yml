@@ -24,6 +24,10 @@ jobs:
       - name: check outdated packages
         run: composer outdated
 
+      - name: List installed dependencies
+        run: composer show
+
+
       - name: Run static code analysis
         run:  vendor/bin/phpstan
 
