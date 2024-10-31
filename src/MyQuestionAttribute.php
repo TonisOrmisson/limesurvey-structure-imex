@@ -2,6 +2,7 @@
 
 namespace tonisormisson\ls\structureimex;
 
+include 'vendor/yiisoft/yii/framework/base/CModel.php';
 use CModel;
 
 class MyQuestionAttribute extends CModel

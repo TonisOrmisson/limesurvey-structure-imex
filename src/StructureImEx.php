@@ -129,11 +129,11 @@ class StructureImEx extends PluginBase
         $import = null;
 
 
-        if ($this->app->request->isPostRequest) {
+        if ($this->app()->request->isPostRequest) {
             $import = new ImportRelevance($this);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if (!$import->loadFile($oFile)) {
-                $this->app->setFlashMessage($import->getError('file'), 'error');
+                $this->app()->setFlashMessage($import->getError('file'), 'error');
             } else {
                 $import->process();
             }
@@ -152,9 +152,9 @@ class StructureImEx extends PluginBase
         $this->data['exportPlugin'] = $this;
         $import = null;
 
-        if ($this->app->request->isPostRequest) {
+        if ($this->app()->request->isPostRequest) {
             if ($this->survey->getIsActive()) {
-                $this->app->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
+                $this->app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
                 if ($this->isV4plusVersion()) {
                     $import = new ImportStructureV4Plus($this);
@@ -163,7 +163,7 @@ class StructureImEx extends PluginBase
                 }
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
-                    $this->app->setFlashMessage($import->getError('file'), 'error');
+                    $this->app()->setFlashMessage($import->getError('file'), 'error');
                 } else {
                     $import->process();
 
@@ -171,7 +171,7 @@ class StructureImEx extends PluginBase
 
                     if (!empty($errors)) {
                         foreach ($errors as $error) {
-                            $this->app->setFlashMessage($error, 'error');
+                            $this->app()->setFlashMessage($error, 'error');
                         }
                     }
 
@@ -196,7 +196,7 @@ class StructureImEx extends PluginBase
     {
 
         $this->survey = Survey::model()->findByPk($sid);
-        $type = $this->app->request->getParam('type');
+        $type = $this->app()->request->getParam('type');
 
         switch ($type) {
             case self::ACTION_RELEVANCES:
