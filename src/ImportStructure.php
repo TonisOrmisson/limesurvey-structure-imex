@@ -327,7 +327,7 @@ class ImportStructure extends ImportFromFile
             $attributeModel->validate();
             if (!$attributeModel->save()) {
                 throw new ImexException("error creating question attribute '{$attributeName}' for question {$question->title}, errors: "
-                    . serialize($attributeModel->errors));
+                    . serialize($attributeModel->getErrors()));
             }
         }
     }
