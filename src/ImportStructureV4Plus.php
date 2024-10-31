@@ -400,7 +400,7 @@ class ImportStructureV4Plus extends ImportFromFile
             $attributeModel->validate();
             if (!$attributeModel->save()) {
                 throw new Exception("error creating question attribute '{$attributeName}' for question {$model->title}, errors: "
-                    . serialize($attributeModel->errors));
+                    . serialize($attributeModel->getErrors()));
             }
         }
     }
