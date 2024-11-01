@@ -34,6 +34,8 @@ class ImportStructure extends ImportFromFile
     /** @var string[]  */
     private $languages = [];
 
+    /** @var bool */
+    private $importUnknownAttributes = false;
 
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
@@ -44,6 +46,12 @@ class ImportStructure extends ImportFromFile
     const COLUMN_VALUE = 'value';
     const COLUMN_HELP = 'help';
     const COLUMN_MANDATORY = 'mandatory';
+
+    function __construct($survey, $options = [])
+    {
+        $this->importUnknownAttributes = $options['importUnknownAttributes'] ?? false;
+        parent::__construct($survey);
+    }
 
     /**
      * @inheritdoc
@@ -298,7 +306,7 @@ class ImportStructure extends ImportFromFile
         }
         // Filter the attributes to only those that need to be validated, unless the
         // importUnknownAttributes setting is set.
-        if (!$this->get('importUnknownAttributes', 'Survey', $this->survey->sid, false)) {
+        if (!$this->importUnknownAttributes) {
             $this->validateAttributes($attributeArray);
         }
         $myAttributes = new MyQuestionAttribute();
