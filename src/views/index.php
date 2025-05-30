@@ -1,6 +1,6 @@
 <?php
 
-use tonisormisson\ls\structureimex\ImportRelevance;
+use tonisormisson\ls\structureimex\import\ImportRelevance;
 
 /** @var Survey $survey */
 /** @var AdminController $this */

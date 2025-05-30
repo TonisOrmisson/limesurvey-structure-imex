@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\validation;
 
 use CModel;
 
@@ -19,9 +19,17 @@ class MyQuestionAttribute extends CModel
     const ATTRIBUTE_INTEGER_ONLY = "num_value_int_only";
     const ATTRIBUTE_ARRAY_FILTER = "array_filter";
     const ATTRIBUTE_PREFIX = "prefix";
+    const ATTRIBUTE_INPUT_SIZE = "input_size";
+
+    const ATTRIBUTE_CSSCLASS = "cssclass";
+    const ATTRIBUTE_EM_VALIDATION_Q = "em_validation_q";
+    const ATTRIBUTE_EM_VALIDATION_Q_TIP = "em_validation_q_tip";
+    const ATTRIBUTE_EM_VALIDATION_SQ = "em_validation_sq";
+    const ATTRIBUTE_EM_VALIDATION_SQ_TIP = "em_validation_sq_tip";
+    const ATTRIBUTE_MAXIMUM_CHARS = "maximum_chars";
 
     // phpstan somehow fails to pick up these 2 from parent
-    public $attributes;
+    public array $attributes = [];
     public $errors;
 
 
@@ -51,6 +59,21 @@ class MyQuestionAttribute extends CModel
     public $array_filter;
     /** @var string */
     public $prefix;
+    /** @var string */
+    public $cssclass;
+    /** @var string */
+    public $em_validation_q;
+    /** @var string */
+    public $em_validation_q_tip;
+    /** @var string */
+    public $em_validation_sq;
+    /** @var string */
+    public $em_validation_sq_tip;
+    /** @var integer */
+    public $input_size;
+
+    /** @var integer */
+    public $maximum_chars;
 
 
     public function rules()
@@ -66,6 +89,7 @@ class MyQuestionAttribute extends CModel
             [static::ATTRIBUTE_MIN_NUMERIC_VALUE, 'filterIntegers'],
             [static::ATTRIBUTE_MAX_NUMERIC_VALUE, 'filterIntegers'],
             [static::ATTRIBUTE_INTEGER_ONLY, 'filterIntegers'],
+            [static::ATTRIBUTE_INPUT_SIZE, 'filterIntegers'],
 
             [static::ATTRIBUTE_HIDE_TIP, 'numerical', 'integerOnly' => true, 'max' => 1, 'allowEmpty' => true],
             [static::ATTRIBUTE_HIDDEN, 'numerical', 'integerOnly' => true, 'max' => 1, 'allowEmpty' => true],
@@ -79,6 +103,13 @@ class MyQuestionAttribute extends CModel
             [static::ATTRIBUTE_ARRAY_FILTER, 'length', 'max' => 1024, 'allowEmpty' => true],
             [static::ATTRIBUTE_PREFIX, 'length', 'max' => 1024, 'allowEmpty' => true],
             [static::ATTRIBUTE_EXCLUDE, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_CSSCLASS, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_EM_VALIDATION_Q, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_EM_VALIDATION_Q_TIP, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_EM_VALIDATION_SQ, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_EM_VALIDATION_SQ_TIP, 'length', 'max' => 1024, 'allowEmpty' => true],
+            [static::ATTRIBUTE_INPUT_SIZE, 'numerical', 'integerOnly' => true, 'min' => 1, 'max' => 255, 'allowEmpty' => true],
+            [static::ATTRIBUTE_MAXIMUM_CHARS, 'numerical', 'integerOnly' => true, 'min' => 1, 'max' => 1024, 'allowEmpty' => true],
 
         ];
     }
@@ -114,7 +145,13 @@ class MyQuestionAttribute extends CModel
             static::ATTRIBUTE_INTEGER_ONLY => "Integer Only",
             static::ATTRIBUTE_ARRAY_FILTER => "Array filter",
             static::ATTRIBUTE_PREFIX => "Prefix",
-
+            static::ATTRIBUTE_CSSCLASS=> "CSS Class",
+            static::ATTRIBUTE_EM_VALIDATION_Q => "EM Validation Q",
+            static::ATTRIBUTE_EM_VALIDATION_Q_TIP => "EM Validation Q Tip",
+            static::ATTRIBUTE_EM_VALIDATION_SQ => "EM Validation SQ",
+            static::ATTRIBUTE_EM_VALIDATION_SQ_TIP => "EM Validation SQ Tip",
+            static::ATTRIBUTE_INPUT_SIZE => "Input Size",
+            static::ATTRIBUTE_MAXIMUM_CHARS => "Maximum Characters",
 
         ];
     }
@@ -135,6 +172,13 @@ class MyQuestionAttribute extends CModel
             static::ATTRIBUTE_INTEGER_ONLY => "integer 0-1",
             static::ATTRIBUTE_ARRAY_FILTER => "string max 1024 chars",
             static::ATTRIBUTE_PREFIX => "string max 1024 chars",
+            static::ATTRIBUTE_CSSCLASS => "string max 1024 chars",
+            static::ATTRIBUTE_EM_VALIDATION_Q => "string max 1024 chars",
+            static::ATTRIBUTE_EM_VALIDATION_Q_TIP => "string max 1024 chars",
+            static::ATTRIBUTE_EM_VALIDATION_SQ => "string max 1024 chars",
+            static::ATTRIBUTE_EM_VALIDATION_SQ_TIP => "string max 1024 chars",
+            static::ATTRIBUTE_INPUT_SIZE => "integer 1-255",
+            static::ATTRIBUTE_MAXIMUM_CHARS => "integer 1-1024",
 
         ];
     }
@@ -159,6 +203,13 @@ class MyQuestionAttribute extends CModel
             static::ATTRIBUTE_INTEGER_ONLY,
             static::ATTRIBUTE_ARRAY_FILTER,
             static::ATTRIBUTE_PREFIX,
+            static::ATTRIBUTE_CSSCLASS,
+            static::ATTRIBUTE_EM_VALIDATION_Q,
+            static::ATTRIBUTE_EM_VALIDATION_Q_TIP,
+            static::ATTRIBUTE_EM_VALIDATION_SQ,
+            static::ATTRIBUTE_EM_VALIDATION_SQ_TIP,
+            static::ATTRIBUTE_INPUT_SIZE,
+            static::ATTRIBUTE_MAXIMUM_CHARS,
         ];
     }
 }

@@ -35,5 +35,5 @@ Get updates via git.
 
 Run install command to make sure dependencies are updated if necessary.
 ```
-composer install --no-dev
+composer install --no-dev && composer dump-autoload
 ```

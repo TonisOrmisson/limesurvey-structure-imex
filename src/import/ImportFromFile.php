@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\import;
 
 use CModel;
 use CUploadedFile;
@@ -9,7 +9,9 @@ use OpenSpout\Common\Entity\Row;
 use OpenSpout\Reader\ReaderInterface;
 use OpenSpout\Reader\SheetInterface;
 use Survey;
+use tonisormisson\ls\structureimex\AppTrait;
 use tonisormisson\ls\structureimex\exceptions\ImexException;
+use tonisormisson\ls\structureimex\StructureImEx;
 use Yii;
 
 

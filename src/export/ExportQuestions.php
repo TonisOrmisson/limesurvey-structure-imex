@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\export;
 
 use Answer;
 use CDbCriteria;
@@ -8,7 +8,10 @@ use OpenSpout\Common\Entity\Row;
 use Question;
 use QuestionAttribute;
 use QuestionGroup;
+use QuestionL10n;
 use QuestionTemplate;
+use tonisormisson\ls\structureimex\import\ImportStructure;
+use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 
 class ExportQuestions extends AbstractExport
 {
@@ -58,19 +61,20 @@ class ExportQuestions extends AbstractExport
             self::TYPE_GROUP,
             null,
             $group->gid,
-        ];
-        if ($this->isV4plusVersion()) {
+        ];        if ($this->isV4plusVersion()) {
             foreach ($this->languages as $language) {
                 if (!isset($group->questiongroupl10ns[$language])) {
                     continue;
                 }
                 $row[] = $group->questiongroupl10ns[$language]->group_name;
                 $row[] = $group->questiongroupl10ns[$language]->description;
+                $row[] = null; // no script for groups
             }
         } else {
             foreach ($this->languageGroups($group) as $lGroup) {
                 $row[] = $lGroup->group_name;
                 $row[] = $lGroup->description;
+                $row[] = null; // no script for groups
             }
         }
 
@@ -92,20 +96,21 @@ class ExportQuestions extends AbstractExport
             $this->type,
             ($this->type === self::TYPE_SUB_QUESTION ? null : $question->type),
             $question->title,
-        ];
-
-        if ($this->isV4plusVersion()) {
+        ];        if ($this->isV4plusVersion()) {
             foreach ($this->languages as $language) {
                 if (!isset($question->questionl10ns[$language])) {
                     continue;
                 }
                 $row[] = $question->questionl10ns[$language]->question;
                 $row[] = $question->questionl10ns[$language]->help;
+                $row[] = $question->questionl10ns[$language]->script ?? '';
             }
         } else {
-            foreach ($this->languageQuestions($question) as $lQuestion) {
-                $row[] = $lQuestion->question;
-                $row[] = $lQuestion->help;
+            foreach ($this->languages as $language) {
+                $lQuestion = $this->getQuestionL10nForLanguage($question, $language);
+                $row[] = $lQuestion ? $lQuestion->question : '';
+                $row[] = $lQuestion ? $lQuestion->help : '';
+                $row[] = $lQuestion ? ($lQuestion->script ?? '') : '';
             }
         }
         $row[] = $question->relevance;
@@ -202,20 +207,21 @@ class ExportQuestions extends AbstractExport
             self::TYPE_ANSWER,
             null,
             $answer->code,
-        ];
-        if ($this->isV4plusVersion()) {
+        ];        if ($this->isV4plusVersion()) {
             foreach ($this->languages as $language) {
                 if (!isset($answer->answerl10ns[$language])) {
                     continue;
                 }
                 $row[] = $answer->answerl10ns[$language]->answer;
                 $row[] = null; // no help texts for answers
+                $row[] = null; // no script for answers
             }
         } else {
             foreach ($this->languages as $language) {
                 $lAnswer = $this->answerInLanguage($answer, $language);
                 $row[] = $lAnswer->answer;
                 $row[] = null; // no help texts for answers
+                $row[] = null; // no script for answers
             }
         }
 
@@ -423,17 +429,33 @@ class ExportQuestions extends AbstractExport
 
     }
 
+    /**
+     * Get QuestionL10n data for a specific language (for older LimeSurvey versions)
+     * @param Question $question
+     * @param string $language
+     * @return QuestionL10n|null
+     */
+    private function getQuestionL10nForLanguage($question, $language)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition('qid=:qid');
+        $criteria->addCondition('language=:language');
+        $criteria->params[':qid'] = $question->qid;
+        $criteria->params[':language'] = $language;
+        
+        return QuestionL10n::model()->find($criteria);
+    }
+
     protected function loadHeader()
     {
         $this->header = [
             ImportStructure::COLUMN_TYPE,
             ImportStructure::COLUMN_SUBTYPE,
             ImportStructure::COLUMN_CODE,
-        ];
-
-        foreach ($this->languages as $language) {
+        ];        foreach ($this->languages as $language) {
             $this->header[] = ImportStructure::COLUMN_VALUE . "-" . $language;
             $this->header[] = ImportStructure::COLUMN_HELP . "-" . $language;
+            $this->header[] = ImportStructure::COLUMN_SCRIPT . "-" . $language;
         }
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;
@@ -446,6 +468,7 @@ class ExportQuestions extends AbstractExport
     {
         $criteria = new CDbCriteria;
         $criteria->addCondition('qid=:qid');
+        $criteria->addCondition("value != ''");
 
         $criteria->params[':qid'] = $question->qid;
 

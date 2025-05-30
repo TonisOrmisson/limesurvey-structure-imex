@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\export;
 
 use CModel;
 use OpenSpout\Common\Entity\Row;
@@ -9,6 +9,8 @@ use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\AbstractWriterMultiSheets;
 use OpenSpout\Writer\Common\Entity\Sheet;
 use Survey;
+use tonisormisson\ls\structureimex\AppTrait;
+use tonisormisson\ls\structureimex\StructureImEx;
 use Yii;
 
 abstract class AbstractExport extends CModel

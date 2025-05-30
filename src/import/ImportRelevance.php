@@ -1,13 +1,15 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\import;
 
 use CDbCriteria;
 use Condition;
 use Question;
 use QuestionGroup;
 use QuestionGroupL10n;
+use tonisormisson\ls\structureimex\AppTrait;
 use tonisormisson\ls\structureimex\exceptions\ImexException;
+use tonisormisson\ls\structureimex\export\ExportQuestions;
 
 
 class ImportRelevance extends ImportFromFile

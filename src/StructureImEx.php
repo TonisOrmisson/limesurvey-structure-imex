@@ -7,6 +7,11 @@ use LSYii_Application;
 use PluginBase;
 use Survey;
 use Yii;
+use tonisormisson\ls\structureimex\import\ImportRelevance;
+use tonisormisson\ls\structureimex\import\ImportStructure;
+use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
+use tonisormisson\ls\structureimex\export\ExportRelevances;
+use tonisormisson\ls\structureimex\export\ExportQuestions;
 
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
@@ -31,12 +36,9 @@ class StructureImEx extends PluginBase
     const ACTION_RELEVANCES = "relevances";
 
     /** @var string */
-    public $type;
-
-    /* Register plugin on events*/
+    public $type;    /* Register plugin on events*/
     public function init()
     {
-        require_once __DIR__ . DIRECTORY_SEPARATOR . 'ImportRelevance.php';
         $this->subscribe('beforeToolsMenuRender');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
@@ -126,7 +128,7 @@ class StructureImEx extends PluginBase
         $import = null;
 
 
-        if ($this->app()->request->isPostRequest) {
+        if ($this->app()->request->getIsPostRequest()) {
             $import = new ImportRelevance($this);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if (!$import->loadFile($oFile)) {
@@ -149,7 +151,7 @@ class StructureImEx extends PluginBase
         $this->data['exportPlugin'] = $this;
         $import = null;
 
-        if ($this->app()->request->isPostRequest) {
+        if ($this->app()->request->getIsPostRequest()) {
             if ($this->survey->getIsActive()) {
                 $this->app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {

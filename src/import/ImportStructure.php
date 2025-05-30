@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\import;
 
 use Answer;
 use CDbCriteria;
@@ -9,6 +9,8 @@ use Question;
 use QuestionAttribute;
 use QuestionGroup;
 use tonisormisson\ls\structureimex\exceptions\ImexException;
+use tonisormisson\ls\structureimex\export\ExportQuestions;
+use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 
 
 class ImportStructure extends ImportFromFile
@@ -28,9 +30,7 @@ class ImportStructure extends ImportFromFile
     private int $answerOrder = 1;
 
     /** @var string[] */
-    private array $languages = [];
-
-    const COLUMN_TYPE = 'type';
+    private array $languages = [];    const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
     const COLUMN_CODE = 'code';
     const COLUMN_RELEVANCE = 'relevance';
@@ -38,6 +38,7 @@ class ImportStructure extends ImportFromFile
     const COLUMN_OPTIONS = 'options';
     const COLUMN_VALUE = 'value';
     const COLUMN_HELP = 'help';
+    const COLUMN_SCRIPT = 'script';
     const COLUMN_MANDATORY = 'mandatory';
 
     protected function importModel($attributes): void
@@ -202,10 +203,9 @@ class ImportStructure extends ImportFromFile
         $this->question = null;
         foreach ($this->languages as $language) {
             $i++;
-            $this->currentModel = $this->findQuestion($language);
-
-            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $this->currentModel = $this->findQuestion($language);            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
             $languageHelpKey = self::COLUMN_HELP . "-" . $language;
+            $languageScriptKey = self::COLUMN_SCRIPT . "-" . $language;
 
             if (!($this->currentModel instanceof Question)) {
                 $this->currentModel = new Question();
@@ -223,6 +223,7 @@ class ImportStructure extends ImportFromFile
                 'title' => $this->rowAttributes[self::COLUMN_CODE],
                 'question' => $this->rowAttributes[$languageValueKey],
                 'help' => $this->rowAttributes[$languageHelpKey],
+                'script' => $this->rowAttributes[$languageScriptKey] ?? '',
                 'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
                 'language' => $language,
                 'question_order' => $this->questionOrder,
@@ -288,13 +289,46 @@ class ImportStructure extends ImportFromFile
 
     private function validateAttributes($attributeArray)
     {
-        $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
         if (empty($attributeArray)) {
             return;
         }
-        foreach ($attributeArray as $attributeName => $value) {
-            if (!in_array($attributeName, $allowedAttributes)) {
-                throw new ImexException("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
+        
+        // Try to use the new QuestionAttributeValidator for better validation
+        try {
+            $validator = new QuestionAttributeValidator($this->survey);
+            $questionType = $this->question->type ?? $this->rowAttributes[self::COLUMN_SUBTYPE];
+            
+            // Get unknown attributes and validate them
+            $unknownAttributes = $validator->getUnknownAttributes(
+                $questionType, 
+                $attributeArray, 
+                $this->plugin->getImportUnknownAttributes()
+            );
+            
+            // Validate all attributes
+            if (!$validator->validateQuestionAttributes($questionType, $attributeArray)) {
+                $errors = $validator->getValidationErrors();
+                $errorMessages = [];
+                foreach ($errors as $attribute => $attributeErrors) {
+                    $errorMessages[] = "Attribute '{$attribute}': " . implode(', ', $attributeErrors);
+                }
+                throw new ImexException("Question attribute validation failed: " . implode('; ', $errorMessages));
+            }
+            
+            // Log unknown attributes if they exist but are allowed
+            if (!empty($unknownAttributes) && $this->plugin->getImportUnknownAttributes()) {
+                $this->plugin->app()->setFlashMessage(
+                    "Importing unknown attributes for question: " . implode(', ', $unknownAttributes),
+                    'info'
+                );
+            }
+        } catch (\Exception $e) {
+            // Fallback to old validation if the new validator fails
+            $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
+            foreach ($attributeArray as $attributeName => $value) {
+                if (!in_array($attributeName, $allowedAttributes)) {
+                    throw new ImexException("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
+                }
             }
         }
 
@@ -339,10 +373,9 @@ class ImportStructure extends ImportFromFile
         $subQuestion = null;
         foreach ($this->languages as $language) {
             $i++;
-            $this->currentModel = $this->findSubQuestion($language);
-
-            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $this->currentModel = $this->findSubQuestion($language);            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
             $languageHelpKey = self::COLUMN_HELP . "-" . $language;
+            $languageScriptKey = self::COLUMN_SCRIPT . "-" . $language;
 
             if (!($this->currentModel instanceof Question)) {
                 $this->currentModel = new Question();
@@ -356,6 +389,7 @@ class ImportStructure extends ImportFromFile
                 'title' => $this->rowAttributes[self::COLUMN_CODE],
                 'question' => $this->rowAttributes[$languageValueKey],
                 'help' => $this->rowAttributes[$languageHelpKey],
+                'script' => $this->rowAttributes[$languageScriptKey] ?? '',
                 'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
                 'language' => $language,
                 'question_order' => $this->subQuestionOrder,

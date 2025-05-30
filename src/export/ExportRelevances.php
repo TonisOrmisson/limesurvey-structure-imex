@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\export;
 
 use OpenSpout\Common\Entity\Row;
 use QuestionGroup;

@@ -1,18 +1,21 @@
 <?php
 
-namespace tonisormisson\ls\structureimex;
+namespace tonisormisson\ls\structureimex\import;
 
 use Answer;
 use AnswerL10n;
 use CDbCriteria;
+use Exception;
 use LSActiveRecord;
 use Question;
 use QuestionAttribute;
 use QuestionGroup;
 use QuestionGroupL10n;
 use QuestionL10n;
-use Exception;
 use tonisormisson\ls\structureimex\exceptions\InvalidModelTypeException;
+use tonisormisson\ls\structureimex\export\ExportQuestions;
+use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
+use tonisormisson\ls\structureimex\validation\QuestionAttributeValidator;
 
 
 class ImportStructureV4Plus extends ImportFromFile
@@ -39,8 +42,6 @@ class ImportStructureV4Plus extends ImportFromFile
 
     /** @var string[] */
     private array $languages = [];
-
-
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
     const COLUMN_CODE = 'code';
@@ -49,6 +50,7 @@ class ImportStructureV4Plus extends ImportFromFile
     const COLUMN_OPTIONS = 'options';
     const COLUMN_VALUE = 'value';
     const COLUMN_HELP = 'help';
+    const COLUMN_SCRIPT = 'script';
     const COLUMN_MANDATORY = 'mandatory';
 
     /**
@@ -253,6 +255,7 @@ class ImportStructureV4Plus extends ImportFromFile
         $this->currentModel = $this->findQuestion();
         if (!($this->currentModel instanceof Question)) {
             $this->currentModel = new Question();
+
         }
 
         $mandatory = "Y";
@@ -287,21 +290,18 @@ class ImportStructureV4Plus extends ImportFromFile
             $attributes['question_theme_name'] = $questionTheme;
         }
 
-        $this->currentModel->setAttributes($attributes);
-
-        $result = $this->currentModel->save();
+        $this->currentModel->setAttributes($attributes);        $result = $this->currentModel->save();
         if (!$result) {
             throw new Exception("Error saving baseQuestion nr $i: " . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
         }
+        
+        $this->question = $this->currentModel;
         $this->saveQuestionAttributes();
 
-        $this->question = $this->currentModel;
-
         foreach ($this->languages as $language) {
-            $this->currentModel = $this->findQuestionL10n($this->question->qid, $language);
-
-            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $this->currentModel = $this->findQuestionL10n($this->question->qid, $language);            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
             $languageHelpKey = self::COLUMN_HELP . "-" . $language;
+            $languageScriptKey = self::COLUMN_SCRIPT . "-" . $language;
 
             if (!($this->currentModel instanceof QuestionL10n)) {
                 $this->currentModel = new QuestionL10n();
@@ -311,6 +311,7 @@ class ImportStructureV4Plus extends ImportFromFile
                 'qid' => $this->question->qid,
                 'question' => $this->rowAttributes[$languageValueKey],
                 'help' => $this->rowAttributes[$languageHelpKey],
+                'script' => $this->rowAttributes[$languageScriptKey] ?? '',
                 'language' => $language,
             ]);
 
@@ -323,9 +324,7 @@ class ImportStructureV4Plus extends ImportFromFile
         $this->questionOrder++;
         $this->subQuestionOrder = 1;
         $this->answerOrder = 1;
-    }
-
-    /**
+    }    /**
      * @throws Exception
      */
     private function saveQuestionAttributes()
@@ -339,15 +338,17 @@ class ImportStructureV4Plus extends ImportFromFile
         if (empty($attributeArray)) {
             return;
         }
-        // Filter the attributes to only those that need to be validated, unless the
-        // importUnknownAttributes setting is set.
+        
+        // Filter out invalid attributes if validation is enabled
         if (!$this->plugin->getImportUnknownAttributes()) {
-            $this->validateAttributes($attributeArray);
+            $attributeArray = $this->filterValidAttributes($attributeArray);
         }
+        
         $myAttributes = new MyQuestionAttribute();
         $myAttributes->setAttributes($attributeArray, false);
         $myAttributes->validate();
-        foreach ($myAttributes->attributes as $attributeName => $value) {
+
+        foreach ($myAttributes->getAttributes() as $attributeName => $value) {
             if (is_null($value)) {
                 continue;
             }
@@ -355,21 +356,44 @@ class ImportStructureV4Plus extends ImportFromFile
         }
     }
 
-    private function validateAttributes($attributeArray)
+    /**
+     * Filter out invalid attributes and return only valid ones
+     * @param array $attributeArray
+     * @return array
+     */
+    private function filterValidAttributes($attributeArray)
     {
-        $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
         if (empty($attributeArray)) {
-            return;
+            return $attributeArray;
         }
+        
+        $validator = new QuestionAttributeValidator($this->survey);
+        $questionType = $this->question->type;
+        
+        $validAttributes = [];
+        $invalidAttributes = [];
+        
         foreach ($attributeArray as $attributeName => $value) {
-            if (!in_array($attributeName, $allowedAttributes)) {
-                throw new \Exception("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
+            // Test each attribute individually
+            $singleAttribute = [$attributeName => $value];
+            if ($validator->validateQuestionAttributes($questionType, $singleAttribute)) {
+                $validAttributes[$attributeName] = $value;
+            } else {
+                $invalidAttributes[$attributeName] = $value;
             }
         }
-
-    }
-
-    private function saveQuestionAttribute(string $attributeName, $value)
+        
+        // Log invalid attributes as warnings but continue with valid ones
+        if (!empty($invalidAttributes)) {
+            $invalidNames = array_keys($invalidAttributes);
+            $this->plugin->app()->setFlashMessage(
+                "Skipping invalid attributes for question '{$this->question->title}' (type '{$questionType}'): " . implode(', ', $invalidNames),
+                'warning'
+            );
+        }
+        
+        return $validAttributes;
+    }    private function saveQuestionAttribute(string $attributeName, $value)
     {
 
         $model = $this->currentModel;
