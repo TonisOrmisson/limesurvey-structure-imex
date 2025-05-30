@@ -1,34 +1,60 @@
-name: PHP Composer
+name: LimeSurvey StructureImEx Plugin CI
 
 on:
   push:
+    branches: [ main, master, develop ]
   pull_request:
+    branches: [ main, master, develop ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.3', '8.2', '8.1', '8.0']
+        php-versions: ['8.4','8.3', '8.2', '8.1', '8.0']
+
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create project
-        run: composer create-project
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring, pdo, zip
+          tools: composer:v2
+          coverage: xdebug
 
-      - name: check outdated packages
-        run: composer outdated
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ matrix.php-versions }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-versions }}-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Check outdated packages
+        run: composer outdated --no-dev
 
       - name: List installed dependencies
         run: composer show
 
+      - name: Run tests
+        run: vendor/bin/phpunit --coverage-text --colors=never
 
       - name: Run static code analysis
-        run:  vendor/bin/phpstan
+        run: vendor/bin/phpstan analyse
 
 
