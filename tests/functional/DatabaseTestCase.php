@@ -1,0 +1,443 @@
+<?php
+
+namespace tonisormisson\ls\structureimex\Tests\Functional;
+
+use PHPUnit\Framework\TestCase;
+use LSYii_Application;
+use CDbConnection;
+use Survey;
+use Question;
+use QuestionGroup;
+
+/**
+ * Base class for database-driven functional tests
+ * 
+ * This class sets up a real LimeSurvey database connection for testing
+ * actual import/export functionality with database persistence.
+ */
+abstract class DatabaseTestCase extends TestCase
+{
+    protected static $app;
+    protected static $db;
+    protected static $isDbSetup = false;
+    
+    protected $testSurveyId;
+    protected $createdSurveyIds = [];
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        
+        // Load environment variables from tests/.env file
+        self::loadEnvironmentFile();
+        
+        if (!self::$isDbSetup) {
+            self::setupDatabase();
+            self::$isDbSetup = true;
+        }
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Clear any previous test data
+        $this->cleanupTestSurveys();
+    }
+
+    protected function tearDown(): void
+    {
+        // Clean up after each test
+        $this->cleanupTestSurveys();
+        
+        parent::tearDown();
+    }
+
+    /**
+     * Load environment variables from tests/.env file
+     */
+    private static function loadEnvironmentFile(): void
+    {
+        $envFile = __DIR__ . '/../.env';
+        if (file_exists($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos($line, '#') === 0) {
+                    continue; // Skip comments
+                }
+                if (strpos($line, '=') !== false) {
+                    list($key, $value) = explode('=', $line, 2);
+                    $key = trim($key);
+                    $value = trim($value);
+                    if (!getenv($key)) { // Don't override existing env vars
+                        putenv("$key=$value");
+                        $_ENV[$key] = $value;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Set up database connection for testing
+     */
+    private static function setupDatabase(): void
+    {
+        // Get database configuration from environment or use defaults for testing
+        $dbConfig = self::getDatabaseConfig();
+        
+        // Initialize LimeSurvey application with minimal configuration
+        self::initializeLimeSurveyApp($dbConfig);
+        
+        // Verify database connection
+        self::verifyDatabaseConnection();
+    }
+
+    /**
+     * Get database configuration for testing
+     */
+    private static function getDatabaseConfig(): array
+    {
+        // Check for CI environment variables first
+        if (getenv('CI') === 'true' || getenv('GITHUB_ACTIONS') === 'true') {
+            return [
+                'host' => getenv('DB_HOST') ?: '127.0.0.1',
+                'port' => getenv('DB_PORT') ?: '3306',
+                'database' => getenv('DB_NAME') ?: 'limesurvey_test',
+                'username' => getenv('DB_USER') ?: 'root',
+                'password' => getenv('DB_PASSWORD') ?: '',
+            ];
+        }
+        
+        // Local development configuration
+        return [
+            'host' => getenv('DB_HOST') ?: 'localhost',
+            'port' => getenv('DB_PORT') ?: '3306',
+            'database' => getenv('DB_NAME') ?: 'limesurvey_test',
+            'username' => getenv('DB_USER') ?: 'root',
+            'password' => getenv('DB_PASSWORD') ?: 'root',
+        ];
+    }
+
+    /**
+     * Initialize LimeSurvey application for testing using the same approach as LimeSurvey tests
+     */
+    private static function initializeLimeSurveyApp(array $dbConfig): void
+    {
+        // Set up $_SERVER variables to prevent "CHttpRequest is unable to determine the request URI" error
+        // This is the same fix used in LimeSurvey's own tests (see tests/bootstrap.php:225-229)
+        $_SERVER['SCRIPT_FILENAME'] = 'index-test.php';
+        $_SERVER['SCRIPT_NAME'] = '/index-test.php';
+        $_SERVER['REQUEST_URI'] = 'index-test.php';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        
+        // Check if application already exists (avoid recreating)
+        if (self::$app !== null) {
+            return;
+        }
+        
+        // Use the existing LimeSurvey application if available
+        if (\Yii::app() !== null) {
+            self::$app = \Yii::app();
+            self::$db = self::$app->db;
+            
+            // Update database config for testing
+            self::$db->connectionString = sprintf(
+                'mysql:host=%s;port=%s;dbname=%s',
+                $dbConfig['host'],
+                $dbConfig['port'],
+                $dbConfig['database']
+            );
+            self::$db->username = $dbConfig['username'];
+            self::$db->password = $dbConfig['password'];
+            
+            return;
+        }
+        
+        // Load LimeSurvey's internal config as base
+        $config = require_once(LIMESURVEY_PATH . '/application/config/internal.php');
+        
+        // Override database configuration
+        $config['components']['db']['connectionString'] = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s',
+            $dbConfig['host'],
+            $dbConfig['port'],
+            $dbConfig['database']
+        );
+        $config['components']['db']['username'] = $dbConfig['username'];
+        $config['components']['db']['password'] = $dbConfig['password'];
+        
+        // Create test runtime and assets paths
+        $testBasePath = sys_get_temp_dir() . '/limesurvey_test';
+        $runtimePath = $testBasePath . '/runtime';
+        $assetsPath = $testBasePath . '/assets';
+        
+        foreach ([$testBasePath, $runtimePath, $assetsPath] as $path) {
+            if (!is_dir($path)) {
+                mkdir($path, 0755, true);
+            }
+        }
+        
+        $config['runtimePath'] = $runtimePath;
+        
+        // Override asset manager configuration
+        $config['components']['assetManager']['basePath'] = $assetsPath;
+        $config['components']['assetManager']['baseUrl'] = '/test-assets';
+        
+        // Temporarily change working directory to LimeSurvey root to fix getcwd() in config
+        $originalCwd = getcwd();
+        chdir(LIMESURVEY_PATH);
+        
+        // Create the LimeSurvey application exactly like LimeSurvey's own tests do
+        // This should automatically load all dependencies when they're needed
+        self::$app = \Yii::createApplication('LSYii_Application', $config);
+        
+        // Load essential helpers through the application (this is the LimeSurvey way)
+        self::$app->loadHelper('database');
+        self::$app->loadHelper('surveytranslator');
+        self::$app->loadHelper('replacements');
+        
+        // Now load the expression manager (which depends on the above helpers)
+        if (class_exists('LimeExpressionManager') === false) {
+            require_once LIMESURVEY_PATH . '/application/helpers/expressions/em_manager_helper.php';
+        }
+        
+        // Finally load import helper (which depends on expression manager)
+        if (function_exists('importSurveyFile') === false) {
+            require_once LIMESURVEY_PATH . '/application/helpers/admin/import_helper.php';
+        }
+        
+        // Restore original working directory
+        chdir($originalCwd);
+        
+        self::$db = self::$app->db;
+    }
+
+    /**
+     * Verify database connection and required tables exist
+     */
+    private static function verifyDatabaseConnection(): void
+    {
+        self::$db->createCommand('SELECT 1')->queryScalar();
+        
+        // Check if core LimeSurvey tables exist
+        $requiredTables = ['surveys', 'groups', 'questions', 'question_attributes'];
+        foreach ($requiredTables as $table) {
+            $tableExists = self::$db->createCommand()
+                ->select('COUNT(*)')
+                ->from('information_schema.tables')
+                ->where('table_schema = :schema AND table_name = :table', [
+                    ':schema' => self::$db->createCommand('SELECT DATABASE()')->queryScalar(),
+                    ':table' => self::$db->tablePrefix . $table
+                ])
+                ->queryScalar();
+                
+            if (!$tableExists) {
+                throw new \Exception("Required table '{$table}' not found in test database. Please run LimeSurvey database migration first.");
+            }
+        }
+    }
+
+    /**
+     * Import a survey from LSS file using the same approach as LimeSurvey tests
+     */
+    protected function importSurveyFromFile(string $lssFilePath): int
+    {
+        if (!file_exists($lssFilePath)) {
+            throw new \Exception("Survey file not found: {$lssFilePath}");
+        }
+
+        // Set session loginID like LimeSurvey tests do
+        \Yii::app()->session['loginID'] = 1;
+        
+        // Reset the cache to prevent import from failing if there is a cached survey and it's active
+        \Survey::model()->resetCache();
+        
+        // Use LimeSurvey's importSurveyFile function (same as their tests)
+        $translateLinksFields = false;
+        $newSurveyName = null;
+        $result = \importSurveyFile(
+            $lssFilePath,
+            $translateLinksFields,
+            $newSurveyName,
+            null
+        );
+        
+        if (!$result) {
+            throw new \Exception('Survey import failed: No result returned');
+        }
+        
+        if (!empty($result['error'])) {
+            throw new \Exception('Survey import failed: ' . $result['error']);
+        }
+        
+        if (!isset($result['newsid'])) {
+            throw new \Exception('Survey import failed: No survey ID returned');
+        }
+
+        $surveyId = $result['newsid'];
+        $this->createdSurveyIds[] = $surveyId;
+        
+        // Reset the cache so findByPk doesn't return a previously cached survey
+        \Survey::model()->resetCache();
+        
+        return $surveyId;
+    }
+
+    /**
+     * Clean up test surveys from database
+     */
+    protected function cleanupTestSurveys(): void
+    {
+        foreach ($this->createdSurveyIds as $surveyId) {
+            // Delete survey and all related data
+            $survey = Survey::model()->findByPk($surveyId);
+            if ($survey) {
+                $survey->delete();
+            }
+            
+            // Clean up any remaining data in correct order
+            // First get question IDs
+            $questionIds = self::$db->createCommand("SELECT qid FROM lime_questions WHERE sid = :sid")->queryColumn([':sid' => $surveyId]);
+            if (!empty($questionIds)) {
+                $questionIdList = implode(',', $questionIds);
+                self::$db->createCommand("DELETE FROM lime_question_attributes WHERE qid IN ($questionIdList)")->execute();
+            }
+            self::$db->createCommand("DELETE FROM lime_questions WHERE sid = :sid")->execute([':sid' => $surveyId]);
+            self::$db->createCommand("DELETE FROM lime_groups WHERE sid = :sid")->execute([':sid' => $surveyId]);
+            self::$db->createCommand("DELETE FROM lime_surveys WHERE sid = :sid")->execute([':sid' => $surveyId]);
+        }
+        $this->createdSurveyIds = [];
+    }
+
+    /**
+     * Create a test survey with questions and attributes for testing
+     */
+    protected function createTestSurveyWithQuestions(): array
+    {
+        // Import the blank survey first
+        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $surveyId = $this->importSurveyFromFile($blankSurveyPath);
+        
+        // Add test question groups and questions
+        $groupId1 = $this->createTestGroup($surveyId, 'Test Group 1', 1);
+        $groupId2 = $this->createTestGroup($surveyId, 'Test Group 2', 2);
+        
+        $questionId1 = $this->createTestQuestion($surveyId, $groupId1, 'Q001', 'T', 'What is your name?');
+        $questionId2 = $this->createTestQuestion($surveyId, $groupId1, 'Q002', 'M', 'Select your preferences?', 'Y');
+        $questionId3 = $this->createTestQuestion($surveyId, $groupId2, 'Q003', 'N', 'How old are you?');
+        
+        // Add some test attributes
+        $this->createTestAttribute($questionId2, 'random_order', '1');
+        $this->createTestAttribute($questionId2, 'other_position', 'end');
+        $this->createTestAttribute($questionId3, 'min_answers', '0');
+        $this->createTestAttribute($questionId3, 'max_answers', '120');
+        
+        return [
+            'surveyId' => $surveyId,
+            'groups' => [$groupId1, $groupId2],
+            'questions' => [$questionId1, $questionId2, $questionId3]
+        ];
+    }
+
+    /**
+     * Create a test question group
+     */
+    protected function createTestGroup(int $surveyId, string $groupName, int $groupOrder): int
+    {
+        $group = new QuestionGroup();
+        $group->sid = $surveyId;
+        $group->group_name = $groupName;
+        $group->description = "Test description for {$groupName}";
+        $group->group_order = $groupOrder;
+        $group->language = 'en';
+        $group->grelevance = '1';
+        
+        if (!$group->save()) {
+            throw new \Exception('Failed to create test group: ' . print_r($group->getErrors(), true));
+        }
+        
+        return $group->gid;
+    }
+
+    /**
+     * Create a test question
+     */
+    protected function createTestQuestion(int $surveyId, int $groupId, string $title, string $type, string $question, string $mandatory = 'N'): int
+    {
+        $q = new Question();
+        $q->sid = $surveyId;
+        $q->gid = $groupId;
+        $q->type = $type;
+        $q->title = $title;
+        $q->question = $question;
+        $q->help = "Help text for {$title}";
+        $q->language = 'en';
+        $q->mandatory = $mandatory;
+        $q->other = 'N';
+        $q->question_order = 1;
+        $q->scale_id = 0;
+        $q->parent_qid = 0;
+        $q->relevance = '1';
+        $q->modulename = '';
+        
+        if (!$q->save()) {
+            throw new \Exception('Failed to create test question: ' . print_r($q->getErrors(), true));
+        }
+        
+        return $q->qid;
+    }
+
+    /**
+     * Create a test question attribute
+     */
+    protected function createTestAttribute(int $questionId, string $attribute, string $value): void
+    {
+        self::$db->createCommand()->insert('question_attributes', [
+            'qid' => $questionId,
+            'attribute' => $attribute,
+            'value' => $value,
+            'language' => 'en'
+        ]);
+    }
+
+    /**
+     * Get the database connection for manual queries
+     */
+    protected function getDb(): CDbConnection
+    {
+        return self::$db;
+    }
+
+    /**
+     * Get the LimeSurvey application instance
+     */
+    protected function getApp(): LSYii_Application
+    {
+        return self::$app;
+    }
+
+    /**
+     * Create a real StructureImEx plugin instance configured with a survey
+     */
+    protected function createRealPlugin(int $surveyId): \tonisormisson\ls\structureimex\StructureImEx
+    {
+        // Create a real StructureImEx plugin instance
+        $plugin = new \tonisormisson\ls\structureimex\StructureImEx(\Yii::app()->getPluginManager(), 999);
+        
+        // Set up the survey context
+        $survey = Survey::model()->findByPk($surveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$surveyId} not found for plugin setup");
+        }
+        
+        // Use reflection to set the private survey property
+        $reflection = new \ReflectionClass($plugin);
+        $surveyProperty = $reflection->getProperty('survey');
+        $surveyProperty->setAccessible(true);
+        $surveyProperty->setValue($plugin, $survey);
+        
+        return $plugin;
+    }
+}

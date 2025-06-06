@@ -19,6 +19,16 @@ use tonisormisson\ls\structureimex\StructureImEx;
 
     <?= $exportPlugin->renderPartial('_menu', ['navUrls' => $navUrls, 'exportPlugin' => $exportPlugin]) ;?>
     <div class="tab-content">
+        
+        <!-- Persistent Warnings -->
+        <?php if($exportPlugin->getWarningManager()->hasActiveWarnings()): ?>
+        <div class="row">
+            <div class="col-md-12">
+                <?= $exportPlugin->getWarningManager()->renderWarnings(); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
         <?php if($survey->getIsActive()):?>
         <div class="row">
             <div class="alert alert-warning">
@@ -85,5 +95,8 @@ use tonisormisson\ls\structureimex\StructureImEx;
     <?= $exportPlugin->renderPartial('_footer', ['exportPlugin' => $exportPlugin]);?>
 
 </div>
+
+<!-- Include warning manager JavaScript -->
+<?= $exportPlugin->getWarningManager()->getJavaScript(); ?>
 
 </div>

@@ -18,6 +18,15 @@ use tonisormisson\ls\structureimex\import\ImportRelevance;
     <?= $exportPlugin->renderPartial('_menu', ['navUrls' => $navUrls, 'exportPlugin' => $exportPlugin]) ;?>
     <div class="tab-content">
 
+        <!-- Persistent Warnings -->
+        <?php if($exportPlugin->getWarningManager()->hasActiveWarnings()): ?>
+        <div class="row">
+            <div class="col-md-12">
+                <?= $exportPlugin->getWarningManager()->renderWarnings(); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <?php if($import instanceof ImportRelevance):?>
             <div class="row">
                 <div class="col-md-12">
@@ -98,5 +107,8 @@ use tonisormisson\ls\structureimex\import\ImportRelevance;
     </div>
 
     <?= $exportPlugin->renderPartial('_footer', ['exportPlugin' => $exportPlugin]);?>
+
+<!-- Include warning manager JavaScript -->
+<?= $exportPlugin->getWarningManager()->getJavaScript(); ?>
 
 </div>

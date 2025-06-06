@@ -310,6 +310,24 @@ class QuestionAttributeValidator extends CModel
     }
 
     /**
+     * Get the default value for a specific attribute of a question type
+     *
+     * @param string $questionType The question type
+     * @param string $attributeName The attribute name
+     * @return mixed The default value, or null if attribute not found
+     */
+    public function getAttributeDefaultValue($questionType, $attributeName)
+    {
+        $definition = $this->getAttributeDefinition($questionType, $attributeName);
+        
+        if ($definition === null) {
+            return null;
+        }
+        
+        return $definition['default'] ?? '';
+    }
+
+    /**
      * Required by CModel
      */
     public function attributeNames()

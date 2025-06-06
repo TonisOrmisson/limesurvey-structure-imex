@@ -12,7 +12,13 @@
          failOnWarning="true"
          verbose="true">
     <testsuites>
-        <testsuite name="StructureImEx Tests">
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+        <testsuite name="functional">
+            <directory>tests/functional</directory>
+        </testsuite>
+        <testsuite name="all">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

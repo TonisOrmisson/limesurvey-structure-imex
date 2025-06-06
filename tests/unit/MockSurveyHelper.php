@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex\Tests;
+namespace tonisormisson\ls\structureimex\Tests\Unit;
 
 /**
  * Helper class for creating mock survey data for tests

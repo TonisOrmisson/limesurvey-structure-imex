@@ -3,10 +3,8 @@
 namespace tonisormisson\ls\structureimex;
 
 use CUploadedFile;
-use LSYii_Application;
 use PluginBase;
 use Survey;
-use Yii;
 use tonisormisson\ls\structureimex\import\ImportRelevance;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
@@ -31,6 +29,9 @@ class StructureImEx extends PluginBase
 
     /** @var Survey $survey */
     private $survey;
+
+    /** @var PersistentWarningManager */
+    private $warningManager;
 
     const ACTION_QUESTIONS = "questions";
     const ACTION_RELEVANCES = "relevances";
@@ -191,6 +192,7 @@ class StructureImEx extends PluginBase
     }
 
 
+
     public function actionExport($sid)
     {
 
@@ -267,6 +269,25 @@ class StructureImEx extends PluginBase
     {
         $parent = parent::getDir();
         return $parent . DIRECTORY_SEPARATOR . "src";
+    }
+
+    /**
+     * Get or create the warning manager instance
+     */
+    public function getWarningManager(): PersistentWarningManager
+    {
+        if (!$this->warningManager) {
+            $this->warningManager = new PersistentWarningManager($this);
+        }
+        return $this->warningManager;
+    }
+
+    /**
+     * Create URL for external use (public method)
+     */
+    public function createPublicUrl($action, $params = [])
+    {
+        return $this->createUrl($action, $params);
     }
 
 

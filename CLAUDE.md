@@ -26,11 +26,8 @@ composer install --no-dev && composer dump-autoload
 
 ### Code Quality & Analysis
 ```bash
-# Run PHPStan static analysis (level 5)
-./vendor/bin/phpstan analyse src
+./vendor/bin/phpstan
 
-# PHPStan with baseline (allows existing issues)
-./vendor/bin/phpstan analyse -c phpstan.neon
 ```
 
 ### Plugin Installation in LimeSurvey
@@ -104,3 +101,26 @@ cd StructureImEx && composer install
 - Trait-based shared functionality (`AppTrait`)
 - Exception-based error handling with custom exception hierarchy
 - LimeSurvey plugin lifecycle integration with proper event subscriptions
+
+## Critical Development Rules
+
+### Exception Handling
+**NEVER EVER EVER catch a generic `\Exception`** - Always let exceptions bubble up and be handled appropriately by the calling code. Catching generic exceptions masks real problems and makes debugging impossible.
+
+```php
+// ❌ NEVER DO THIS
+try {
+    $result = someOperation();
+} catch (\Exception $e) {
+    // This masks all errors
+    return null;
+}
+
+// ✅ DO THIS INSTEAD
+try {
+    $result = someOperation();
+} catch (SpecificException $e) {
+    // Handle specific known exceptions only
+    throw new ImexException("Specific error context: " . $e->getMessage());
+}
+```

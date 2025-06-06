@@ -317,7 +317,7 @@ class ImportStructure extends ImportFromFile
             
             // Log unknown attributes if they exist but are allowed
             if (!empty($unknownAttributes) && $this->plugin->getImportUnknownAttributes()) {
-                $this->plugin->app()->setFlashMessage(
+                $this->plugin->getWarningManager()->addWarning(
                     "Importing unknown attributes for question: " . implode(', ', $unknownAttributes),
                     'info'
                 );

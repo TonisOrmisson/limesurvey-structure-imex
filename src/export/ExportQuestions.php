@@ -12,6 +12,7 @@ use QuestionL10n;
 use QuestionTemplate;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
+use tonisormisson\ls\structureimex\validation\QuestionAttributeValidator;
 
 class ExportQuestions extends AbstractExport
 {
@@ -132,7 +133,15 @@ class ExportQuestions extends AbstractExport
         $attributes = $this->getQuestionAttributes($question);
         $exportAttributes = [];
         if (!empty($attributes)) {
-            foreach ($attributes as $attribute) {
+            // Filter attributes to only include those valid for this question type
+            $validAttributes = $this->filterAttributesByQuestionType($attributes, $question->type);
+            
+            // Filter out attributes that have default values to reduce clutter
+            // For now, let's skip this filtering to debug the issue
+            // $nonDefaultAttributes = $this->filterNonDefaultAttributes($validAttributes, $question->type);
+            $nonDefaultAttributes = $validAttributes;
+            
+            foreach ($nonDefaultAttributes as $attribute) {
                 // We already exported the question template/theme on it's own column,
                 // so we don't need to export it again as part of the question attributes.
                 if ($attribute->attribute === 'question_template') {
@@ -140,7 +149,13 @@ class ExportQuestions extends AbstractExport
                 }
                 $exportAttributes[$attribute->attribute] = $attribute->value;
             }
-            $row[] = json_encode($exportAttributes);
+            if (!empty($exportAttributes)) {
+                $row[] = json_encode($exportAttributes);
+            } else {
+                $row[] = null;
+            }
+        } else {
+            $row[] = null;
         }
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
@@ -473,6 +488,92 @@ class ExportQuestions extends AbstractExport
         $criteria->params[':qid'] = $question->qid;
 
         return QuestionAttribute::model()->findAll($criteria);
+    }
+
+    /**
+     * Filter question attributes to only include those valid for the given question type
+     * @param QuestionAttribute[] $attributes
+     * @param string $questionType
+     * @return QuestionAttribute[]
+     */
+    private function filterAttributesByQuestionType($attributes, $questionType)
+    {
+        $validator = new QuestionAttributeValidator();
+        $allowedAttributes = $validator->getAllowedAttributesForQuestionType($questionType);
+        
+        // Filter attributes to only include allowed ones
+        $validAttributes = [];
+        foreach ($attributes as $attribute) {
+            if (in_array($attribute->attribute, $allowedAttributes)) {
+                $validAttributes[] = $attribute;
+            }
+        }
+        
+        return $validAttributes;
+    }
+
+    /**
+     * Filter out attributes that have default values to reduce export clutter
+     * @param QuestionAttribute[] $attributes
+     * @param string $questionType
+     * @return QuestionAttribute[]
+     */
+    private function filterNonDefaultAttributes($attributes, $questionType)
+    {
+        $validator = new QuestionAttributeValidator();
+        $nonDefaultAttributes = [];
+        
+        foreach ($attributes as $attribute) {
+            $attributeName = $attribute->attribute;
+            $storedValue = $attribute->value;
+            
+            // Get the default value for this attribute
+            $defaultValue = $validator->getAttributeDefaultValue($questionType, $attributeName);
+            
+            // If we can't get the default value, include the attribute to be safe
+            if ($defaultValue === null) {
+                $nonDefaultAttributes[] = $attribute;
+                continue;
+            }
+            
+            // Compare stored value with default value
+            if ($this->isDifferentFromDefault($storedValue, $defaultValue)) {
+                $nonDefaultAttributes[] = $attribute;
+            }
+        }
+        
+        return $nonDefaultAttributes;
+    }
+
+    /**
+     * Check if stored value is different from default value
+     * @param mixed $storedValue
+     * @param mixed $defaultValue
+     * @return bool
+     */
+    private function isDifferentFromDefault($storedValue, $defaultValue)
+    {
+        // Handle empty defaults (most common case)
+        if ($defaultValue === '' && ($storedValue === '' || $storedValue === null)) {
+            return false;
+        }
+        
+        // Direct comparison for most cases
+        if ($storedValue === $defaultValue) {
+            return false;
+        }
+        
+        // Handle string/numeric conversions (e.g., "0" vs 0)
+        if (is_numeric($storedValue) && is_numeric($defaultValue)) {
+            return (string)$storedValue !== (string)$defaultValue;
+        }
+        
+        // Handle boolean-like values ("1"/"0" vs true/false)
+        if (($storedValue === "1" || $storedValue === "0") && ($defaultValue === "1" || $defaultValue === "0")) {
+            return $storedValue !== $defaultValue;
+        }
+        
+        return true;
     }
 
 

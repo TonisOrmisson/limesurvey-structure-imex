@@ -1,5 +1,6 @@
 .*
 !.gitignore
+!/tests/.env.example
 vendor/
 !.github
 phpstan-dev.neon

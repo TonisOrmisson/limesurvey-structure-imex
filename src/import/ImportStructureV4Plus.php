@@ -386,7 +386,7 @@ class ImportStructureV4Plus extends ImportFromFile
         // Log invalid attributes as warnings but continue with valid ones
         if (!empty($invalidAttributes)) {
             $invalidNames = array_keys($invalidAttributes);
-            $this->plugin->app()->setFlashMessage(
+            $this->plugin->getWarningManager()->addWarning(
                 "Skipping invalid attributes for question '{$this->question->title}' (type '{$questionType}'): " . implode(', ', $invalidNames),
                 'warning'
             );
