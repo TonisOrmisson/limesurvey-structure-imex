@@ -6,18 +6,7 @@
 // Prevent session issues during testing (from LimeSurvey's own bootstrap)
 ob_start();
 
-// Include our plugin's composer autoloader first (for OpenSpout, etc.)
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
-}
-
-// Detect environment and setup accordingly
-$isInsideLimeSurvey = file_exists(__DIR__ . '/../../../../application/config/version.php');
-$hasVendorLimeSurvey = file_exists(__DIR__ . '/../vendor/limesurvey/limesurvey');
-$isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
-$isUnitTestOnly = getenv('UNIT_TEST_ONLY') === 'true';
-
-// Check if we're running unit tests - if so, skip LimeSurvey entirely
+// Check if we're running unit tests BEFORE loading any autoloaders
 $isUnitTestRun = false;
 if (isset($_SERVER['argv'])) {
     foreach ($_SERVER['argv'] as $arg) {
@@ -30,6 +19,24 @@ if (isset($_SERVER['argv'])) {
 if (getenv('UNIT_TEST_ONLY')) {
     $isUnitTestRun = true;
 }
+
+// For unit tests, load only essential dependencies (not our plugin autoloader)
+if ($isUnitTestRun) {
+    // Load only specific dependencies needed for unit tests (like OpenSpout)
+    // but skip our plugin's autoloader to prevent plugin class loading
+    echo "Unit test mode: Skipping plugin autoloader\n";
+} else {
+    // Include our plugin's composer autoloader (for OpenSpout, etc.)
+    if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+        require_once __DIR__ . '/../vendor/autoload.php';
+    }
+}
+
+// Detect environment and setup accordingly
+$isInsideLimeSurvey = file_exists(__DIR__ . '/../../../../application/config/version.php');
+$hasVendorLimeSurvey = file_exists(__DIR__ . '/../vendor/limesurvey/limesurvey');
+$isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
+$isUnitTestOnly = getenv('UNIT_TEST_ONLY') === 'true';
 
 // For unit tests - load minimal LimeSurvey without plugin system
 if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
