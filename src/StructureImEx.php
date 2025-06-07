@@ -123,11 +123,6 @@ class StructureImEx extends PluginBase
 
     public function actionRelevances($sid)
     {
-        // Skip rendering in CLI/test mode
-        if (PHP_SAPI === 'cli') {
-            return '';
-        }
-        
         $this->type = self::ACTION_RELEVANCES;
         $this->beforeAction($sid);
 
@@ -152,11 +147,6 @@ class StructureImEx extends PluginBase
 
     public function actionQuestions($sid)
     {
-        // Skip rendering in CLI/test mode
-        if (PHP_SAPI === 'cli') {
-            return '';
-        }
-        
         $this->type = self::ACTION_QUESTIONS;
         $this->beforeAction($sid);
         $this->data['exportPlugin'] = $this;

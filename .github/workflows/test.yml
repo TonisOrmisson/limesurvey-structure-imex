@@ -93,12 +93,6 @@ jobs:
           exit 1
         fi
 
-    - name: Run unit tests
-      env:
-        CI: true
-        LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
-      run: vendor/bin/phpunit --testsuite=unit --coverage-text
-
     - name: Wait for MySQL
       run: |
         while ! mysqladmin ping -h"127.0.0.1" --silent; do
@@ -218,6 +212,17 @@ jobs:
         CI: true
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: vendor/bin/phpunit --testsuite=functional --verbose
+
+    - name: Run unit tests
+      env:
+        CI: true
+        LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: limesurvey_vendor_test
+        DB_USER: root
+        DB_PASSWORD: ''
+      run: vendor/bin/phpunit --testsuite=unit --coverage-text
 
     - name: Run PHPStan code analysis
       run: vendor/bin/phpstan analyse src --level=5
