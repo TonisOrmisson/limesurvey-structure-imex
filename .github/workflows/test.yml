@@ -7,38 +7,7 @@ on:
     branches: [ develop, master ]
 
 jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'
-        extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
-        coverage: xdebug
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-unit-${{ hashFiles('**/composer-ci.json') }}
-        restore-keys: |
-          ${{ runner.os }}-php-unit-
-
-    - name: Install dependencies (Unit Tests only)
-      run: composer install --prefer-dist --no-progress
-
-    - name: Run unit tests
-      env:
-        CI: true
-        UNIT_TEST_ONLY: true
-      run: vendor/bin/phpunit --testsuite=unit --coverage-text
-
-  functional-tests:
+  tests:
     runs-on: ubuntu-latest
     
     services:
@@ -65,11 +34,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: vendor
-        key: ${{ runner.os }}-php-functional-${{ hashFiles('**/composer-ci.json') }}
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer-ci.json') }}
         restore-keys: |
-          ${{ runner.os }}-php-functional-
+          ${{ runner.os }}-php-
 
-    - name: Install dependencies (Functional Tests with LimeSurvey)
+    - name: Install dependencies (with LimeSurvey)
       run: COMPOSER=composer-ci.json composer install --prefer-dist --no-progress
 
     - name: Validate LimeSurvey installation
@@ -123,6 +92,12 @@ jobs:
           echo "Expected at least 1000 files for a complete installation"
           exit 1
         fi
+
+    - name: Run unit tests
+      env:
+        CI: true
+        LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
+      run: vendor/bin/phpunit --testsuite=unit --coverage-text
 
     - name: Wait for MySQL
       run: |
@@ -244,29 +219,5 @@ jobs:
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: vendor/bin/phpunit --testsuite=functional --verbose
 
-  code-quality:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'
-        extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-quality-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-quality-
-
-    - name: Install dependencies (Code Quality)
-      run: composer install --prefer-dist --no-progress
-
-    - name: Run PHPStan
+    - name: Run PHPStan code analysis
       run: vendor/bin/phpstan analyse src --level=5
