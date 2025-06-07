@@ -37,9 +37,8 @@ if ($isUnitTestOnly && getenv('CI') === 'true') {
         throw new Exception("Vendor LimeSurvey installation incomplete. Missing version.php at: {$vendorLimeSurveyPath}/application/config/version.php");
     }
     
-    if (!file_exists($vendorLimeSurveyPath . '/application/config/config.php')) {
-        throw new Exception("Vendor LimeSurvey installation incomplete. Missing config.php at: {$vendorLimeSurveyPath}/application/config/config.php");
-    }
+    // Note: config.php is created during setup, not part of the package
+    // For unit tests, we don't need database access so config.php is not required
     
     // Set up LimeSurvey path constants
     define('LIMESURVEY_PATH', $vendorLimeSurveyPath);
