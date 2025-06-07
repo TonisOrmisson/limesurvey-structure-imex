@@ -204,6 +204,13 @@ jobs:
         echo "Plugin installed in vendor LimeSurvey"
 
     - name: Register plugin in database
+      env:
+        LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: limesurvey_vendor_test
+        DB_USER: root
+        DB_PASSWORD: testpassword
       run: |
         # Register the plugin in the LimeSurvey database
         cd /home/runner/work/limesurvey-structure-imex/limesurvey-structure-imex

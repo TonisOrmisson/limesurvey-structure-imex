@@ -246,20 +246,27 @@ class MockSurveyHelper
     }
 
     /**
-     * Create mock plugin instance for testing
+     * Create mock plugin instance for testing (without extending real plugin)
      */
-    public static function createMockPlugin($survey): \tonisormisson\ls\structureimex\StructureImEx
+    public static function createMockPlugin($survey): object
     {
-        return new class($survey) extends \tonisormisson\ls\structureimex\StructureImEx {
+        return new class($survey) {
             private $survey;
             
             public function __construct($survey) {
                 $this->survey = $survey;
-                // Don't call parent constructor to avoid dependency issues
             }
             
             public function getSurvey() {
                 return $this->survey;
+            }
+            
+            public function getImportUnknownAttributes() {
+                return false;
+            }
+            
+            public function get($key, $scope = null, $id = null, $default = null) {
+                return $default;
             }
         };
     }
