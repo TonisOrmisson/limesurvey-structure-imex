@@ -17,8 +17,22 @@ $hasVendorLimeSurvey = file_exists(__DIR__ . '/../vendor/limesurvey/limesurvey')
 $isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
 $isUnitTestOnly = getenv('UNIT_TEST_ONLY') === 'true';
 
-// For unit tests in CI that don't need LimeSurvey
-if ($isUnitTestOnly && getenv('CI') === 'true') {
+// Check if we're running unit tests - if so, skip LimeSurvey entirely
+$isUnitTestRun = false;
+if (isset($_SERVER['argv'])) {
+    foreach ($_SERVER['argv'] as $arg) {
+        if (strpos($arg, '--testsuite=unit') !== false) {
+            $isUnitTestRun = true;
+            break;
+        }
+    }
+}
+if (getenv('UNIT_TEST_ONLY')) {
+    $isUnitTestRun = true;
+}
+
+// For unit tests - skip LimeSurvey entirely
+if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     echo "Unit test mode: Skipping LimeSurvey requirement\n";
     // Define minimal constants for unit tests
     if (!defined('LIMESURVEY_PATH')) {
