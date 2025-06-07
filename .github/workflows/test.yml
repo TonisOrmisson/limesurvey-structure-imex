@@ -15,6 +15,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: ''
           MYSQL_DATABASE: limesurvey_test
         ports:
           - 3306:3306
@@ -134,12 +135,35 @@ jobs:
         fi
         
         # Update database configuration in config.php
-        sed -i "s/'connectionString' => 'mysql:host=localhost;port=3306;dbname=limesurvey;'/'connectionString' => 'mysql:host=127.0.0.1;port=3306;dbname=limesurvey_vendor_test;'/g" application/config/config.php
-        sed -i "s/'username' => 'limesurvey'/'username' => 'root'/g" application/config/config.php
-        sed -i "s/'password' => 'limesurvey'/'password' => ''/g" application/config/config.php
+        # First, let's see what's in the config file
+        echo "Original config.php database section:"
+        grep -A5 "'db'" application/config/config.php || echo "db section not found"
+        
+        # Update the connection string, username, and password
+        sed -i "s/'connectionString' => '[^']*'/'connectionString' => 'mysql:host=127.0.0.1;port=3306;dbname=limesurvey_vendor_test;'/g" application/config/config.php
+        sed -i "s/'username' => '[^']*'/'username' => 'root'/g" application/config/config.php
+        sed -i "s/'password' => '[^']*'/'password' => ''/g" application/config/config.php
+        
+        # Also update tablePrefix if needed
+        sed -i "s/'tablePrefix' => '[^']*'/'tablePrefix' => 'lime_'/g" application/config/config.php
         
         # Verify config was updated
-        grep -n "limesurvey_vendor_test" application/config/config.php || echo "Database name not found in config"
+        echo "Updated config.php database section:"
+        grep -A5 "'db'" application/config/config.php || echo "db section not found"
+        
+        # Test database connection before installer
+        echo "Testing database connection..."
+        php -r "
+        \$dsn = 'mysql:host=127.0.0.1;port=3306;dbname=limesurvey_vendor_test';
+        try {
+            \$pdo = new PDO(\$dsn, 'root', '');
+            echo 'Database connection successful!' . PHP_EOL;
+            \$pdo = null;
+        } catch (PDOException \$e) {
+            echo 'Database connection failed: ' . \$e->getMessage() . PHP_EOL;
+            exit(1);
+        }
+        "
         
         # Check if create-database.php exists
         if [ ! -f "installer/create-database.php" ]; then
