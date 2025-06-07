@@ -184,7 +184,8 @@ class ImportDataValidationTest extends DatabaseTestCase
         
         // Test basic localization structure
         $tables = $db->createCommand('SHOW TABLES LIKE "lime_question%"')->queryAll();
-        $tableNames = array_column($tables, 'Tables_in_ls_latest (lime_question%)');
+        $tableNames = array_values(array_map('array_values', $tables));
+        $tableNames = array_merge(...$tableNames); // Flatten the array
         
         $this->assertContains('lime_questions', $tableNames, 'Should have main questions table');
         $this->assertContains('lime_question_l10ns', $tableNames, 'Should have question localization table');

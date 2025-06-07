@@ -14,12 +14,11 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ROOT_PASSWORD: testpassword
           MYSQL_DATABASE: limesurvey_test
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping -ptestpassword" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v3
@@ -104,9 +103,9 @@ jobs:
       env:
         DB_HOST: 127.0.0.1
         DB_USER: root
-        DB_PASSWORD: ''
+        DB_PASSWORD: testpassword
       run: |
-        mysql -h127.0.0.1 -uroot -e "CREATE DATABASE IF NOT EXISTS limesurvey_vendor_test;"
+        mysql -h127.0.0.1 -uroot -ptestpassword -e "CREATE DATABASE IF NOT EXISTS limesurvey_vendor_test;"
         echo "Database limesurvey_vendor_test created (tables will be created by installer)"
 
     - name: Setup LimeSurvey vendor installation
@@ -115,7 +114,7 @@ jobs:
         DB_PORT: 3306
         DB_NAME: limesurvey_vendor_test
         DB_USER: root
-        DB_PASSWORD: ''
+        DB_PASSWORD: testpassword
       run: |
         # Verify LimeSurvey vendor installation
         ls -la vendor/limesurvey/limesurvey/
@@ -142,7 +141,7 @@ jobs:
         # Update the connection string, username, and password
         sed -i "s/'connectionString' => '[^']*'/'connectionString' => 'mysql:host=127.0.0.1;port=3306;dbname=limesurvey_vendor_test;'/g" application/config/config.php
         sed -i "s/'username' => '[^']*'/'username' => 'root'/g" application/config/config.php
-        sed -i "s/'password' => '[^']*'/'password' => ''/g" application/config/config.php
+        sed -i "s/'password' => '[^']*'/'password' => 'testpassword'/g" application/config/config.php
         
         # Also update tablePrefix if needed
         sed -i "s/'tablePrefix' => '[^']*'/'tablePrefix' => 'lime_'/g" application/config/config.php
@@ -156,7 +155,7 @@ jobs:
         php -r "
         \$dsn = 'mysql:host=127.0.0.1;port=3306;dbname=limesurvey_vendor_test';
         try {
-            \$pdo = new PDO(\$dsn, 'root', '');
+            \$pdo = new PDO(\$dsn, 'root', 'testpassword');
             echo 'Database connection successful!' . PHP_EOL;
             \$pdo = null;
         } catch (PDOException \$e) {
@@ -179,13 +178,13 @@ jobs:
         php application/commands/console.php install admin admin admin@example.com admin || {
           echo "Installation failed!"
           echo "Checking database tables:"
-          mysql -h127.0.0.1 -uroot -e "USE limesurvey_vendor_test; SHOW TABLES;"
+          mysql -h127.0.0.1 -uroot -ptestpassword -e "USE limesurvey_vendor_test; SHOW TABLES;"
           exit 1
         }
         
         # Verify installation
         echo "Verifying installation..."
-        mysql -h127.0.0.1 -uroot -e "USE limesurvey_vendor_test; SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = 'limesurvey_vendor_test';"
+        mysql -h127.0.0.1 -uroot -ptestpassword -e "USE limesurvey_vendor_test; SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = 'limesurvey_vendor_test';"
         
         # Install our plugin in the vendor LimeSurvey installation
         cd ../../../
@@ -219,7 +218,7 @@ jobs:
         DB_PORT=3306
         DB_NAME=limesurvey_vendor_test
         DB_USER=root
-        DB_PASSWORD=
+        DB_PASSWORD=testpassword
         CI=true
         EOF
         
@@ -232,7 +231,7 @@ jobs:
         DB_PORT: 3306
         DB_NAME: limesurvey_vendor_test
         DB_USER: root
-        DB_PASSWORD: ''
+        DB_PASSWORD: testpassword
         CI: true
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: vendor/bin/phpunit --testsuite=functional --verbose
@@ -245,7 +244,7 @@ jobs:
         DB_PORT: 3306
         DB_NAME: limesurvey_vendor_test
         DB_USER: root
-        DB_PASSWORD: ''
+        DB_PASSWORD: testpassword
       run: vendor/bin/phpunit --testsuite=unit --coverage-text
 
     - name: Run PHPStan code analysis
