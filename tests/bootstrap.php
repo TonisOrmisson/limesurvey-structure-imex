@@ -64,12 +64,34 @@ if ($isUnitTestOnly && getenv('CI') === 'true') {
     Yii::import('application.models.*');
     
     // Load our plugin's autoloader from vendor LimeSurvey installation
-    $vendorPluginAutoloader = LIMESURVEY_PATH . '/upload/plugins/StructureImEx/vendor/autoload.php';
-    if (file_exists($vendorPluginAutoloader)) {
-        require_once $vendorPluginAutoloader;
-        echo "Loaded plugin autoloader from vendor LimeSurvey\n";
+    // Skip this for unit tests to avoid plugin initialization
+    $isUnitTestRun = false;
+    
+    // Check if we're running unit tests specifically
+    if (isset($_SERVER['argv'])) {
+        foreach ($_SERVER['argv'] as $arg) {
+            if (strpos($arg, '--testsuite=unit') !== false) {
+                $isUnitTestRun = true;
+                break;
+            }
+        }
+    }
+    
+    // Also check for UNIT_TEST_ONLY env var
+    if (getenv('UNIT_TEST_ONLY')) {
+        $isUnitTestRun = true;
+    }
+    
+    if (!$isUnitTestRun) {
+        $vendorPluginAutoloader = LIMESURVEY_PATH . '/upload/plugins/StructureImEx/vendor/autoload.php';
+        if (file_exists($vendorPluginAutoloader)) {
+            require_once $vendorPluginAutoloader;
+            echo "Loaded plugin autoloader from vendor LimeSurvey\n";
+        } else {
+            echo "Warning: Plugin autoloader not found at {$vendorPluginAutoloader}\n";
+        }
     } else {
-        echo "Warning: Plugin autoloader not found at {$vendorPluginAutoloader}\n";
+        echo "Skipping plugin autoloader for unit tests\n";
     }
     
 } elseif ($isInsideLimeSurvey && !$isVendorEnvironment) {
