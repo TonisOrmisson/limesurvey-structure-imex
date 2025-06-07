@@ -22,31 +22,15 @@ class DebugSurveyStructureTest extends DatabaseTestCase
         $survey = Survey::model()->findByPk($surveyId);
         $this->assertNotNull($survey);
         
-        echo "\n=== SURVEY DEBUG INFO ===\n";
-        echo "Survey ID: {$surveyId}\n";
-        echo "Survey Admin: {$survey->admin}\n";
-        echo "Survey Language: {$survey->language}\n";
-        
         // Check groups
         $groups = QuestionGroup::model()->findAll('sid = :sid', [':sid' => $surveyId]);
-        echo "Number of groups: " . count($groups) . "\n";
-        
-        foreach ($groups as $group) {
-            echo "Group ID: {$group->gid}, Name: {$group->group_name}, Order: {$group->group_order}\n";
-        }
         
         // Check questions
         $questions = Question::model()->findAll('sid = :sid', [':sid' => $surveyId]);
-        echo "Number of questions: " . count($questions) . "\n";
-        
-        foreach ($questions as $question) {
-            echo "Question ID: {$question->qid}, Title: {$question->title}, Type: {$question->type}, GID: {$question->gid}\n";
-        }
         
         // Try to create a minimal question if we have a group
         if (!empty($groups)) {
             $firstGroup = $groups[0];
-            echo "Attempting to create test question in group {$firstGroup->gid}...\n";
             
             $testQuestion = new Question();
             $testQuestion->sid = $surveyId;
@@ -63,13 +47,11 @@ class DebugSurveyStructureTest extends DatabaseTestCase
             $testQuestion->same_script = 0;
             
             if ($testQuestion->save()) {
-                echo "✓ Successfully created test question ID: {$testQuestion->qid}\n";
                 // Clean up
                 $testQuestion->delete();
-                echo "✓ Successfully cleaned up test question\n";
+                $this->assertTrue(true, 'Successfully created and cleaned up test question');
             } else {
-                echo "✗ Failed to create test question\n";
-                echo "Errors: " . print_r($testQuestion->getErrors(), true) . "\n";
+                $this->fail('Failed to create test question: ' . print_r($testQuestion->getErrors(), true));
             }
         }
         
