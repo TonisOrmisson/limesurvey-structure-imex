@@ -15,8 +15,18 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 $isInsideLimeSurvey = file_exists(__DIR__ . '/../../../../application/config/version.php');
 $hasVendorLimeSurvey = file_exists(__DIR__ . '/../vendor/limesurvey/limesurvey');
 $isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
+$isUnitTestOnly = getenv('UNIT_TEST_ONLY') === 'true';
 
-if ($hasVendorLimeSurvey && ($isVendorEnvironment || getenv('CI') === 'true')) {
+// For unit tests in CI that don't need LimeSurvey
+if ($isUnitTestOnly && getenv('CI') === 'true') {
+    echo "Unit test mode: Skipping LimeSurvey requirement\n";
+    // Define minimal constants for unit tests
+    if (!defined('LIMESURVEY_PATH')) {
+        define('LIMESURVEY_PATH', __DIR__ . '/..');
+        define('APPPATH', LIMESURVEY_PATH . '/application/');
+        define('BASEPATH', LIMESURVEY_PATH . '/');
+    }
+} elseif ($hasVendorLimeSurvey && ($isVendorEnvironment || getenv('CI') === 'true')) {
     // CI environment or standalone testing - use plugin's vendor LimeSurvey installation
     echo "Using vendor LimeSurvey installation\n";
     

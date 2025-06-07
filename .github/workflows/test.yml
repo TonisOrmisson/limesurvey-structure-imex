@@ -35,6 +35,7 @@ jobs:
     - name: Run unit tests
       env:
         CI: true
+        UNIT_TEST_ONLY: true
       run: vendor/bin/phpunit --testsuite=unit --coverage-text
 
   functional-tests:
@@ -71,6 +72,58 @@ jobs:
     - name: Install dependencies (Functional Tests with LimeSurvey)
       run: COMPOSER=composer-ci.json composer install --prefer-dist --no-progress
 
+    - name: Validate LimeSurvey installation
+      run: |
+        echo "=== Validating LimeSurvey installation ==="
+        
+        # Check if vendor directory exists
+        if [ ! -d "vendor/limesurvey/limesurvey" ]; then
+          echo "ERROR: vendor/limesurvey/limesurvey directory not found!"
+          exit 1
+        fi
+        
+        # List contents of LimeSurvey directory
+        echo "LimeSurvey directory contents:"
+        ls -la vendor/limesurvey/limesurvey/ || echo "Failed to list directory"
+        
+        # Check for essential directories
+        echo -e "\nChecking essential directories:"
+        for dir in application installer assets upload; do
+          if [ -d "vendor/limesurvey/limesurvey/$dir" ]; then
+            echo "✓ $dir directory exists"
+          else
+            echo "✗ $dir directory missing!"
+          fi
+        done
+        
+        # Check for installer SQL file
+        echo -e "\nChecking for installer SQL files:"
+        if [ -f "vendor/limesurvey/limesurvey/installer/create-database.php" ]; then
+          echo "✓ Found installer/create-database.php"
+        else
+          echo "✗ installer/create-database.php missing!"
+        fi
+        
+        # Find SQL files
+        echo -e "\nSearching for SQL files:"
+        find vendor/limesurvey/limesurvey -name "*.sql" -type f | head -10 || echo "No SQL files found"
+        
+        # Check application/config
+        echo -e "\nChecking application/config:"
+        ls -la vendor/limesurvey/limesurvey/application/config/ | head -10 || echo "Config directory missing"
+        
+        # Count total files
+        echo -e "\nTotal files in LimeSurvey:"
+        FILE_COUNT=$(find vendor/limesurvey/limesurvey -type f | wc -l)
+        echo $FILE_COUNT
+        
+        # Fail if too few files (indicating incomplete installation)
+        if [ $FILE_COUNT -lt 1000 ]; then
+          echo "ERROR: LimeSurvey installation appears incomplete (only $FILE_COUNT files found)"
+          echo "Expected at least 1000 files for a complete installation"
+          exit 1
+        fi
+
     - name: Wait for MySQL
       run: |
         while ! mysqladmin ping -h"127.0.0.1" --silent; do
@@ -84,7 +137,7 @@ jobs:
         DB_PASSWORD: ''
       run: |
         mysql -h127.0.0.1 -uroot -e "CREATE DATABASE IF NOT EXISTS limesurvey_vendor_test;"
-        mysql -h127.0.0.1 -uroot limesurvey_vendor_test < vendor/limesurvey/limesurvey/installer/sql/create-mysql.sql
+        echo "Database limesurvey_vendor_test created (tables will be created by installer)"
 
     - name: Setup LimeSurvey vendor installation
       env:
@@ -119,8 +172,27 @@ jobs:
         # Verify config was updated
         grep -n "limesurvey_vendor_test" application/config/config.php || echo "Database name not found in config"
         
+        # Check if create-database.php exists
+        if [ ! -f "installer/create-database.php" ]; then
+          echo "ERROR: installer/create-database.php not found!"
+          echo "Current directory: $(pwd)"
+          echo "Installer contents:"
+          ls -la installer/
+          exit 1
+        fi
+        
         # Run LimeSurvey CLI installer
-        php application/commands/console.php install admin admin admin@example.com admin
+        echo "Running LimeSurvey installer..."
+        php application/commands/console.php install admin admin admin@example.com admin || {
+          echo "Installation failed!"
+          echo "Checking database tables:"
+          mysql -h127.0.0.1 -uroot -e "USE limesurvey_vendor_test; SHOW TABLES;"
+          exit 1
+        }
+        
+        # Verify installation
+        echo "Verifying installation..."
+        mysql -h127.0.0.1 -uroot -e "USE limesurvey_vendor_test; SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = 'limesurvey_vendor_test';"
         
         # Install our plugin in the vendor LimeSurvey installation
         cd ../../../
