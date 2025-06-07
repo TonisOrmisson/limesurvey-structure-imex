@@ -31,15 +31,43 @@ if (getenv('UNIT_TEST_ONLY')) {
     $isUnitTestRun = true;
 }
 
-// For unit tests - skip LimeSurvey entirely
+// For unit tests - load minimal LimeSurvey without plugin system
 if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
-    echo "Unit test mode: Skipping LimeSurvey requirement\n";
-    // Define minimal constants for unit tests
-    if (!defined('LIMESURVEY_PATH')) {
+    echo "Unit test mode: Loading minimal LimeSurvey\n";
+    
+    if ($hasVendorLimeSurvey) {
+        $vendorLimeSurveyPath = __DIR__ . '/../vendor/limesurvey/limesurvey';
+        
+        // Set up LimeSurvey path constants
+        define('LIMESURVEY_PATH', $vendorLimeSurveyPath);
+        define('APPPATH', LIMESURVEY_PATH . '/application/');
+        define('BASEPATH', LIMESURVEY_PATH . '/');
+        
+        // Include Yii framework from LimeSurvey's vendor
+        $yiiPath = LIMESURVEY_PATH . '/vendor/yiisoft/yii/framework/yii.php';
+        if (file_exists($yiiPath)) {
+            require_once $yiiPath;
+            
+            // Disable Yii's autoloader to prevent conflicts with PHPUnit
+            Yii::$enableIncludePath = false;
+            
+            // Set up Yii path aliases for LimeSurvey
+            Yii::setPathOfAlias('application', APPPATH);
+            Yii::setPathOfAlias('webroot', LIMESURVEY_PATH);
+            
+            // Import only essential LimeSurvey classes - NO plugin system
+            Yii::import('application.core.*');
+            Yii::import('application.models.*');
+            
+            echo "Loaded essential LimeSurvey classes for unit tests\n";
+        }
+    } else {
+        // Fallback minimal setup
         define('LIMESURVEY_PATH', __DIR__ . '/..');
         define('APPPATH', LIMESURVEY_PATH . '/application/');
         define('BASEPATH', LIMESURVEY_PATH . '/');
     }
+    
 } elseif ($hasVendorLimeSurvey && ($isVendorEnvironment || getenv('CI') === 'true')) {
     // CI environment or standalone testing - use plugin's vendor LimeSurvey installation
     echo "Using vendor LimeSurvey installation\n";
