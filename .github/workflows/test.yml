@@ -212,9 +212,21 @@ jobs:
         DB_USER: root
         DB_PASSWORD: testpassword
       run: |
+        # Test database connection first
+        echo "Testing database connection..."
+        mysql -h127.0.0.1 -uroot -ptestpassword -e "SELECT 1;" limesurvey_vendor_test || {
+          echo "ERROR: Cannot connect to database limesurvey_vendor_test"
+          echo "Available databases:"
+          mysql -h127.0.0.1 -uroot -ptestpassword -e "SHOW DATABASES;"
+          exit 1
+        }
+        
         # Register the plugin in the LimeSurvey database
         cd /home/runner/work/limesurvey-structure-imex/limesurvey-structure-imex
-        php tests/simple-plugin-installer.php
+        php tests/simple-plugin-installer.php || {
+          echo "ERROR: Plugin registration failed"
+          exit 1
+        }
 
     - name: Setup test environment file
       run: |

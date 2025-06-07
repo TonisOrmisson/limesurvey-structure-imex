@@ -6,13 +6,13 @@
 // Load our test bootstrap
 require_once __DIR__ . '/bootstrap.php';
 
-// Connect to the database
+// Connect to the database using environment variables or defaults
 $dbConfig = [
-    'host' => 'localhost',
-    'port' => '3306',
-    'database' => 'limesurvey_vendor_test',
-    'username' => 'root',
-    'password' => 'root',
+    'host' => getenv('DB_HOST') ?: 'localhost',
+    'port' => getenv('DB_PORT') ?: '3306',
+    'database' => getenv('DB_NAME') ?: 'limesurvey_vendor_test',
+    'username' => getenv('DB_USER') ?: 'root',
+    'password' => getenv('DB_PASSWORD') ?: 'root',
 ];
 
 try {
