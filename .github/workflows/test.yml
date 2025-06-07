@@ -1,0 +1,200 @@
+name: Tests
+
+on:
+  push:
+    branches: [ develop, master ]
+  pull_request:
+    branches: [ develop, master ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
+        coverage: xdebug
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-unit-${{ hashFiles('**/composer-ci.json') }}
+        restore-keys: |
+          ${{ runner.os }}-php-unit-
+
+    - name: Install dependencies (Unit Tests only)
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run unit tests
+      env:
+        CI: true
+      run: vendor/bin/phpunit --testsuite=unit --coverage-text
+
+  functional-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: limesurvey_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-functional-${{ hashFiles('**/composer-ci.json') }}
+        restore-keys: |
+          ${{ runner.os }}-php-functional-
+
+    - name: Install dependencies (Functional Tests with LimeSurvey)
+      run: COMPOSER=composer-ci.json composer install --prefer-dist --no-progress
+
+    - name: Wait for MySQL
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" --silent; do
+          sleep 1
+        done
+
+    - name: Create separate LimeSurvey database for vendor installation
+      env:
+        DB_HOST: 127.0.0.1
+        DB_USER: root
+        DB_PASSWORD: ''
+      run: |
+        mysql -h127.0.0.1 -uroot -e "CREATE DATABASE IF NOT EXISTS limesurvey_vendor_test;"
+        mysql -h127.0.0.1 -uroot limesurvey_vendor_test < vendor/limesurvey/limesurvey/installer/sql/create-mysql.sql
+
+    - name: Setup LimeSurvey vendor installation
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: limesurvey_vendor_test
+        DB_USER: root
+        DB_PASSWORD: ''
+      run: |
+        # Verify LimeSurvey vendor installation
+        ls -la vendor/limesurvey/limesurvey/
+        
+        # Create LimeSurvey config for vendor installation
+        cd vendor/limesurvey/limesurvey
+        
+        # Find the correct config sample file
+        if [ -f "application/config/config-sample-mysql.php" ]; then
+          cp application/config/config-sample-mysql.php application/config/config.php
+        elif [ -f "application/config/config.sample.php" ]; then
+          cp application/config/config.sample.php application/config/config.php
+        else
+          echo "Available config files:"
+          ls -la application/config/
+          exit 1
+        fi
+        
+        # Update database configuration in config.php
+        sed -i "s/'connectionString' => 'mysql:host=localhost;port=3306;dbname=limesurvey;'/'connectionString' => 'mysql:host=127.0.0.1;port=3306;dbname=limesurvey_vendor_test;'/g" application/config/config.php
+        sed -i "s/'username' => 'limesurvey'/'username' => 'root'/g" application/config/config.php
+        sed -i "s/'password' => 'limesurvey'/'password' => ''/g" application/config/config.php
+        
+        # Verify config was updated
+        grep -n "limesurvey_vendor_test" application/config/config.php || echo "Database name not found in config"
+        
+        # Run LimeSurvey CLI installer
+        php application/commands/console.php install admin admin admin@example.com admin
+        
+        # Install our plugin in the vendor LimeSurvey installation
+        cd ../../../
+        echo "Creating plugin directory in vendor LimeSurvey"
+        mkdir -p vendor/limesurvey/limesurvey/upload/plugins/StructureImEx
+        
+        # Copy our plugin files (excluding vendor and tests to avoid conflicts)
+        cp -r src vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
+        cp StructureImEx.php vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
+        cp config.xml vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
+        cp composer.json vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
+        
+        # Install plugin dependencies in vendor LimeSurvey
+        cd vendor/limesurvey/limesurvey/upload/plugins/StructureImEx
+        composer install --no-dev --prefer-dist
+        
+        echo "Plugin installed in vendor LimeSurvey"
+
+    - name: Register plugin in database
+      run: |
+        # Register the plugin in the LimeSurvey database
+        cd /home/runner/work/limesurvey-structure-imex/limesurvey-structure-imex
+        php tests/simple-plugin-installer.php
+
+    - name: Setup test environment file
+      run: |
+        # Create tests/.env for CI environment
+        cat > tests/.env << EOF
+        # CI Environment Configuration
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_NAME=limesurvey_vendor_test
+        DB_USER=root
+        DB_PASSWORD=
+        CI=true
+        EOF
+        
+        # Verify .env file
+        cat tests/.env
+
+    - name: Run functional tests
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: limesurvey_vendor_test
+        DB_USER: root
+        DB_PASSWORD: ''
+        CI: true
+        LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
+      run: vendor/bin/phpunit --testsuite=functional --verbose
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-quality-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-quality-
+
+    - name: Install dependencies (Code Quality)
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse src --level=5

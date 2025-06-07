@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Task Management Process
+
+**IMPORTANT**: Before starting any new work, ALWAYS check the `tasks/todo.md` file first. This file contains:
+- Active tasks that need to be completed
+- Known issues that need addressing  
+- Future enhancements planned
+- Context about ongoing work
+
+When working on tasks:
+1. Check `tasks/todo.md` for current priorities
+2. Update the file when starting work on a task (move to "Active" section)
+3. Update the file when completing a task (move to "Completed" section)
+4. Add new issues or tasks discovered during development
+5. Reference specific line numbers and files when documenting issues
+
 # StructureImEx LimeSurvey Plugin
 
 ## Project Overview

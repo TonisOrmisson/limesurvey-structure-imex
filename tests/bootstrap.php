@@ -14,18 +14,34 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 // Detect environment and setup accordingly
 $isInsideLimeSurvey = file_exists(__DIR__ . '/../../../../application/config/version.php');
 $hasVendorLimeSurvey = file_exists(__DIR__ . '/../vendor/limesurvey/limesurvey');
+$isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
 
-if ($hasVendorLimeSurvey) {
+if ($hasVendorLimeSurvey && ($isVendorEnvironment || getenv('CI') === 'true')) {
     // CI environment or standalone testing - use plugin's vendor LimeSurvey installation
     echo "Using vendor LimeSurvey installation\n";
     
+    $vendorLimeSurveyPath = __DIR__ . '/../vendor/limesurvey/limesurvey';
+    
+    // Verify vendor LimeSurvey installation is complete
+    if (!file_exists($vendorLimeSurveyPath . '/application/config/version.php')) {
+        throw new Exception("Vendor LimeSurvey installation incomplete. Missing version.php at: {$vendorLimeSurveyPath}/application/config/version.php");
+    }
+    
+    if (!file_exists($vendorLimeSurveyPath . '/application/config/config.php')) {
+        throw new Exception("Vendor LimeSurvey installation incomplete. Missing config.php at: {$vendorLimeSurveyPath}/application/config/config.php");
+    }
+    
     // Set up LimeSurvey path constants
-    define('LIMESURVEY_PATH', __DIR__ . '/../vendor/limesurvey/limesurvey');
+    define('LIMESURVEY_PATH', $vendorLimeSurveyPath);
     define('APPPATH', LIMESURVEY_PATH . '/application/');
     define('BASEPATH', LIMESURVEY_PATH . '/');
     
     // Include Yii framework from LimeSurvey's vendor
-    require_once LIMESURVEY_PATH . '/vendor/yiisoft/yii/framework/yii.php';
+    $yiiPath = LIMESURVEY_PATH . '/vendor/yiisoft/yii/framework/yii.php';
+    if (!file_exists($yiiPath)) {
+        throw new Exception("Yii framework not found at: {$yiiPath}");
+    }
+    require_once $yiiPath;
     
     // Disable Yii's autoloader to prevent conflicts with PHPUnit
     Yii::$enableIncludePath = false;
@@ -38,7 +54,16 @@ if ($hasVendorLimeSurvey) {
     Yii::import('application.core.*');
     Yii::import('application.models.*');
     
-} elseif ($isInsideLimeSurvey) {
+    // Load our plugin's autoloader from vendor LimeSurvey installation
+    $vendorPluginAutoloader = LIMESURVEY_PATH . '/upload/plugins/StructureImEx/vendor/autoload.php';
+    if (file_exists($vendorPluginAutoloader)) {
+        require_once $vendorPluginAutoloader;
+        echo "Loaded plugin autoloader from vendor LimeSurvey\n";
+    } else {
+        echo "Warning: Plugin autoloader not found at {$vendorPluginAutoloader}\n";
+    }
+    
+} elseif ($isInsideLimeSurvey && !$isVendorEnvironment) {
     // Development environment - use parent LimeSurvey installation
     echo "Development environment: Using parent LimeSurvey installation\n";
     
@@ -70,9 +95,23 @@ if ($hasVendorLimeSurvey) {
     
     
 } else {
-    throw new Exception('Cannot detect LimeSurvey installation. Please either:
-1. Run tests from within a LimeSurvey installation, or 
-2. Install with LimeSurvey dependency: COMPOSER=composer-ci.json composer install');
+    $vendorPath = __DIR__ . '/../vendor/limesurvey/limesurvey';
+    $error = 'Cannot detect LimeSurvey installation. Current environment:';
+    $error .= "\n- Inside LimeSurvey: " . ($isInsideLimeSurvey ? 'YES' : 'NO');
+    $error .= "\n- Has vendor LimeSurvey: " . ($hasVendorLimeSurvey ? 'YES' : 'NO');
+    $error .= "\n- Vendor environment variable: " . ($isVendorEnvironment ? 'YES' : 'NO');
+    $error .= "\n- CI environment: " . (getenv('CI') === 'true' ? 'YES' : 'NO');
+    $error .= "\n- Vendor path exists: " . (file_exists($vendorPath) ? 'YES' : 'NO');
+    if (file_exists($vendorPath)) {
+        $error .= "\n- Vendor contents: " . implode(', ', scandir($vendorPath));
+        $error .= "\n- Has application: " . (file_exists($vendorPath . '/application') ? 'YES' : 'NO');
+        $error .= "\n- Has config: " . (file_exists($vendorPath . '/application/config/config.php') ? 'YES' : 'NO');
+    }
+    $error .= "\n\nPlease either:";
+    $error .= "\n1. Run tests from within a LimeSurvey installation, or";
+    $error .= "\n2. Install with LimeSurvey dependency: COMPOSER=composer-ci.json composer install";
+    $error .= "\n3. For CI: set LIMESURVEY_VENDOR_PATH environment variable";
+    throw new Exception($error);
 }
 
 // Set up basic constants that LimeSurvey expects

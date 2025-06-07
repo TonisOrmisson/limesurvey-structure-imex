@@ -100,16 +100,17 @@ abstract class DatabaseTestCase extends TestCase
     {
         // Check for CI environment variables first
         if (getenv('CI') === 'true' || getenv('GITHUB_ACTIONS') === 'true') {
+            // In CI, use separate database for vendor LimeSurvey installation
             return [
                 'host' => getenv('DB_HOST') ?: '127.0.0.1',
                 'port' => getenv('DB_PORT') ?: '3306',
-                'database' => getenv('DB_NAME') ?: 'limesurvey_test',
+                'database' => getenv('DB_NAME') ?: 'limesurvey_vendor_test',
                 'username' => getenv('DB_USER') ?: 'root',
                 'password' => getenv('DB_PASSWORD') ?: '',
             ];
         }
         
-        // Local development configuration
+        // Local development configuration - use parent LimeSurvey database
         return [
             'host' => getenv('DB_HOST') ?: 'localhost',
             'port' => getenv('DB_PORT') ?: '3306',
@@ -137,8 +138,11 @@ abstract class DatabaseTestCase extends TestCase
             return;
         }
         
-        // Use the existing LimeSurvey application if available
-        if (\Yii::app() !== null) {
+        // Check if we're in CI environment using vendor LimeSurvey or development using parent LimeSurvey
+        $isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
+        
+        // Use the existing LimeSurvey application if available and we're in development mode
+        if (\Yii::app() !== null && !$isVendorEnvironment) {
             self::$app = \Yii::app();
             self::$db = self::$app->db;
             
@@ -156,7 +160,11 @@ abstract class DatabaseTestCase extends TestCase
         }
         
         // Load LimeSurvey's internal config as base
-        $config = require_once(LIMESURVEY_PATH . '/application/config/internal.php');
+        $configFile = LIMESURVEY_PATH . '/application/config/internal.php';
+        if (!file_exists($configFile)) {
+            throw new \Exception("LimeSurvey internal config not found at: {$configFile}");
+        }
+        $config = require_once($configFile);
         
         // Override database configuration
         $config['components']['db']['connectionString'] = sprintf(
@@ -189,6 +197,25 @@ abstract class DatabaseTestCase extends TestCase
         $originalCwd = getcwd();
         chdir(LIMESURVEY_PATH);
         
+        // In vendor environment, ensure config file exists and plugin is available
+        if ($isVendorEnvironment) {
+            $vendorConfigFile = LIMESURVEY_PATH . '/application/config/config.php';
+            if (!file_exists($vendorConfigFile)) {
+                throw new \Exception("Vendor LimeSurvey config not found. Installation may have failed.");
+            }
+            
+            // Ensure our plugin is available in vendor LimeSurvey
+            $vendorPluginPath = LIMESURVEY_PATH . '/upload/plugins/StructureImEx';
+            if (!file_exists($vendorPluginPath . '/StructureImEx.php')) {
+                throw new \Exception("StructureImEx plugin not found in vendor LimeSurvey at: {$vendorPluginPath}");
+            }
+            
+            // Add vendor plugin path to include path for autoloading
+            if (file_exists($vendorPluginPath . '/vendor/autoload.php')) {
+                require_once $vendorPluginPath . '/vendor/autoload.php';
+            }
+        }
+        
         // Create the LimeSurvey application exactly like LimeSurvey's own tests do
         // This should automatically load all dependencies when they're needed
         self::$app = \Yii::createApplication('LSYii_Application', $config);
@@ -200,12 +227,18 @@ abstract class DatabaseTestCase extends TestCase
         
         // Now load the expression manager (which depends on the above helpers)
         if (class_exists('LimeExpressionManager') === false) {
-            require_once LIMESURVEY_PATH . '/application/helpers/expressions/em_manager_helper.php';
+            $emFile = LIMESURVEY_PATH . '/application/helpers/expressions/em_manager_helper.php';
+            if (file_exists($emFile)) {
+                require_once $emFile;
+            }
         }
         
         // Finally load import helper (which depends on expression manager)
         if (function_exists('importSurveyFile') === false) {
-            require_once LIMESURVEY_PATH . '/application/helpers/admin/import_helper.php';
+            $importFile = LIMESURVEY_PATH . '/application/helpers/admin/import_helper.php';
+            if (file_exists($importFile)) {
+                require_once $importFile;
+            }
         }
         
         // Restore original working directory
