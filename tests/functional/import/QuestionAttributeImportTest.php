@@ -17,8 +17,7 @@ class QuestionAttributeImportTest extends DatabaseTestCase
     {
         parent::setUp();
         
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
-        $this->testSurveyId = $this->importSurveyFromFile($blankSurveyPath);
+        $this->testSurveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
     }
     
     /**

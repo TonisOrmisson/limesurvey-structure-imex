@@ -19,7 +19,7 @@ class ImportChangesDBTest extends DatabaseTestCase
     public function testCanCreateAndReadQuestionAttributes()
     {
         // Import a survey
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $blankSurveyPath = $this->getBlankSurveyPath();
         $surveyId = $this->importSurveyFromFile($blankSurveyPath);
         
         // Find any question in the survey
@@ -71,7 +71,7 @@ class ImportChangesDBTest extends DatabaseTestCase
     public function testImportStructureCanProcessFile()
     {
         // Import a survey  
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $blankSurveyPath = $this->getBlankSurveyPath();
         $surveyId = $this->importSurveyFromFile($blankSurveyPath);
         
         $plugin = $this->createRealPlugin($surveyId);

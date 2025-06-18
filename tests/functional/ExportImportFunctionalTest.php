@@ -158,7 +158,7 @@ class ExportImportFunctionalTest extends DatabaseTestCase
         $question = new Question();
         $question->sid = $group->sid;
         $question->gid = $group->gid;
-        $question->type = 'T'; // Long free text
+        $question->type = Question::QT_T_LONG_FREE_TEXT; // Long free text
         $question->title = 'TestQ1';
         $question->mandatory = 'Y';
         $question->question_order = 1;

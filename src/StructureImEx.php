@@ -6,7 +6,6 @@ use CUploadedFile;
 use PluginBase;
 use Survey;
 use tonisormisson\ls\structureimex\import\ImportRelevance;
-use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
 use tonisormisson\ls\structureimex\export\ExportRelevances;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
@@ -30,8 +29,8 @@ class StructureImEx extends PluginBase
     /** @var Survey $survey */
     private $survey;
 
-    /** @var PersistentWarningManager */
-    private $warningManager;
+    /** @var PersistentWarningManager|null */
+    private $warningManager = null;
 
     const ACTION_QUESTIONS = "questions";
     const ACTION_RELEVANCES = "relevances";
@@ -41,7 +40,6 @@ class StructureImEx extends PluginBase
     public function init()
     {
         \Yii::log("init", 'info', 'plugin.andmemasin.imex');
-        \Yii::log("init3", 'debug', 'plugin.andmemasin.imex');
         $this->subscribe('beforeToolsMenuRender');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
@@ -178,11 +176,7 @@ class StructureImEx extends PluginBase
             if ($this->survey->getIsActive()) {
                 $this->app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
-                if ($this->isV4plusVersion()) {
-                    $import = new ImportStructureV4Plus($this);
-                } else {
-                    $import = new ImportStructure($this);
-                }
+                $import = new ImportStructureV4Plus($this);
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
                     $this->app()->setFlashMessage($import->getError('file'), 'error');
@@ -322,6 +316,40 @@ class StructureImEx extends PluginBase
     public function createPublicUrl($action, $params = [])
     {
         return $this->createUrl($action, $params);
+    }
+
+    /**
+     * Public setter for plugin settings (for testing purposes)
+     */
+    public function setSetting($key, $value, $type = 'Survey', $surveyId = null)
+    {
+        return $this->set($key, $value, $type, $surveyId);
+    }
+
+    /** @var ?\CHttpSession Custom session object for testing */
+    private $customSession = null;
+
+    /**
+     * Get the session object
+     */
+    public function getSession() : \CHttpSession
+    {
+        if($this->customSession instanceof \CHttpSession) {
+            return $this->customSession;
+        }
+        $app = $this->app();
+        return $app->getSession();
+    }
+
+    /**
+     * Set a custom session object (for testing purposes)
+     * 
+     * @param object $session Session object
+     * @return void
+     */
+    public function setSession($session): void
+    {
+        $this->customSession = $session;
     }
 
 

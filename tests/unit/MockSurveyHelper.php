@@ -117,7 +117,7 @@ class MockSurveyHelper
             public $qid = 1;
             public $sid;
             public $gid = 1;
-            public $type = 'T';
+            public $type = \Question::QT_T_LONG_FREE_TEXT;
             public $title = 'Q001';
             public $other = 'N';
             public $mandatory = 'N';
@@ -147,7 +147,7 @@ class MockSurveyHelper
             public $qid = 2;
             public $sid;
             public $gid = 1;
-            public $type = 'L';
+            public $type = \Question::QT_L_LIST;
             public $title = 'Q002';
             public $other = 'N';
             public $mandatory = 'Y';
@@ -177,7 +177,7 @@ class MockSurveyHelper
             public $qid = 3;
             public $sid;
             public $gid = 2;
-            public $type = 'N';
+            public $type = \Question::QT_N_NUMERICAL;
             public $title = 'Q003';
             public $other = 'N';
             public $mandatory = 'N';

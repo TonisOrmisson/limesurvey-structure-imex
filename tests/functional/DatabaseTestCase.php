@@ -400,9 +400,9 @@ abstract class DatabaseTestCase extends TestCase
         $groupId1 = $this->createTestGroup($surveyId, 'Test Group 1', 1);
         $groupId2 = $this->createTestGroup($surveyId, 'Test Group 2', 2);
         
-        $questionId1 = $this->createTestQuestion($surveyId, $groupId1, 'Q001', 'T', 'What is your name?');
-        $questionId2 = $this->createTestQuestion($surveyId, $groupId1, 'Q002', 'M', 'Select your preferences?', 'Y');
-        $questionId3 = $this->createTestQuestion($surveyId, $groupId2, 'Q003', 'N', 'How old are you?');
+        $questionId1 = $this->createTestQuestion($surveyId, $groupId1, 'Q001', Question::QT_T_LONG_FREE_TEXT, 'What is your name?');
+        $questionId2 = $this->createTestQuestion($surveyId, $groupId1, 'Q002', Question::QT_M_MULTIPLE_CHOICE, 'Select your preferences?', 'Y');
+        $questionId3 = $this->createTestQuestion($surveyId, $groupId2, 'Q003', Question::QT_N_NUMERICAL, 'How old are you?');
         
         // Add some test attributes
         $this->createTestAttribute($questionId2, 'random_order', '1');
@@ -530,5 +530,34 @@ abstract class DatabaseTestCase extends TestCase
         $surveyProperty->setValue($plugin, $survey);
         
         return $plugin;
+    }
+    
+    /**
+     * Get the absolute path to a test support file
+     * 
+     * This method handles the relative path navigation from any test subdirectory
+     * back to the tests/support directory structure.
+     * 
+     * @param string $relativePath Path relative to tests/support (e.g., 'data/surveys/blank-survey.lss')
+     * @return string Absolute path to the support file
+     */
+    protected function getTestSupportFile($relativePath)
+    {
+        // Get the absolute path to the tests directory by going up from DatabaseTestCase location
+        $testsDir = dirname(__DIR__);
+        return $testsDir . '/support/' . $relativePath;
+    }
+    
+    /**
+     * Get common test survey files
+     */
+    protected function getBlankSurveyPath()
+    {
+        return $this->getTestSupportFile('data/surveys/blank-survey.lss');
+    }
+    
+    protected function getMultiLanguageSurveyPath()
+    {
+        return $this->getTestSupportFile('data/surveys/survey-one-question-two-languages.lss');
     }
 }

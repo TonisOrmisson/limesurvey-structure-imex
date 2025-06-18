@@ -142,7 +142,8 @@ try {
 
 ## Development Reminders
 - Remember to run tests on the lime1 container
-- Never write temporary test cases unless you get ad hocc permission
+- Never write temporary test cases unless you get ad hoc permission
+- After each task always run on container the phpstan like `vendor/bin/phpstan -cphpstan-dev.neon`
 
 ## Code Behavior Guidelines
 - Stop telling me that its fine if stuff fails

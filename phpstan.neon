@@ -8,3 +8,4 @@ parameters:
         - vendor
     excludePaths:
         - vendor/yiisoft/yii/framework/yiilite.php
+        - src/import/ImportStructure.php

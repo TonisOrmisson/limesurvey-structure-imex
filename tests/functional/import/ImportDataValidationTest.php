@@ -21,7 +21,7 @@ class ImportDataValidationTest extends DatabaseTestCase
         parent::setUp();
         
         // Import the blank survey for testing
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $blankSurveyPath = $this->getBlankSurveyPath();
         $this->importedSurveyId = $this->importSurveyFromFile($blankSurveyPath);
         
         // Create a test group for questions

@@ -7,7 +7,7 @@ use tonisormisson\ls\structureimex\import\ImportRelevance;
 /** @var string $exportUrl */
 /** @var ImportRelevance $import */
 /** @var array $navUrls */
-/** @var PluginBase $exportPlugin */
+/** @var StructureImEx $exportPlugin */
 
 ?>
 

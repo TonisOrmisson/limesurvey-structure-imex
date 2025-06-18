@@ -19,8 +19,7 @@ class ComprehensiveAttributeExportTest extends DatabaseTestCase
         parent::setUp();
         
         // Import the proper multi-language survey
-        $multiLangSurveyPath = __DIR__ . '/../support/data/surveys/survey-one-question-two-languages.lss';
-        $this->testSurveyId = $this->importSurveyFromFile($multiLangSurveyPath);
+        $this->testSurveyId = $this->importSurveyFromFile($this->getMultiLanguageSurveyPath());
     }
     
     /**

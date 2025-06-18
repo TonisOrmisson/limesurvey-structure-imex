@@ -69,6 +69,9 @@ abstract class ImportFromFile extends CModel
         $this->plugin = $plugin;
         $this->survey = $plugin->getSurvey();
         $this->language = $this->survey->language ?? 'en';
+        if ($this->survey->sid === null) {
+            throw new ImexException("survey sid is null");
+        }
     }
 
     /**
@@ -161,12 +164,16 @@ abstract class ImportFromFile extends CModel
     {
         $this->readerData = [];
         $this->setWorksheet();
+        $rowIndex = 0;
         foreach ($this->sheet->getRowIterator() as $row) {
             if ($row instanceof Row) {
                 $rowData = [];
                 $cells = $row->getCells();
+                $cellIndex = 0;
                 foreach ($cells as $cell) {
-                    $rowData[] = $cell->getValue();
+                    $cellValue = $cell->getValue();
+                    $rowData[] = $cellValue;
+                    $cellIndex++;
                 }
                 // skip empty rows
                 if (empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])) {
@@ -174,6 +181,7 @@ abstract class ImportFromFile extends CModel
                 }
                 $this->readerData[] = $rowData;
             }
+            $rowIndex++;
         }
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-use tonisormisson\ls\structureimex\ImportRelevance;
+use tonisormisson\ls\structureimex\import\ImportRelevance;
 use tonisormisson\ls\structureimex\StructureImEx;
 
 /** @var Survey $survey */
@@ -8,7 +8,7 @@ use tonisormisson\ls\structureimex\StructureImEx;
 /** @var string $exportUrl */
 /** @var ImportRelevance $import */
 /** @var array $navUrls */
-/** @var PluginBase $exportPlugin */
+/** @var StructureImEx $exportPlugin */
 
 
 ?>

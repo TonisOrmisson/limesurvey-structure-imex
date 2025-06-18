@@ -24,7 +24,7 @@ class ImportQuestionTypesTest extends DatabaseTestCase
         parent::setUp();
         
         // Create a blank survey for importing questions
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $blankSurveyPath = $this->getBlankSurveyPath();
         $this->importedSurveyId = $this->importSurveyFromFile($blankSurveyPath);
         
         // Create a real plugin instance for testing

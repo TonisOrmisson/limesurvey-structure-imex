@@ -18,14 +18,13 @@ class QuestionAttributeValidator extends CModel
 {
     use AppTrait;
 
-    /** @var Survey */
-    private $survey;
+    private Survey $survey;
 
     /** @var array Cache for question type attribute definitions */
-    private static $attributeDefinitionsCache = [];
+    private static array $attributeDefinitionsCache = [];
 
     /** @var array Validation errors */
-    private $validationErrors = [];
+    private array $validationErrors = [];
 
     /**
      * @param Survey $survey
@@ -49,27 +48,23 @@ class QuestionAttributeValidator extends CModel
             return self::$attributeDefinitionsCache[$questionType];
         }
 
-        try {
-            // Create a dummy question to use with the fetcher
-            $dummyQuestion = new Question();
-            $dummyQuestion->type = $questionType;
-            $dummyQuestion->sid = $this->survey ? $this->survey->sid : 0;
+        // Create a dummy question to use with the fetcher
+        $dummyQuestion = new Question();
+        $dummyQuestion->type = $questionType;
+        $dummyQuestion->sid = $this->survey->sid;
 
-            // Use LimeSurvey's core attribute fetcher
-            $fetcher = new QuestionAttributeFetcher();
-            $fetcher->setQuestion($dummyQuestion);
-            $fetcher->setQuestionType($questionType);
+        // Use LimeSurvey's core attribute fetcher
+        $fetcher = new QuestionAttributeFetcher();
+        $fetcher->setQuestion($dummyQuestion);
+        $fetcher->setQuestionType($questionType);
 
-            $attributeDefinitions = $fetcher->fetch();
+        $attributeDefinitions = $fetcher->fetch();
 
-            // Cache the result
-            self::$attributeDefinitionsCache[$questionType] = $attributeDefinitions;
+        // Cache the result
+        self::$attributeDefinitionsCache[$questionType] = $attributeDefinitions;
 
-            return $attributeDefinitions;
-        } catch (\Exception $e) {
-            $this->addError('questionType', 'Failed to fetch attributes for question type: ' . $questionType . '. Error: ' . $e->getMessage());
-            return [];
-        }
+        return $attributeDefinitions;
+
     }
 
     /**
@@ -191,20 +186,15 @@ class QuestionAttributeValidator extends CModel
      */
     public function getAvailableQuestionTypes()
     {
-        try {
-            // Use LimeSurvey's core method to get question types
-            $questionTypes = \QuestionTheme::model()->base()->findAll();
-            $types = [];
-            
-            foreach ($questionTypes as $theme) {
-                $types[] = $theme->question_type;
-            }
-            
-            return array_unique($types);
-        } catch (\Exception $e) {
-            $this->addError('questionTypes', 'Failed to fetch available question types: ' . $e->getMessage());
-            return [];
+        // Use LimeSurvey's core method to get question types
+        $questionTypes = \QuestionTheme::model()->findAll();
+        $types = [];
+
+        foreach ($questionTypes as $theme) {
+            $types[] = $theme->question_type;
         }
+
+        return array_unique($types);
     }
 
     /**

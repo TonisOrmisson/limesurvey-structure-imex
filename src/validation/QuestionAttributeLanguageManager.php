@@ -15,11 +15,6 @@ use Question;
  */
 class QuestionAttributeLanguageManager
 {
-    /**
-     * Cache for parsed attribute definitions
-     * @var array
-     */
-    private static $attributeLanguageMap = null;
 
     /**
      * Known global attributes (not language-specific)

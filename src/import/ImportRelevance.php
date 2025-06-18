@@ -116,23 +116,16 @@ class ImportRelevance extends ImportFromFile
 
         $criteria->addCondition('t.language=:language');
         $criteria->addCondition('t.group_name=:name');
-
-        if ($this->isV4plusVersion()) {
-            $criteria->addCondition('group.sid=:sid');
-            /** @var ?QuestionGroupL10n $l10n */
-            $l10n = QuestionGroupL10n::model()
-                ->with('group')
-                ->find($criteria);
-            if ($l10n === null) {
-                throw new ImexException("Unable to find group with name: " . $row['group']);
-            }
-
-            return $l10n->group;
-
+        $criteria->addCondition('group.sid=:sid');
+        /** @var ?QuestionGroupL10n $l10n */
+        $l10n = QuestionGroupL10n::model()
+            ->with('group')
+            ->find($criteria);
+        if ($l10n === null) {
+            throw new ImexException("Unable to find group with name: " . $row['group']);
         }
 
-        $criteria->addCondition('sid=:sid');
-        return QuestionGroup::model()->find($criteria);
+        return $l10n->group;
     }
 
     protected function findSubQuestion(array $row) : ?Question
@@ -156,11 +149,6 @@ class ImportRelevance extends ImportFromFile
         $criteria->params[':code'] = $row['code'];
         $this->questionCodeColumn = 'code';
 
-        if (!$this->isV4plusVersion()) {
-            $criteria->addCondition('language=:language');
-            $criteria->params[':language'] = $this->language;
-        }
-
         return Question::model()->find($criteria);
     }
 
@@ -173,12 +161,6 @@ class ImportRelevance extends ImportFromFile
         $criteria->addCondition('title=:code');
         $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
         $criteria->addCondition('parent_qid=0');
-
-
-        if (!$this->isV4plusVersion()) {
-            $criteria->addCondition('language=:language');
-            $criteria->params[':language'] = $this->language;
-        }
         return Question::model()->find($criteria);
     }
 

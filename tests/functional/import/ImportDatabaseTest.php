@@ -21,7 +21,7 @@ class ImportDatabaseTest extends DatabaseTestCase
         parent::setUp();
         
         // Import a survey and create a test question
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $blankSurveyPath = $this->getBlankSurveyPath();
         $this->testSurveyId = $this->importSurveyFromFile($blankSurveyPath);
         
         // Create a test question
@@ -189,13 +189,9 @@ class ImportDatabaseTest extends DatabaseTestCase
     {
         // Create completely fresh plugin and survey instances to avoid state issues
         $plugin = $this->createRealPlugin($this->testSurveyId);
-        $survey = \Survey::model()->findByPk($this->testSurveyId);
-        
-        // Force survey model to reload from database to avoid stale data
-        $survey->refresh();
         
         // Create completely new import instance
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin);
         
         // Set fileName directly and call prepare to read the file
         $import->fileName = $csvFile;

@@ -25,8 +25,7 @@ class RealDatabaseImportTest extends DatabaseTestCase
         parent::setUp();
         
         // Import a real survey
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
-        $this->testSurveyId = $this->importSurveyFromFile($blankSurveyPath);
+        $this->testSurveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
         
         // Create a real plugin instance
         $this->plugin = $this->createRealPlugin($this->testSurveyId);

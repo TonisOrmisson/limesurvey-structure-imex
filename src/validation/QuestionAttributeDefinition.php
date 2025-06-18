@@ -17,6 +17,131 @@ use Question;
  */
 class QuestionAttributeDefinition
 {
+
+
+    /**
+     * Get all attributes defined for a question type
+     *
+     * @param string $questionType LimeSurvey question type (T, L, Z, etc.)
+     * @return array Attribute definitions or empty array if type not found
+     */
+    public static function getAttributesForQuestionType($questionType)
+    {
+        return self::$definitions[$questionType] ?? [];
+    }
+
+    /**
+     * Get default value for a specific attribute and question type
+     *
+     * @param string $questionType LimeSurvey question type
+     * @param string $attributeName Attribute name
+     * @return string|null Default value or null if not found
+     */
+    public static function getDefaultValue($questionType, $attributeName)
+    {
+        $attributes = self::getAttributesForQuestionType($questionType);
+        return $attributes[$attributeName]['default'] ?? null;
+    }
+
+    /**
+     * Check if an attribute is valid for a question type
+     *
+     * @param string $questionType LimeSurvey question type
+     * @param string $attributeName Attribute name
+     * @return bool True if attribute is valid for question type
+     */
+    public static function isValidAttribute($questionType, $attributeName)
+    {
+        $attributes = self::getAttributesForQuestionType($questionType);
+        return isset($attributes[$attributeName]);
+    }
+
+    /**
+     * Get list of attribute names for a question type
+     *
+     * @param string $questionType LimeSurvey question type
+     * @return array List of valid attribute names
+     */
+    public static function getAttributeNames($questionType)
+    {
+        $attributes = self::getAttributesForQuestionType($questionType);
+        return array_keys($attributes);
+    }
+
+    /**
+     * Check if a value differs from the default for an attribute
+     *
+     * @param string $questionType LimeSurvey question type
+     * @param string $attributeName Attribute name
+     * @param mixed $value Current value
+     * @return bool True if value is different from default
+     */
+    public static function isNonDefaultValue(string $questionType, string $attributeName, mixed $value)
+    {
+        $defaultValue = self::getDefaultValue($questionType, $attributeName);
+
+        if ($defaultValue === null) {
+            return false; // Unknown attribute, don't export
+        }
+
+        // Handle empty string defaults vs null/empty values
+        if ($defaultValue === '' && ($value === '' || $value === null)) {
+            return false;
+        }
+
+        // Direct comparison for most cases
+        return (string)$value !== (string)$defaultValue;
+    }
+
+    /**
+     * Get all supported question types
+     *
+     * @return array List of supported question type codes
+     */
+    public static function getSupportedQuestionTypes()
+    {
+        return array_keys(self::$definitions);
+    }
+
+    /**
+     * Validate attribute value against its definition
+     *
+     * @param string $questionType LimeSurvey question type
+     * @param string $attributeName Attribute name
+     * @param string $value Value to validate
+     * @return bool True if value is valid
+     */
+    public static function validateAttributeValue($questionType, $attributeName, $value)
+    {
+        $attributes = self::getAttributesForQuestionType($questionType);
+        $attributeDefinition = $attributes[$attributeName] ?? null;
+
+        if (!$attributeDefinition) {
+            return false; // Unknown attribute
+        }
+
+        $type = $attributeDefinition['type'];
+
+        switch ($type) {
+            case 'switch':
+                return in_array($value, ['0', '1']);
+
+            case 'integer':
+                return $value === '' || (is_numeric($value) && (int)$value == $value);
+
+            case 'singleselect':
+                $options = $attributeDefinition['options'] ?? [];
+                return in_array($value, $options);
+
+            case 'text':
+            case 'textarea':
+                return true; // Text values are generally valid
+
+            default:
+                return true; // Unknown types are allowed
+        }
+    }
+
     /**
      * Question type attribute definitions
      * 
@@ -295,107 +420,6 @@ class QuestionAttributeDefinition
             ]
         ],
         
-        // N - Numerical Input
-        \Question::QT_N_NUMERICAL => [
-            'hide_tip' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Display'
-            ],
-            'hidden' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Display'
-            ],
-            'cssclass' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Display'
-            ],
-            'input_size' => [
-                'default' => '',
-                'type' => 'integer',
-                'category' => 'Display'
-            ],
-            'prefix' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Display'
-            ],
-            'suffix' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Display'
-            ],
-            // Numerical-specific attributes
-            'min_answers' => [
-                'default' => '',
-                'type' => 'integer',
-                'category' => 'Input'
-            ],
-            'max_answers' => [
-                'default' => '',
-                'type' => 'integer',
-                'category' => 'Input'
-            ],
-            'num_value_int_only' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Input'
-            ],
-            'page_break' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Other'
-            ],
-            'statistics_showgraph' => [
-                'default' => '1',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Statistics'
-            ],
-            'statistics_graphtype' => [
-                'default' => '0',
-                'type' => 'singleselect',
-                'options' => ['0', '1', '2', '3', '4', '5'],
-                'category' => 'Statistics'
-            ],
-            // General attributes
-            'random_group' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Logic'
-            ],
-            'em_validation_q' => [
-                'default' => '',
-                'type' => 'textarea',
-                'category' => 'Logic'
-            ],
-            'em_validation_q_tip' => [
-                'default' => '',
-                'type' => 'textarea',
-                'category' => 'Logic'
-            ],
-            'min_num_value' => [
-                'default' => '',
-                'type' => 'integer',
-                'category' => 'Input'
-            ],
-            'max_num_value' => [
-                'default' => '',
-                'type' => 'integer',
-                'category' => 'Input'
-            ],
-            'num_value_int_only_text' => [
-                'default' => '',
-                'type' => 'textarea',
-                'category' => 'Logic'
-            ]
-        ],
         
         // M - Multiple Choice
         \Question::QT_M_MULTIPLE_CHOICE => [
@@ -711,135 +735,6 @@ class QuestionAttributeDefinition
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         
-        // Q - Multiple short text
-        \Question::QT_Q_MULTIPLE_SHORT_TEXT => [
-            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'text_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
-        ]
     ];
 
-    /**
-     * Get all attributes defined for a question type
-     * 
-     * @param string $questionType LimeSurvey question type (T, L, Z, etc.)
-     * @return array Attribute definitions or empty array if type not found
-     */
-    public static function getAttributesForQuestionType($questionType)
-    {
-        return self::$definitions[$questionType] ?? [];
-    }
-
-    /**
-     * Get default value for a specific attribute and question type
-     * 
-     * @param string $questionType LimeSurvey question type
-     * @param string $attributeName Attribute name
-     * @return string|null Default value or null if not found
-     */
-    public static function getDefaultValue($questionType, $attributeName)
-    {
-        $attributes = self::getAttributesForQuestionType($questionType);
-        return $attributes[$attributeName]['default'] ?? null;
-    }
-
-    /**
-     * Check if an attribute is valid for a question type
-     * 
-     * @param string $questionType LimeSurvey question type
-     * @param string $attributeName Attribute name
-     * @return bool True if attribute is valid for question type
-     */
-    public static function isValidAttribute($questionType, $attributeName)
-    {
-        $attributes = self::getAttributesForQuestionType($questionType);
-        return isset($attributes[$attributeName]);
-    }
-
-    /**
-     * Get list of attribute names for a question type
-     * 
-     * @param string $questionType LimeSurvey question type
-     * @return array List of valid attribute names
-     */
-    public static function getAttributeNames($questionType)
-    {
-        $attributes = self::getAttributesForQuestionType($questionType);
-        return array_keys($attributes);
-    }
-
-    /**
-     * Check if a value differs from the default for an attribute
-     * 
-     * @param string $questionType LimeSurvey question type
-     * @param string $attributeName Attribute name
-     * @param string $value Current value
-     * @return bool True if value is different from default
-     */
-    public static function isNonDefaultValue($questionType, $attributeName, $value)
-    {
-        $defaultValue = self::getDefaultValue($questionType, $attributeName);
-        
-        if ($defaultValue === null) {
-            return false; // Unknown attribute, don't export
-        }
-        
-        // Handle empty string defaults vs null/empty values
-        if ($defaultValue === '' && ($value === '' || $value === null)) {
-            return false;
-        }
-        
-        // Direct comparison for most cases
-        return (string)$value !== (string)$defaultValue;
-    }
-
-    /**
-     * Get all supported question types
-     * 
-     * @return array List of supported question type codes
-     */
-    public static function getSupportedQuestionTypes()
-    {
-        return array_keys(self::$definitions);
-    }
-
-    /**
-     * Validate attribute value against its definition
-     * 
-     * @param string $questionType LimeSurvey question type
-     * @param string $attributeName Attribute name
-     * @param string $value Value to validate
-     * @return bool True if value is valid
-     */
-    public static function validateAttributeValue($questionType, $attributeName, $value)
-    {
-        $attributes = self::getAttributesForQuestionType($questionType);
-        $attributeDefinition = $attributes[$attributeName] ?? null;
-        
-        if (!$attributeDefinition) {
-            return false; // Unknown attribute
-        }
-        
-        $type = $attributeDefinition['type'];
-        
-        switch ($type) {
-            case 'switch':
-                return in_array($value, ['0', '1']);
-                
-            case 'integer':
-                return $value === '' || (is_numeric($value) && (int)$value == $value);
-                
-            case 'singleselect':
-                $options = $attributeDefinition['options'] ?? [];
-                return in_array($value, $options);
-                
-            case 'text':
-            case 'textarea':
-                return true; // Text values are generally valid
-                
-            default:
-                return true; // Unknown types are allowed
-        }
-    }
 }

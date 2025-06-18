@@ -17,8 +17,7 @@ class SimpleImportTest extends DatabaseTestCase
     public function testManualQuestionAttributeModification()
     {
         // Import a survey
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
-        $surveyId = $this->importSurveyFromFile($blankSurveyPath);
+        $surveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
         
         // The blank survey is truly blank, so let's create a question manually
         $question = $this->createQuestionWithGroup($surveyId);
@@ -71,8 +70,7 @@ class SimpleImportTest extends DatabaseTestCase
     public function testImportClassCreation()
     {
         // Import a survey
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
-        $surveyId = $this->importSurveyFromFile($blankSurveyPath);
+        $surveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
         
         $plugin = $this->createRealPlugin($surveyId);
         $survey = \Survey::model()->findByPk($surveyId);

@@ -1,41 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Access to an undefined property Answer\\:\\:\\$answer\\.$#"
-			count: 1
-			path: src/ExportQuestions.php
-
-		-
-			message: "#^Access to an undefined property Question\\:\\:\\$help\\.$#"
-			count: 1
-			path: src/ExportQuestions.php
-
-		-
-			message: "#^Access to an undefined property Question\\:\\:\\$question\\.$#"
-			count: 1
-			path: src/ExportQuestions.php
-
-		-
-			message: "#^Access to an undefined property Question\\:\\:\\$language\\.$#"
-			count: 1
-			path: src/ExportRelevances.php
-
-		-
 			message: "#^Access to an undefined property QuestionGroupL10n\\:\\:\\$group\\.$#"
 			count: 1
-			path: src/ImportRelevance.php
-
-		-
-			message: "#^Access to an undefined property Question\\:\\:\\$help\\.$#"
-			count: 1
-			path: src/ImportStructure.php
-
-		-
-			message: "#^Access to an undefined property Question\\:\\:\\$language\\.$#"
-			count: 1
-			path: src/ImportStructure.php
-
-		-
-			message: "#^Access to an undefined property Question\\:\\:\\$question\\.$#"
-			count: 1
-			path: src/ImportStructure.php
+			path: src/import/ImportRelevance.php

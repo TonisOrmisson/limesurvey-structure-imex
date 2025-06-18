@@ -3,9 +3,9 @@
 namespace tonisormisson\ls\structureimex\Tests\Functional;
 
 /**
- * Simple test to debug import issues without crashes
+ * Debug test for import functionality issues without crashes
  */
-class SimpleDebugTest extends DatabaseTestCase
+class ImportDebugTest extends DatabaseTestCase
 {
     /**
      * Test that import can at least be instantiated and prepare called
@@ -13,7 +13,7 @@ class SimpleDebugTest extends DatabaseTestCase
     public function testImportCanPrepareFile()
     {
         // Import a survey
-        $blankSurveyPath = __DIR__ . '/../support/data/surveys/blank-survey.lss';
+        $blankSurveyPath = $this->getBlankSurveyPath();
         $surveyId = $this->importSurveyFromFile($blankSurveyPath);
         
         $plugin = $this->createRealPlugin($surveyId);
