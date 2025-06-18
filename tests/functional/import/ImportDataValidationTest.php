@@ -95,9 +95,6 @@ class ImportDataValidationTest extends DatabaseTestCase
             $question->same_script = 0;
             
             $saved = $question->save();
-            if (!$saved) {
-                echo "\nQuestion save errors for type {$type}: " . print_r($question->getErrors(), true) . "\n";
-            }
             $this->assertTrue($saved, "Should be able to save question type {$type}");
             
             if ($saved) {

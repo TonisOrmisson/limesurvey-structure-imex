@@ -31,42 +31,16 @@ class ImportDebugTest extends DatabaseTestCase
         $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
         $import->fileName = $tempFile;
         
-        // Try prepare
-        try {
-            $result = $import->prepare();
-            echo "SUCCESS: Prepare returned: " . ($result ? 'true' : 'false') . "\n";
-            
-            // Check if data was read
-            $reflection = new \ReflectionClass($import);
-            $readerDataProperty = $reflection->getProperty('readerData');
-            $readerDataProperty->setAccessible(true);
-            $readerData = $readerDataProperty->getValue($import);
-            
-            echo "DEBUG: Reader data count: " . count($readerData) . "\n";
-            if (!empty($readerData)) {
-                echo "DEBUG: First row keys: " . implode(', ', array_keys($readerData[0])) . "\n";
-                echo "DEBUG: First row values: " . print_r($readerData[0], true) . "\n";
-            }
-            
-            // Now try process step
-            echo "DEBUG: Attempting process step...\n";
-            try {
-                $processResult = $import->process();
-                echo "SUCCESS: Process completed\n";
-            } catch (\Exception $e) {
-                echo "ERROR in process: " . $e->getMessage() . "\n";
-                echo "Stack trace: " . $e->getTraceAsString() . "\n";
-            }
-            
-        } catch (\Exception $e) {
-            echo "ERROR in prepare: " . $e->getMessage() . "\n";
-        } finally {
-            // File might be moved during import, only unlink if it exists
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
-            }
-        }
-        
-        $this->assertTrue(true, 'Test completed without fatal errors');
+        $import->prepare();
+
+        // Check if data was read
+        $reflection = new \ReflectionClass($import);
+        $readerDataProperty = $reflection->getProperty('readerData');
+        $readerDataProperty->setAccessible(true);
+        $readerDataProperty->getValue($import);
+
+        $import->process();
+
+
     }
 }

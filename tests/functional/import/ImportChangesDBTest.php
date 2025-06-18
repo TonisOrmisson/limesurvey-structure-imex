@@ -61,8 +61,6 @@ class ImportChangesDBTest extends DatabaseTestCase
         ]);
         
         $this->assertEquals('0', $updatedAttribute->value, 'Updated value should persist');
-        
-        echo "SUCCESS: Basic question attribute CRUD operations work\n";
     }
     
     /**
@@ -85,30 +83,17 @@ class ImportChangesDBTest extends DatabaseTestCase
         $tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.csv';
         file_put_contents($tempFile, $csvContent);
         
-        try {
-            // Try to import
-            $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
-            $import->fileName = $tempFile;
-            
-            echo "DEBUG: About to call process()\n";
-            $result = $import->process();
-            echo "DEBUG: Process returned: " . var_export($result, true) . "\n";
-            
-            // Check for errors
-            $errors = $import->getErrors();
-            echo "DEBUG: Import errors: " . var_export($errors, true) . "\n";
-            
-            if (!empty($errors)) {
-                echo "Import had errors, but that's ok for debugging\n";
-            } else {
-                echo "SUCCESS: Import completed without errors\n";
-            }
-            
-        } catch (\Exception $e) {
-            echo "EXCEPTION during import: " . $e->getMessage() . "\n";
-            echo "Stack trace: " . $e->getTraceAsString() . "\n";
-        }
-        
+        // Try to import
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import->fileName = $tempFile;
+
+        $result = $import->process();
+
+        // Check for errors
+        $errors = $import->getErrors();
+
+
+
         // Clean up
         if (file_exists($tempFile)) {
             unlink($tempFile);

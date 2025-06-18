@@ -44,34 +44,24 @@ class ImportDatabaseTest extends DatabaseTestCase
         
         $this->assertEquals('0', $initialHideTip, 'Initial hide_tip should be 0');
         $this->assertEquals('normal', $initialAnswerOrder, 'Initial answer_order should be normal');
-        echo "SUCCESS: Initial attributes verified\n";
-        
+
         // Step 2: Create import CSV with changed values
         $csvContent = $this->createImportCSV();
         $csvFile = $this->writeTempCSV($csvContent);
         // Step 3: Perform import
-        try {
-            $this->performImport($csvFile);
-        } catch (\Exception $e) {
-            echo "ERROR: Import failed with exception: " . $e->getMessage() . "\n";
-            echo "Stack trace: " . $e->getTraceAsString() . "\n";
-            $this->fail('Import should not throw exceptions: ' . $e->getMessage());
-        }
-        
+        $this->performImport($csvFile);
+
         // Step 4: CRITICAL - Verify database was actually changed
         $newHideTip = $this->getQuestionAttribute($this->testQuestionId, 'hide_tip');
         $newAnswerOrder = $this->getQuestionAttribute($this->testQuestionId, 'answer_order');
         
-        echo "DEBUG: After import - hide_tip: '$newHideTip', answer_order: '$newAnswerOrder'\n";
-        
+
         // CRITICAL ASSERTIONS - These must pass for import to be working
         $this->assertEquals('1', $newHideTip, 'CRITICAL: hide_tip should be changed to 1 after import');
         $this->assertEquals('random', $newAnswerOrder, 'CRITICAL: answer_order should be changed to random after import');
         
         // Clean up
         unlink($csvFile);
-        
-        echo "SUCCESS: Import actually changed database attributes!\n";
     }
     
     /**
@@ -195,17 +185,12 @@ class ImportDatabaseTest extends DatabaseTestCase
         
         // Set fileName directly and call prepare to read the file
         $import->fileName = $csvFile;
-        echo "DEBUG: About to prepare file: $csvFile\n";
 
-        $prepareResult = $import->prepare();
-        if (!$prepareResult) {
-            throw new \Exception('Failed to prepare import file');
-        }
-        echo "DEBUG: Prepare succeeded, about to process\n";
-        
+        $import->prepare();
+
         // Perform import
         $result = $import->process();
-        echo "DEBUG: Process completed\n";
+
         
         // Check for errors
         $errors = $import->getErrors();

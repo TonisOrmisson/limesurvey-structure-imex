@@ -33,7 +33,6 @@ class RealDatabaseImportTest extends DatabaseTestCase
         // Create a test question in the database
         $this->testQuestionId = $this->createTestQuestionInDatabase();
         
-        echo "DEBUG: Created question ID = " . $this->testQuestionId . "\n";
     }
 
     /**
@@ -45,21 +44,13 @@ class RealDatabaseImportTest extends DatabaseTestCase
         $initialHideTip = $this->getQuestionAttributeFromDatabase($this->testQuestionId, 'hide_tip');
         $initialAnswerOrder = $this->getQuestionAttributeFromDatabase($this->testQuestionId, 'answer_order');
         
-        // Debug: Show what we actually got
-        echo "DEBUG: Initial hide_tip = " . var_export($initialHideTip, true) . "\n";
-        echo "DEBUG: Initial answer_order = " . var_export($initialAnswerOrder, true) . "\n";
-        echo "DEBUG: Question ID = " . $this->testQuestionId . "\n";
-        
+
         // Check if attributes exist at all
         $allAttributes = QuestionAttribute::model()->findAll([
             'condition' => 'qid = :qid',
             'params' => [':qid' => $this->testQuestionId]
         ]);
-        echo "DEBUG: Found " . count($allAttributes) . " attributes for question\n";
-        foreach ($allAttributes as $attr) {
-            echo "DEBUG: Attribute: {$attr->attribute} = {$attr->value}\n";
-        }
-        
+
         $this->assertNotNull($initialHideTip, 'hide_tip attribute should exist in database');
         $this->assertEquals('0', $initialHideTip, 'Initial hide_tip should be 0');
         $this->assertEquals('normal', $initialAnswerOrder, 'Initial answer_order should be normal');
@@ -114,14 +105,7 @@ class RealDatabaseImportTest extends DatabaseTestCase
         $question->question_order = 1;
         $result = $question->save();
         
-        echo "DEBUG: Question save result = " . var_export($result, true) . "\n";
-        echo "DEBUG: Question qid after save = " . $question->qid . "\n";
-        
-        if (!$result) {
-            $errors = $question->getErrors();
-            echo "DEBUG: Question save errors = " . var_export($errors, true) . "\n";
-        }
-        
+
         // Create localized content if needed
         if (class_exists('QuestionL10n')) {
             $questionL10n = new QuestionL10n();

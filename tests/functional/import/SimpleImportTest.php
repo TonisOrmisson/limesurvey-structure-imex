@@ -23,20 +23,14 @@ class SimpleImportTest extends DatabaseTestCase
         $question = $this->createQuestionWithGroup($surveyId);
         
         $this->assertNotNull($question, 'Should be able to create a test question');
-        echo "DEBUG: Created question ID: " . $question->qid . " with type: " . $question->type . "\n";
-        
+
         // Manual attribute creation test
         $attribute = new QuestionAttribute();
         $attribute->qid = $question->qid;
         $attribute->attribute = 'hide_tip';
         $attribute->value = '1';
         $result = $attribute->save();
-        
-        if (!$result) {
-            $errors = $attribute->getErrors();
-            echo "DEBUG: QuestionAttribute save errors: " . print_r($errors, true) . "\n";
-        }
-        
+
         $this->assertTrue($result, 'Should be able to save question attribute manually');
         
         // Read it back
@@ -47,8 +41,7 @@ class SimpleImportTest extends DatabaseTestCase
         
         $this->assertNotNull($readAttribute, 'Should be able to read back the attribute');
         $this->assertEquals('1', $readAttribute->value, 'Attribute value should match');
-        echo "SUCCESS: Manual attribute creation/read works\n";
-        
+
         // Test update
         $readAttribute->value = '0';
         $updateResult = $readAttribute->save();
@@ -61,7 +54,6 @@ class SimpleImportTest extends DatabaseTestCase
         ]);
         
         $this->assertEquals('0', $updatedAttribute->value, 'Updated value should persist');
-        echo "SUCCESS: Manual attribute update works\n";
     }
     
     /**
@@ -76,15 +68,8 @@ class SimpleImportTest extends DatabaseTestCase
         $survey = \Survey::model()->findByPk($surveyId);
         
         // Try to create the import class
-        try {
-            $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
-            $this->assertNotNull($import, 'Should be able to create import instance');
-            echo "SUCCESS: ImportStructureV4Plus class created successfully\n";
-        } catch (\Exception $e) {
-            echo "ERROR: Failed to create ImportStructureV4Plus: " . $e->getMessage() . "\n";
-            echo "Stack trace: " . $e->getTraceAsString() . "\n";
-            $this->fail('Should be able to create import class: ' . $e->getMessage());
-        }
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $this->assertNotNull($import, 'Should be able to create import instance');
     }
     
     /**
@@ -102,14 +87,9 @@ class SimpleImportTest extends DatabaseTestCase
             $group->group_name = 'Test Group';
             $group->group_order = 1;
             $result = $group->save();
-            if (!$result) {
-                echo "ERROR: Failed to save question group: " . print_r($group->getErrors(), true) . "\n";
-                return null;
-            }
-            echo "DEBUG: Created question group ID: " . $group->gid . "\n";
+            $this->asserTrue($result);
         } else {
             $group = $groups[0];
-            echo "DEBUG: Using existing question group ID: " . $group->gid . "\n";
         }
         
         // Create question
@@ -123,22 +103,17 @@ class SimpleImportTest extends DatabaseTestCase
         $result = $question->save();
         
         if (!$result) {
-            echo "ERROR: Failed to save question: " . print_r($question->getErrors(), true) . "\n";
             return null;
         }
         
-        echo "DEBUG: Created question ID: " . $question->qid . "\n";
-        
-        // Create localized content if needed
-        if (class_exists('QuestionL10n')) {
-            $questionL10n = new \QuestionL10n();
-            $questionL10n->qid = $question->qid;
-            $questionL10n->language = $survey->language ?? 'en';
-            $questionL10n->question = 'Test question';
-            $questionL10n->help = '';
-            $questionL10n->save();
-        }
-        
+
+        $questionL10n = new \QuestionL10n();
+        $questionL10n->qid = $question->qid;
+        $questionL10n->language = $survey->language ?? 'en';
+        $questionL10n->question = 'Test question';
+        $questionL10n->help = '';
+        $questionL10n->save();
+
         return $question;
     }
 }

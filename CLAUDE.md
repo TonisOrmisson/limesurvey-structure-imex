@@ -150,3 +150,6 @@ try {
 
 ## Logging
 - log category is 'plugin.andmemasin.imex'
+
+## Debugging Guidelines
+- NEVER ECHO in test for debuggging. let Exceptions be thrown. use phpunit internal debigging if needed

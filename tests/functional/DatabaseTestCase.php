@@ -203,12 +203,6 @@ abstract class DatabaseTestCase extends TestCase
             'logFile' => 'andmemasin.log',
         ];
 
-        // Debug: dump config to verify debug settings
-        echo "=== CONFIG DEBUG ===\n";
-        echo "Debug level: " . ($config['config']['debug'] ?? 'NOT SET') . "\n";
-        echo "Display errors: " . ini_get('display_errors') . "\n";
-        echo "Error reporting: " . error_reporting() . "\n";
-        echo "===================\n";
 
         // Create test runtime and assets paths in plugin directory
         $testBasePath = __DIR__ . '/../runtime';
