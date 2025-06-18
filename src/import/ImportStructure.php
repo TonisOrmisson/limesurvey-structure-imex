@@ -322,14 +322,13 @@ class ImportStructure extends ImportFromFile
                     'info'
                 );
             }
+        } catch (ImexException $e) {
+            // Re-throw ImexException as they are expected validation errors
+            throw $e;
         } catch (\Exception $e) {
-            // Fallback to old validation if the new validator fails
-            $allowedAttributes = (new MyQuestionAttribute())->attributeNames();
-            foreach ($attributeArray as $attributeName => $value) {
-                if (!in_array($attributeName, $allowedAttributes)) {
-                    throw new ImexException("Question attribute '{$attributeName}' is not defined for IMEX and the import breaks here ");
-                }
-            }
+            // Log unexpected errors and re-throw them - don't mask real problems
+            error_log("QuestionAttributeValidator failed unexpectedly: " . $e->getMessage());
+            throw new ImexException("Question attribute validation failed unexpectedly: " . $e->getMessage());
         }
 
     }
@@ -500,6 +499,11 @@ class ImportStructure extends ImportFromFile
 
     private function parseLanguages()
     {
+        if (empty($this->readerData) || !isset($this->readerData[0])) {
+            // No data to parse languages from
+            return;
+        }
+        
         $headerValues = array_keys($this->readerData[0]);
         foreach ($headerValues as $value) {
             $searchValue = static::COLUMN_VALUE;

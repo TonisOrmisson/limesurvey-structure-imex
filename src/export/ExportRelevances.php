@@ -23,6 +23,10 @@ class ExportRelevances extends AbstractExport
             $this->writeGroup($group);
 
             foreach ($group->questions as $question) {
+                if (!$question) {
+                    continue; // Skip null questions
+                }
+                
                 if (!$this->isV4plusVersion()) {
                     // only base language
                     if ($question->language != $oSurvey->language) {
@@ -32,8 +36,11 @@ class ExportRelevances extends AbstractExport
                 $relevance = empty($question->relevance) ? '1' : $question->relevance;
                 $row = Row::fromValues([null, $question->title, null, $relevance]);
                 $this->writer->addRow($row);
-                if (!empty($question->subquestions)) {
+                if ($question && isset($question->subquestions) && !empty($question->subquestions)) {
                     foreach ($question->subquestions as $subQuestion) {
+                        if (!$subQuestion) {
+                            continue; // Skip null subquestions
+                        }
                         $relevance = empty($subQuestion->relevance) ? '1' : $subQuestion->relevance;
                         $this->writer->addRow(Row::fromValues([null, $subQuestion->title, $question->title, $relevance]));
                     }

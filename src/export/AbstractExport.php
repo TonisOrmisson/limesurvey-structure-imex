@@ -79,10 +79,10 @@ abstract class AbstractExport extends CModel
         $this->applicationMajorVersion = intval($this->app()->getConfig("versionnumber"));
 
         $this->survey = $plugin->getSurvey();
-        $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_" . substr(bin2hex(random_bytes(10)), 0, 4) . ".ods";
+        $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_" . substr(bin2hex(random_bytes(10)), 0, 4) . ".xlsx";
         $this->languages = $this->survey->getAllLanguages();
 
-        $this->writer = new \OpenSpout\Writer\ODS\Writer();
+        $this->writer = new \OpenSpout\Writer\XLSX\Writer();
         $this->initStyles();
 
 

@@ -158,7 +158,7 @@ abstract class DatabaseTestCase extends TestCase
             
             return;
         }
-        
+
         // Load LimeSurvey's internal config as base
         $configFile = LIMESURVEY_PATH . '/application/config/internal.php';
         if (!file_exists($configFile)) {
@@ -176,9 +176,43 @@ abstract class DatabaseTestCase extends TestCase
         $config['components']['db']['username'] = $dbConfig['username'];
         $config['components']['db']['password'] = $dbConfig['password'];
         
-        // Create test runtime and assets paths
-        $testBasePath = sys_get_temp_dir() . '/limesurvey_test';
-        $runtimePath = $testBasePath . '/runtime';
+        // Enable debug mode and live error display for tests
+        $config['config']['debug'] = 2;
+        $config['config']['debugsql'] = true;
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+
+        // Configure error handler for tests - disable HTML error pages
+        $config['components']['errorHandler'] = [
+            'class' => 'CErrorHandler',
+            'errorAction' => null, // Disable custom error pages
+            'discardOutput' => true, // Don't buffer output for error pages
+        ];
+
+        $config['components']['log']['routes']['custom'] = [
+            'class' => 'CFileLogRoute',
+            'levels' => 'error',
+            'logFile' => 'error.log',
+        ];
+
+        $config['components']['log']['routes']['andmemasin'] = [
+            'class' => 'CFileLogRoute',
+            'levels' => 'trace, info, error, warning, debug',
+            'categories' => 'plugin.andmemasin.*',
+            'logFile' => 'andmemasin.log',
+        ];
+
+        // Debug: dump config to verify debug settings
+        echo "=== CONFIG DEBUG ===\n";
+        echo "Debug level: " . ($config['config']['debug'] ?? 'NOT SET') . "\n";
+        echo "Display errors: " . ini_get('display_errors') . "\n";
+        echo "Error reporting: " . error_reporting() . "\n";
+        echo "===================\n";
+
+        // Create test runtime and assets paths in plugin directory
+        $testBasePath = __DIR__ . '/../runtime';
+        $runtimePath = $testBasePath;
         $assetsPath = $testBasePath . '/assets';
         
         foreach ([$testBasePath, $runtimePath, $assetsPath] as $path) {
@@ -186,7 +220,8 @@ abstract class DatabaseTestCase extends TestCase
                 mkdir($path, 0755, true);
             }
         }
-        
+
+
         $config['runtimePath'] = $runtimePath;
         
         // Override asset manager configuration
@@ -220,11 +255,18 @@ abstract class DatabaseTestCase extends TestCase
         // This should automatically load all dependencies when they're needed
         self::$app = \Yii::createApplication('LSYii_Application', $config);
         
+        // Configure error handler for clean test output
+        if (self::$app->errorHandler instanceof \CErrorHandler) {
+            // For tests, we want exceptions to be thrown instead of HTML pages
+            self::$app->errorHandler->errorAction = null;
+            self::$app->errorHandler->discardOutput = true;
+        }
+        
         // Load essential helpers through the application (this is the LimeSurvey way)
         self::$app->loadHelper('database');
         self::$app->loadHelper('surveytranslator');
         self::$app->loadHelper('replacements');
-        
+
         // Now load the expression manager (which depends on the above helpers)
         if (class_exists('LimeExpressionManager') === false) {
             $emFile = LIMESURVEY_PATH . '/application/helpers/expressions/em_manager_helper.php';
@@ -245,6 +287,7 @@ abstract class DatabaseTestCase extends TestCase
         chdir($originalCwd);
         
         self::$db = self::$app->db;
+
     }
 
     /**
@@ -399,14 +442,13 @@ abstract class DatabaseTestCase extends TestCase
      */
     protected function createTestQuestion(int $surveyId, int $groupId, string $title, string $type, string $question, string $mandatory = 'N'): int
     {
+
+        // Create the main Question record (no language-specific fields)
         $q = new Question();
         $q->sid = $surveyId;
         $q->gid = $groupId;
         $q->type = $type;
         $q->title = $title;
-        $q->question = $question;
-        $q->help = "Help text for {$title}";
-        $q->language = 'en';
         $q->mandatory = $mandatory;
         $q->other = 'N';
         $q->question_order = 1;
@@ -414,9 +456,25 @@ abstract class DatabaseTestCase extends TestCase
         $q->parent_qid = 0;
         $q->relevance = '1';
         $q->modulename = '';
-        
+
         if (!$q->save()) {
-            throw new \Exception('Failed to create test question: ' . print_r($q->getErrors(), true));
+            throw new \tonisormisson\ls\structureimex\exceptions\ImexException('Failed to create test question: ' . print_r($q->getErrors(), true));
+        }
+        
+        // Create the localized content in QuestionL10n table
+        if (class_exists('QuestionL10n')) {
+            $survey = Survey::model()->findByPk($surveyId);
+            $language = $survey->language ?? 'en';
+            
+            $questionL10n = new \QuestionL10n();
+            $questionL10n->qid = $q->qid;
+            $questionL10n->language = $language;
+            $questionL10n->question = $question;
+            $questionL10n->help = "Help text for {$title}";
+            
+            if (!$questionL10n->save()) {
+                throw new \tonisormisson\ls\structureimex\exceptions\ImexException('Failed to create question L10n: ' . print_r($questionL10n->getErrors(), true));
+            }
         }
         
         return $q->qid;

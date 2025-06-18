@@ -68,7 +68,7 @@ abstract class ImportFromFile extends CModel
     {
         $this->plugin = $plugin;
         $this->survey = $plugin->getSurvey();
-        $this->language = $this->survey->language;
+        $this->language = $this->survey->language ?? 'en';
     }
 
     /**
@@ -132,8 +132,10 @@ abstract class ImportFromFile extends CModel
             'xlsx' => new \OpenSpout\Reader\XLSX\Reader(),
             'xls' => new \OpenSpout\Reader\XLSX\Reader(),
             'ods' => new \OpenSpout\Reader\ODS\Reader(),
+            'csv' => new \OpenSpout\Reader\CSV\Reader(),
             default => throw new ImexException("invalid extension '$extension'"),
         };
+
         $this->reader->open($this->fileName);
         $this->setReaderData();
         $this->prepareReaderData();
@@ -142,6 +144,7 @@ abstract class ImportFromFile extends CModel
 
     protected function prepareReaderData(): void
     {
+
         if (!empty($this->readerData)) {
             $this->readerData = self::indexByRow($this->readerData);
             foreach ($this->readerData as $key => $row) {
@@ -202,12 +205,15 @@ abstract class ImportFromFile extends CModel
         if (is_array($array) && !empty($array)) {
             $newArray = [];
             foreach ($array as $key => $row) {
-                // don'd add the indexing element into output
+                // don't add the indexing element into output
                 if ($key != $i) {
                     $newRow = [];
                     $j = 0;
                     foreach ($row as $cell) {
-                        $newRow[$keys[$j]] = $cell;
+                        // Only map if we have a corresponding key for this position
+                        if (isset($keys[$j])) {
+                            $newRow[$keys[$j]] = $cell;
+                        }
                         $j++;
                     }
                     $newArray[] = $newRow;

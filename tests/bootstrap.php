@@ -6,6 +6,8 @@
 // Prevent session issues during testing (from LimeSurvey's own bootstrap)
 ob_start();
 
+define('YII_DEBUG', true);
+
 // Check if we're running unit tests BEFORE loading any autoloaders
 $isUnitTestRun = false;
 if (isset($_SERVER['argv'])) {
@@ -74,7 +76,7 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
         define('APPPATH', LIMESURVEY_PATH . '/application/');
         define('BASEPATH', LIMESURVEY_PATH . '/');
     }
-    
+
 } elseif ($hasVendorLimeSurvey && ($isVendorEnvironment || getenv('CI') === 'true')) {
     // CI environment or standalone testing - use plugin's vendor LimeSurvey installation
     echo "Using vendor LimeSurvey installation\n";
@@ -93,7 +95,7 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     define('LIMESURVEY_PATH', $vendorLimeSurveyPath);
     define('APPPATH', LIMESURVEY_PATH . '/application/');
     define('BASEPATH', LIMESURVEY_PATH . '/');
-    
+
     // Include Yii framework from LimeSurvey's vendor
     $yiiPath = LIMESURVEY_PATH . '/vendor/yiisoft/yii/framework/yii.php';
     if (!file_exists($yiiPath)) {
@@ -115,7 +117,7 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     // Load our plugin's autoloader from vendor LimeSurvey installation
     // Skip this for unit tests to avoid plugin initialization
     $isUnitTestRun = false;
-    
+
     // Check if we're running unit tests specifically
     if (isset($_SERVER['argv'])) {
         foreach ($_SERVER['argv'] as $arg) {
@@ -144,6 +146,7 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     }
     
 } elseif ($isInsideLimeSurvey && !$isVendorEnvironment) {
+
     // Development environment - use parent LimeSurvey installation
     echo "Development environment: Using parent LimeSurvey installation\n";
     
@@ -161,7 +164,8 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     if (file_exists(LIMESURVEY_PATH . '/vendor/yiisoft/yii/framework/yii.php')) {
         require_once LIMESURVEY_PATH . '/vendor/yiisoft/yii/framework/yii.php';
     }
-    
+
+
     // Disable Yii's autoloader to prevent conflicts with PHPUnit
     Yii::$enableIncludePath = false;
     
@@ -172,8 +176,8 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     // Import essential LimeSurvey classes (matching LimeSurvey's internal.php)
     Yii::import('application.core.*');
     Yii::import('application.models.*');
-    
-    
+
+
 } else {
     $vendorPath = __DIR__ . '/../vendor/limesurvey/limesurvey';
     $error = 'Cannot detect LimeSurvey installation. Current environment:';
@@ -206,6 +210,32 @@ if (!defined('YII_TRACE_LEVEL')) {
 // Set up test environment
 ini_set('memory_limit', '512M');
 date_default_timezone_set('UTC');
+
+// Enable PHP error reporting for tests - force override any web server settings
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+ini_set('log_errors', '0'); // Disable logging to show errors directly
+error_reporting(E_ALL);
+
+
+// Set global config for LimeSurvey debug mode (will be used by DatabaseTestCase)
+$GLOBALS['LIMESURVEY_TEST_CONFIG'] = [
+    'debug' => 2,
+    'log_routes' => [
+        'custom' => [
+            'class' => 'CFileLogRoute',
+            'levels' => 'error,warning,info',
+            'logFile' => 'error.log',
+        ],
+        'plugin' => [
+            'class' => 'CFileLogRoute',
+            'levels' => 'trace, info, error, warning,debug',
+            'categories' => 'plugin.andmemasin.*',  // The category will be the name of the plugin
+            'logFile' => 'andmemasin.log',
+        ]
+
+    ]
+];
 
 // LimeSurvey classes should now be available - no mocks needed
 

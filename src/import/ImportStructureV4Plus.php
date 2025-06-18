@@ -16,6 +16,7 @@ use tonisormisson\ls\structureimex\exceptions\InvalidModelTypeException;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeValidator;
+use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 
 
 class ImportStructureV4Plus extends ImportFromFile
@@ -141,6 +142,12 @@ class ImportStructureV4Plus extends ImportFromFile
 
         // otherwise try to look by name and hope it has not been changed
         $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+        
+        // Check if the language-specific column exists in the row data
+        if (empty($language) || !isset($this->rowAttributes[$languageValueKey])) {
+            return null; // Cannot find group without valid language data
+        }
+        
         $criteria->addCondition('questiongroupl10ns.group_name=:name');
         $criteria->params[':name'] = $this->rowAttributes[$languageValueKey];
 
@@ -209,6 +216,11 @@ class ImportStructureV4Plus extends ImportFromFile
             $languageValueKey = self::COLUMN_VALUE . "-" . $language;
             $languageHelpKey = self::COLUMN_HELP . "-" . $language;
 
+            // Skip if language data not present in import file
+            if (!isset($this->rowAttributes[$languageValueKey])) {
+                continue;
+            }
+
             if (!($this->currentModel instanceof QuestionGroupL10n)) {
                 $this->currentModel = new QuestionGroupL10n();
             }
@@ -216,7 +228,7 @@ class ImportStructureV4Plus extends ImportFromFile
             $this->currentModel->setAttributes([
                 'gid' => (int)$this->questionGroup->gid,
                 'group_name' => $this->rowAttributes[$languageValueKey],
-                'description' => $this->rowAttributes[$languageHelpKey],
+                'description' => $this->rowAttributes[$languageHelpKey] ?? '',
                 'language' => $language,
             ]);
 
@@ -290,7 +302,10 @@ class ImportStructureV4Plus extends ImportFromFile
             $attributes['question_theme_name'] = $questionTheme;
         }
 
-        $this->currentModel->setAttributes($attributes);        $result = $this->currentModel->save();
+        $this->currentModel->setAttributes($attributes);        
+        
+        
+        $result = $this->currentModel->save();
         if (!$result) {
             throw new Exception("Error saving baseQuestion nr $i: " . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
         }
@@ -329,30 +344,67 @@ class ImportStructureV4Plus extends ImportFromFile
      */
     private function saveQuestionAttributes()
     {
+        \Yii::log("saveQuestionAttributes: Starting for question {$this->question->title} (QID: {$this->question->qid})", 'error', 'plugin.andmemasin.imex');
+        \Yii::log("saveQuestionAttributes: Starting for question {$this->question->title} (QID: {$this->question->qid})", 'debug', 'plugin.andmemasin.imex');
+        
         if (!isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
+            \Yii::log("saveQuestionAttributes: No options column found", 'debug', 'plugin.andmemasin.imex');
             return;
         }
 
         $attributeInput = $this->rowAttributes[self::COLUMN_OPTIONS];
+        \Yii::log("saveQuestionAttributes: Raw attribute input: " . $attributeInput, 'debug', 'plugin.andmemasin.imex');
+        
+        // Fix common spreadsheet issues with curly quotes (UTF-8)
+        $attributeInput = str_replace("\u{201C}", '"', $attributeInput); // Left double quote
+        $attributeInput = str_replace("\u{201D}", '"', $attributeInput); // Right double quote
+        $attributeInput = str_replace("\u{2018}", "'", $attributeInput); // Left single quote
+        $attributeInput = str_replace("\u{2019}", "'", $attributeInput); // Right single quote
+        // Also handle the specific bytes we see in the hex
+        $attributeInput = str_replace("\xE2\x80\x9C", '"', $attributeInput); // UTF-8 left double quote
+        $attributeInput = str_replace("\xE2\x80\x9D", '"', $attributeInput); // UTF-8 right double quote
+        
         $attributeArray = (array)json_decode($attributeInput);
+        \Yii::log("saveQuestionAttributes: Decoded attribute array: " . print_r($attributeArray, true), 'debug', 'plugin.andmemasin.imex');
+        
         if (empty($attributeArray)) {
+            \Yii::log("saveQuestionAttributes: Attribute array is empty, skipping", 'debug', 'plugin.andmemasin.imex');
             return;
         }
         
         // Filter out invalid attributes if validation is enabled
         if (!$this->plugin->getImportUnknownAttributes()) {
+            \Yii::log("saveQuestionAttributes: Filtering valid attributes", 'debug', 'plugin.andmemasin.imex');
             $attributeArray = $this->filterValidAttributes($attributeArray);
+            \Yii::log("saveQuestionAttributes: Filtered attribute array: " . print_r($attributeArray, true), 'debug', 'plugin.andmemasin.imex');
         }
         
-        $myAttributes = new MyQuestionAttribute();
-        $myAttributes->setAttributes($attributeArray, false);
-        $myAttributes->validate();
+        // Separate attributes into global and language-specific
+        $separatedAttributes = QuestionAttributeLanguageManager::separateAttributes($attributeArray);
+        $globalAttributes = $separatedAttributes['global'];
+        $languageSpecificAttributes = $separatedAttributes['language_specific'];
+        
+        \Yii::log("saveQuestionAttributes: Global attributes: " . print_r($globalAttributes, true), 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("saveQuestionAttributes: Language-specific attributes: " . print_r($languageSpecificAttributes, true), 'debug', 'plugin.andmemasin.imex');
 
-        foreach ($myAttributes->getAttributes() as $attributeName => $value) {
+        // Process global attributes (stored with language = NULL or empty)
+        foreach ($globalAttributes as $attributeName => $value) {
             if (is_null($value)) {
+                \Yii::log("saveQuestionAttributes: Skipping null global attribute: $attributeName", 'debug', 'plugin.andmemasin.imex');
                 continue;
             }
-            $this->saveQuestionAttribute($attributeName, $value);
+            \Yii::log("saveQuestionAttributes: Processing global attribute: $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
+            $this->saveGlobalQuestionAttribute($attributeName, $value);
+        }
+        
+        // Process language-specific attributes (stored with language code)
+        foreach ($languageSpecificAttributes as $attributeName => $value) {
+            if (is_null($value)) {
+                \Yii::log("saveQuestionAttributes: Skipping null language-specific attribute: $attributeName", 'debug', 'plugin.andmemasin.imex');
+                continue;
+            }
+            \Yii::log("saveQuestionAttributes: Processing language-specific attribute: $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
+            $this->saveLanguageSpecificQuestionAttribute($attributeName, $value);
         }
     }
 
@@ -376,6 +428,7 @@ class ImportStructureV4Plus extends ImportFromFile
         foreach ($attributeArray as $attributeName => $value) {
             // Test each attribute individually
             $singleAttribute = [$attributeName => $value];
+            
             if ($validator->validateQuestionAttributes($questionType, $singleAttribute)) {
                 $validAttributes[$attributeName] = $value;
             } else {
@@ -393,21 +446,78 @@ class ImportStructureV4Plus extends ImportFromFile
         }
         
         return $validAttributes;
-    }    private function saveQuestionAttribute(string $attributeName, $value)
+    }    /**
+     * Save a global question attribute (same value for all languages, stored with language=NULL)
+     */
+    private function saveGlobalQuestionAttribute(string $attributeName, $value)
     {
-
         $model = $this->currentModel;
         if(!($model instanceof Question)) {
             throw new InvalidModelTypeException();
         }
+        
+        \Yii::log("saveGlobalQuestionAttribute: Saving global $attributeName = $value for question {$model->title} (QID: {$model->qid})", 'debug', 'plugin.andmemasin.imex');
+        
+        // Global attributes are stored with language = NULL or empty string
+        $attributeModel = QuestionAttribute::model()
+            ->find("qid=:qid and attribute=:attributeName and (language='' OR language IS NULL)", [
+                ':qid' => $model->qid,
+                ':attributeName' => $attributeName,
+            ]);
+            
+        if (!($attributeModel instanceof QuestionAttribute)) {
+            \Yii::log("saveGlobalQuestionAttribute: Creating new global QuestionAttribute for $attributeName", 'debug', 'plugin.andmemasin.imex');
+            $attributeModel = new QuestionAttribute();
+            $attributeValues = [
+                'language' => '', // Global attributes use empty string for language
+                'qid' => $model->qid,
+                'attribute' => $attributeName,
+                'value' => $value,
+            ];
+            $attributeModel->setAttributes($attributeValues);
+        } else {
+            \Yii::log("saveGlobalQuestionAttribute: Updating existing global QuestionAttribute for $attributeName", 'debug', 'plugin.andmemasin.imex');
+        }
+        
+        // Set values explicitly (in case LS validation is missing)
+        $attributeModel->language = '';
+        $attributeModel->value = $value;
+
+        $attributeModel->validate();
+        if (!$attributeModel->save()) {
+            \Yii::log("saveGlobalQuestionAttribute: FAILED to save global $attributeName: " . serialize($attributeModel->getErrors()), 'error', 'plugin.andmemasin.imex');
+            throw new Exception("error creating global question attribute '{$attributeName}' for question {$model->title}, errors: "
+                . serialize($attributeModel->getErrors()));
+        } else {
+            \Yii::log("saveGlobalQuestionAttribute: Successfully saved global $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
+        }
+    }
+
+    /**
+     * Save a language-specific question attribute (different value per language)
+     */
+    private function saveLanguageSpecificQuestionAttribute(string $attributeName, $value)
+    {
+        $model = $this->currentModel;
+        if(!($model instanceof Question)) {
+            throw new InvalidModelTypeException();
+        }
+        
+        \Yii::log("saveLanguageSpecificQuestionAttribute: Saving language-specific $attributeName = $value for question {$model->title} (QID: {$model->qid})", 'debug', 'plugin.andmemasin.imex');
+        
+        // Language-specific attributes are stored with the specific language code
         foreach ($this->languages as $language) {
+            \Yii::log("saveLanguageSpecificQuestionAttribute: Processing language: $language", 'debug', 'plugin.andmemasin.imex');
+            
             $attributeModel = QuestionAttribute::model()
                 ->find("qid=:qid and attribute=:attributeName and language=:language", [
                     ':qid' => $model->qid,
                     ':attributeName' => $attributeName,
                     ':language' => $language,
                 ]);
+                
             if (!($attributeModel instanceof QuestionAttribute)) {
+                \Yii::log("saveLanguageSpecificQuestionAttribute: Creating new language-specific QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.andmemasin.imex');
                 $attributeModel = new QuestionAttribute();
                 $attributeValues = [
                     'language' => $language,
@@ -416,15 +526,21 @@ class ImportStructureV4Plus extends ImportFromFile
                     'value' => $value,
                 ];
                 $attributeModel->setAttributes($attributeValues);
+            } else {
+                \Yii::log("saveLanguageSpecificQuestionAttribute: Updating existing language-specific QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.andmemasin.imex');
             }
-            // missing in LS validation, need to set again
+            
+            // Set values explicitly (in case LS validation is missing)
             $attributeModel->language = $language;
             $attributeModel->value = $value;
 
             $attributeModel->validate();
             if (!$attributeModel->save()) {
-                throw new Exception("error creating question attribute '{$attributeName}' for question {$model->title}, errors: "
+                \Yii::log("saveLanguageSpecificQuestionAttribute: FAILED to save language-specific $attributeName ($language): " . serialize($attributeModel->getErrors()), 'error', 'plugin.andmemasin.imex');
+                throw new Exception("error creating language-specific question attribute '{$attributeName}' for question {$model->title} ($language), errors: "
                     . serialize($attributeModel->getErrors()));
+            } else {
+                \Yii::log("saveLanguageSpecificQuestionAttribute: Successfully saved language-specific $attributeName = $value ($language)", 'debug', 'plugin.andmemasin.imex');
             }
         }
     }
@@ -613,6 +729,12 @@ class ImportStructureV4Plus extends ImportFromFile
 
     private function parseLanguages()
     {
+        if (empty($this->readerData) || !isset($this->readerData[0])) {
+            // No data to parse languages from
+                return;
+        }
+        
+        
         $headerValues = array_keys($this->readerData[0]);
         foreach ($headerValues as $value) {
             $searchValue = static::COLUMN_VALUE;

@@ -13,6 +13,8 @@ use QuestionTemplate;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeValidator;
+use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
+use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 
 class ExportQuestions extends AbstractExport
 {
@@ -60,29 +62,36 @@ class ExportQuestions extends AbstractExport
     {
         $row = [
             self::TYPE_GROUP,
-            null,
+            '',
             $group->gid,
-        ];        if ($this->isV4plusVersion()) {
+        ];
+        
+        if ($this->isV4plusVersion()) {
             foreach ($this->languages as $language) {
                 if (!isset($group->questiongroupl10ns[$language])) {
                     continue;
                 }
-                $row[] = $group->questiongroupl10ns[$language]->group_name;
-                $row[] = $group->questiongroupl10ns[$language]->description;
-                $row[] = null; // no script for groups
+                $row[] = $group->questiongroupl10ns[$language]->group_name ?? '';
+                $row[] = $group->questiongroupl10ns[$language]->description ?? '';
+                $row[] = ''; // no script for groups
             }
         } else {
             foreach ($this->languageGroups($group) as $lGroup) {
-                $row[] = $lGroup->group_name;
-                $row[] = $lGroup->description;
-                $row[] = null; // no script for groups
+                $row[] = $lGroup->group_name ?? '';
+                $row[] = $lGroup->description ?? '';
+                $row[] = ''; // no script for groups
             }
         }
 
-        $row[] = $group->grelevance;
-        $row[] = null; // no mandatory
-        $row[] = null; // no theme
-        $row[] = null; // no options
+        $row[] = $group->grelevance ?? '';
+        $row[] = ''; // no mandatory
+        $row[] = ''; // no theme
+        $row[] = ''; // no options
+        
+        // Add empty values for language-specific options columns
+        foreach ($this->languages as $language) {
+            $row[] = ''; // no language-specific options for groups
+        }
 
         $row = Row::fromValues($row, $this->groupStyle);
         $this->writer->addRow($row);
@@ -95,15 +104,17 @@ class ExportQuestions extends AbstractExport
 
         $row = [
             $this->type,
-            ($this->type === self::TYPE_SUB_QUESTION ? null : $question->type),
+            ($this->type === self::TYPE_SUB_QUESTION ? '' : $question->type),
             $question->title,
-        ];        if ($this->isV4plusVersion()) {
+        ];
+        
+        if ($this->isV4plusVersion()) {
             foreach ($this->languages as $language) {
                 if (!isset($question->questionl10ns[$language])) {
                     continue;
                 }
-                $row[] = $question->questionl10ns[$language]->question;
-                $row[] = $question->questionl10ns[$language]->help;
+                $row[] = $question->questionl10ns[$language]->question ?? '';
+                $row[] = $question->questionl10ns[$language]->help ?? '';
                 $row[] = $question->questionl10ns[$language]->script ?? '';
             }
         } else {
@@ -114,48 +125,85 @@ class ExportQuestions extends AbstractExport
                 $row[] = $lQuestion ? ($lQuestion->script ?? '') : '';
             }
         }
-        $row[] = $question->relevance;
-        $row[] = $question->mandatory;
+        $row[] = $question->relevance ?? '';
+        $row[] = $question->mandatory ?? '';
 
         if ($this->type !== self::TYPE_SUB_QUESTION) {
             if ($this->isV4plusVersion()) {
                 $questionTheme = $question->question_theme_name;
-                $row[] = ($questionTheme != 'core') ? $questionTheme : null;
+                $row[] = ($questionTheme != 'core') ? $questionTheme : '';
             } else {
                 $questionTemplate = QuestionTemplate::getNewInstance($question);
                 $questionTheme = $questionTemplate->getQuestionTemplateFolderName();
-                $row[] = !(empty($questionTheme)) ? $questionTheme : null;
+                $row[] = !(empty($questionTheme)) ? $questionTheme : '';
             }
         } else {
-            $row[] = null;
+            $row[] = '';
         }
 
         $attributes = $this->getQuestionAttributes($question);
-        $exportAttributes = [];
+        
+        
+        // Separate global and language-specific attributes
+        $globalAttributes = [];
+        $languageSpecificAttributes = [];
+        
         if (!empty($attributes)) {
-            // Filter attributes to only include those valid for this question type
-            $validAttributes = $this->filterAttributesByQuestionType($attributes, $question->type);
             
-            // Filter out attributes that have default values to reduce clutter
-            // For now, let's skip this filtering to debug the issue
-            // $nonDefaultAttributes = $this->filterNonDefaultAttributes($validAttributes, $question->type);
-            $nonDefaultAttributes = $validAttributes;
-            
-            foreach ($nonDefaultAttributes as $attribute) {
-                // We already exported the question template/theme on it's own column,
-                // so we don't need to export it again as part of the question attributes.
-                if ($attribute->attribute === 'question_template') {
+            // Group attributes by type and language
+            foreach ($attributes as $attribute) {
+                $attributeName = $attribute->attribute;
+                $attributeValue = $attribute->value;
+                $attributeLanguage = $attribute->language;
+                
+                // Skip question_template as it's exported in its own column
+                if ($attributeName === 'question_template') {
                     continue;
                 }
-                $exportAttributes[$attribute->attribute] = $attribute->value;
+                
+                // Only export attributes that are defined for this question type
+                if (!QuestionAttributeDefinition::isValidAttribute($question->type, $attributeName)) {
+                    continue;
+                }
+                
+                // Only export attributes with non-default values
+                if (!QuestionAttributeDefinition::isNonDefaultValue($question->type, $attributeName, $attributeValue)) {
+                    continue;
+                }
+                
+                // Separate by global vs language-specific
+                if (QuestionAttributeLanguageManager::isGlobal($attributeName)) {
+                    // Global attributes (stored with empty language)
+                    if (empty($attributeLanguage)) {
+                        $globalAttributes[$attributeName] = $attributeValue;
+                    }
+                } else {
+                    // Language-specific attributes (stored with language code)
+                    if (!empty($attributeLanguage)) {
+                        if (!isset($languageSpecificAttributes[$attributeLanguage])) {
+                            $languageSpecificAttributes[$attributeLanguage] = [];
+                        }
+                        $languageSpecificAttributes[$attributeLanguage][$attributeName] = $attributeValue;
+                    }
+                }
             }
-            if (!empty($exportAttributes)) {
-                $row[] = json_encode($exportAttributes);
-            } else {
-                $row[] = null;
-            }
+        }
+        
+        
+        // Add global attributes to the "options" column
+        if (!empty($globalAttributes)) {
+            $row[] = json_encode($globalAttributes);
         } else {
-            $row[] = null;
+            $row[] = '';
+        }
+        
+        // Add language-specific attributes to "options-{language}" columns
+        foreach ($this->languages as $language) {
+            if (!empty($languageSpecificAttributes[$language])) {
+                $row[] = json_encode($languageSpecificAttributes[$language]);
+            } else {
+                $row[] = '';
+            }
         }
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
@@ -220,24 +268,37 @@ class ExportQuestions extends AbstractExport
     {
         $row = [
             self::TYPE_ANSWER,
-            null,
+            '',
             $answer->code,
-        ];        if ($this->isV4plusVersion()) {
+        ];
+        
+        if ($this->isV4plusVersion()) {
             foreach ($this->languages as $language) {
                 if (!isset($answer->answerl10ns[$language])) {
                     continue;
                 }
-                $row[] = $answer->answerl10ns[$language]->answer;
-                $row[] = null; // no help texts for answers
-                $row[] = null; // no script for answers
+                $row[] = $answer->answerl10ns[$language]->answer ?? '';
+                $row[] = ''; // no help texts for answers
+                $row[] = ''; // no script for answers
             }
         } else {
             foreach ($this->languages as $language) {
                 $lAnswer = $this->answerInLanguage($answer, $language);
-                $row[] = $lAnswer->answer;
-                $row[] = null; // no help texts for answers
-                $row[] = null; // no script for answers
+                $row[] = $lAnswer->answer ?? '';
+                $row[] = ''; // no help texts for answers
+                $row[] = ''; // no script for answers
             }
+        }
+
+        // Add the missing columns for answers (relevance, mandatory, theme, options)
+        $row[] = ''; // no relevance for answers
+        $row[] = ''; // no mandatory for answers  
+        $row[] = ''; // no theme for answers
+        $row[] = ''; // no options for answers
+        
+        // Add empty values for language-specific options columns
+        foreach ($this->languages as $language) {
+            $row[] = ''; // no language-specific options for answers
         }
 
         $row = Row::fromValues($row);
@@ -467,7 +528,9 @@ class ExportQuestions extends AbstractExport
             ImportStructure::COLUMN_TYPE,
             ImportStructure::COLUMN_SUBTYPE,
             ImportStructure::COLUMN_CODE,
-        ];        foreach ($this->languages as $language) {
+        ];
+        
+        foreach ($this->languages as $language) {
             $this->header[] = ImportStructure::COLUMN_VALUE . "-" . $language;
             $this->header[] = ImportStructure::COLUMN_HELP . "-" . $language;
             $this->header[] = ImportStructure::COLUMN_SCRIPT . "-" . $language;
@@ -477,104 +540,36 @@ class ExportQuestions extends AbstractExport
         $this->header[] = ImportStructure::COLUMN_MANDATORY;
         $this->header[] = ImportStructure::COLUMN_THEME;
         $this->header[] = ImportStructure::COLUMN_OPTIONS;
+        
+        // Add language-specific options columns
+        foreach ($this->languages as $language) {
+            $this->header[] = ImportStructure::COLUMN_OPTIONS . "-" . $language;
+        }
     }
 
     private function getQuestionAttributes($question)
     {
-        $criteria = new CDbCriteria;
-        $criteria->addCondition('qid=:qid');
-        $criteria->addCondition("value != ''");
-
-        $criteria->params[':qid'] = $question->qid;
-
-        return QuestionAttribute::model()->findAll($criteria);
+        // Use direct SQL query to avoid any model filtering issues
+        $sql = "SELECT * FROM {{question_attributes}} WHERE qid = :qid AND value != ''";
+        $command = \Yii::app()->db->createCommand($sql);
+        $command->bindValue(':qid', $question->qid);
+        $rows = $command->queryAll();
+        
+        // Convert to QuestionAttribute objects
+        $attributes = [];
+        foreach ($rows as $row) {
+            $attr = new QuestionAttribute();
+            $attr->qaid = $row['qaid'];
+            $attr->qid = $row['qid'];
+            $attr->attribute = $row['attribute'];
+            $attr->value = $row['value'];
+            $attr->language = $row['language'];
+            $attributes[] = $attr;
+        }
+        
+        return $attributes;
     }
 
-    /**
-     * Filter question attributes to only include those valid for the given question type
-     * @param QuestionAttribute[] $attributes
-     * @param string $questionType
-     * @return QuestionAttribute[]
-     */
-    private function filterAttributesByQuestionType($attributes, $questionType)
-    {
-        $validator = new QuestionAttributeValidator();
-        $allowedAttributes = $validator->getAllowedAttributesForQuestionType($questionType);
-        
-        // Filter attributes to only include allowed ones
-        $validAttributes = [];
-        foreach ($attributes as $attribute) {
-            if (in_array($attribute->attribute, $allowedAttributes)) {
-                $validAttributes[] = $attribute;
-            }
-        }
-        
-        return $validAttributes;
-    }
-
-    /**
-     * Filter out attributes that have default values to reduce export clutter
-     * @param QuestionAttribute[] $attributes
-     * @param string $questionType
-     * @return QuestionAttribute[]
-     */
-    private function filterNonDefaultAttributes($attributes, $questionType)
-    {
-        $validator = new QuestionAttributeValidator();
-        $nonDefaultAttributes = [];
-        
-        foreach ($attributes as $attribute) {
-            $attributeName = $attribute->attribute;
-            $storedValue = $attribute->value;
-            
-            // Get the default value for this attribute
-            $defaultValue = $validator->getAttributeDefaultValue($questionType, $attributeName);
-            
-            // If we can't get the default value, include the attribute to be safe
-            if ($defaultValue === null) {
-                $nonDefaultAttributes[] = $attribute;
-                continue;
-            }
-            
-            // Compare stored value with default value
-            if ($this->isDifferentFromDefault($storedValue, $defaultValue)) {
-                $nonDefaultAttributes[] = $attribute;
-            }
-        }
-        
-        return $nonDefaultAttributes;
-    }
-
-    /**
-     * Check if stored value is different from default value
-     * @param mixed $storedValue
-     * @param mixed $defaultValue
-     * @return bool
-     */
-    private function isDifferentFromDefault($storedValue, $defaultValue)
-    {
-        // Handle empty defaults (most common case)
-        if ($defaultValue === '' && ($storedValue === '' || $storedValue === null)) {
-            return false;
-        }
-        
-        // Direct comparison for most cases
-        if ($storedValue === $defaultValue) {
-            return false;
-        }
-        
-        // Handle string/numeric conversions (e.g., "0" vs 0)
-        if (is_numeric($storedValue) && is_numeric($defaultValue)) {
-            return (string)$storedValue !== (string)$defaultValue;
-        }
-        
-        // Handle boolean-like values ("1"/"0" vs true/false)
-        if (($storedValue === "1" || $storedValue === "0") && ($defaultValue === "1" || $defaultValue === "0")) {
-            return $storedValue !== $defaultValue;
-        }
-        
-        return true;
-    }
 
 
 }

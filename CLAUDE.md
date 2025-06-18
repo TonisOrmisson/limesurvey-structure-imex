@@ -139,3 +139,13 @@ try {
     throw new ImexException("Specific error context: " . $e->getMessage());
 }
 ```
+
+## Development Reminders
+- Remember to run tests on the lime1 container
+- Never write temporary test cases unless you get ad hocc permission
+
+## Code Behavior Guidelines
+- Stop telling me that its fine if stuff fails
+
+## Logging
+- log category is 'plugin.andmemasin.imex'

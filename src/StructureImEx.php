@@ -40,6 +40,8 @@ class StructureImEx extends PluginBase
     public $type;    /* Register plugin on events*/
     public function init()
     {
+        \Yii::log("init", 'info', 'plugin.andmemasin.imex');
+        \Yii::log("init3", 'debug', 'plugin.andmemasin.imex');
         $this->subscribe('beforeToolsMenuRender');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
@@ -135,7 +137,27 @@ class StructureImEx extends PluginBase
             if (!$import->loadFile($oFile)) {
                 $this->app()->setFlashMessage($import->getError('file'), 'error');
             } else {
-                $import->process();
+                $result = $import->process();
+                
+                // Check for any errors from the import process
+                $allErrors = $import->getErrors();
+                $hasErrors = false;
+                
+                if (!empty($allErrors)) {
+                    foreach ($allErrors as $field => $errors) {
+                        if (!empty($errors)) {
+                            $hasErrors = true;
+                            foreach ((array)$errors as $error) {
+                                $this->app()->setFlashMessage($error, 'error');
+                            }
+                        }
+                    }
+                }
+                
+                if (!$hasErrors) {
+                    // Show success message if no errors occurred
+                    $this->app()->setFlashMessage('Relevance rules imported successfully!', 'success');
+                }
             }
         }
 
@@ -165,14 +187,26 @@ class StructureImEx extends PluginBase
                 if (!$import->loadFile($oFile)) {
                     $this->app()->setFlashMessage($import->getError('file'), 'error');
                 } else {
-                    $import->process();
+                    $result = $import->process();
 
-                    $errors = $import->getErrors('file');
-
-                    if (!empty($errors)) {
-                        foreach ($errors as $error) {
-                            $this->app()->setFlashMessage($error, 'error');
+                    // Check for any errors from the import process
+                    $allErrors = $import->getErrors();
+                    $hasErrors = false;
+                    
+                    if (!empty($allErrors)) {
+                        foreach ($allErrors as $field => $errors) {
+                            if (!empty($errors)) {
+                                $hasErrors = true;
+                                foreach ((array)$errors as $error) {
+                                    $this->app()->setFlashMessage($error, 'error');
+                                }
+                            }
                         }
+                    }
+                    
+                    if (!$hasErrors) {
+                        // Show success message if no errors occurred
+                        $this->app()->setFlashMessage('Survey structure imported successfully!', 'success');
                     }
 
                 }

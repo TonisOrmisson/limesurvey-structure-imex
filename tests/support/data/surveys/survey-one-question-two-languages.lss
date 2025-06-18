@@ -3,6 +3,7 @@
  <LimeSurveyDocType>Survey</LimeSurveyDocType>
  <DBVersion>630</DBVersion>
  <languages>
+  <language>et</language>
   <language>en</language>
  </languages>
  <groups>
@@ -42,6 +43,17 @@
     <group_name><![CDATA[G1]]></group_name>
     <description/>
     <language><![CDATA[en]]></language>
+    <sid><![CDATA[435933]]></sid>
+    <group_order><![CDATA[1]]></group_order>
+    <randomization_group/>
+    <grelevance/>
+   </row>
+   <row>
+    <id><![CDATA[534]]></id>
+    <gid><![CDATA[641]]></gid>
+    <group_name><![CDATA[G1]]></group_name>
+    <description/>
+    <language><![CDATA[et]]></language>
     <sid><![CDATA[435933]]></sid>
     <group_order><![CDATA[1]]></group_order>
     <randomization_group/>
@@ -108,6 +120,13 @@
     <help/>
     <script/>
     <language><![CDATA[en]]></language>
+   </row>
+   <row>
+    <id><![CDATA[2399]]></id>
+    <qid><![CDATA[1933]]></qid>
+    <question/>
+    <help/>
+    <language><![CDATA[et]]></language>
    </row>
   </rows>
  </question_l10ns>
@@ -379,7 +398,7 @@
     <savetimings><![CDATA[I]]></savetimings>
     <template><![CDATA[inherit]]></template>
     <language><![CDATA[en]]></language>
-    <additional_languages/>
+    <additional_languages><![CDATA[et]]></additional_languages>
     <datestamp><![CDATA[I]]></datestamp>
     <usecookie><![CDATA[I]]></usecookie>
     <allowregister><![CDATA[I]]></allowregister>
@@ -559,6 +578,121 @@ The following answers were given by the participant:<br />
     <surveyls_numberformat><![CDATA[0]]></surveyls_numberformat>
     <surveyls_language><![CDATA[en]]></surveyls_language>
     <surveyls_title><![CDATA[test-survey-1]]></surveyls_title>
+    <surveyls_description/>
+    <surveyls_welcometext/>
+    <surveyls_endtext/>
+    <surveyls_policy_notice/>
+    <surveyls_policy_notice_label/>
+    <surveyls_url/>
+    <surveyls_urldescription/>
+   </row>
+   <row>
+    <surveyls_survey_id><![CDATA[435933]]></surveyls_survey_id>
+    <surveyls_policy_error/>
+    <surveyls_email_invite_subj><![CDATA[Kutse uuringus osalemiseks]]></surveyls_email_invite_subj>
+    <surveyls_email_invite><![CDATA[Dear {FIRSTNAME},<br />
+<br />
+You have been invited to participate in a survey.<br />
+<br />
+The survey is titled:<br />
+"{SURVEYNAME}"<br />
+<br />
+"{SURVEYDESCRIPTION}"<br />
+<br />
+To participate, please click on the link below.<br />
+<br />
+Sincerely,<br />
+<br />
+{ADMINNAME} ({ADMINEMAIL})<br />
+<br />
+----------------------------------------------<br />
+Click here to do the survey:<br />
+{SURVEYURL}<br />
+<br />
+Juhul kui Te ei soovi osaleda selles uuringus ja ei soovi saada rohkem uuringukutseid, vajutage sellele lingile:<br />
+{OPTOUTURL}<br />
+<br />
+If you are blocklisted but want to participate in this survey and want to receive invitations please click the following link:<br />
+{OPTINURL}]]></surveyls_email_invite>
+    <surveyls_email_remind_subj><![CDATA[Meeldetuletus uuringus osalemiseks]]></surveyls_email_remind_subj>
+    <surveyls_email_remind><![CDATA[Lugupeetud {FIRSTNAME} {LASTNAME},<br />
+<br />
+Saite hiljuti kutse vastama ankeedile.<br />
+<br />
+Olete ankeedile osaliselt vastanud ning seoses sellega palume Teil vastamine lõpule viia.<br />
+<br />
+Ankeedi nimi:<br />
+"{SURVEYNAME}"<br />
+<br />
+"{SURVEYDESCRIPTION}"<br />
+<br />
+Ankeedile vastamiseks klikkige allpool toodud lingile.<br />
+<br />
+Ette tänades,<br />
+<br />
+{ADMINNAME} ({ADMINEMAIL})<br />
+<br />
+----------------------------------------------<br />
+Klikkige ankeedile vastamiseks siin:<br />
+{SURVEYURL}<br />
+<br />
+Juhul kui Te ei soovi osaleda selles uuringus ja ei soovi saada rohkem uuringukutseid, vajutage sellele lingile:<br />
+{OPTOUTURL}]]></surveyls_email_remind>
+    <surveyls_email_register_subj><![CDATA[Ankeedile vastamisele registreerimise kinnituse e-kiri:]]></surveyls_email_register_subj>
+    <surveyls_email_register><![CDATA[Lugupeetud {FIRSTNAME} {LASTNAME},<br />
+<br />
+Teie või keegi teine, kes on kasutanud Teie e-posti aadressi, on registreerunud vastama ankeedile  {SURVEYNAME}.<br />
+<br />
+Ankeedile vastamiseks klikkige allpool toodud lingile:<br />
+<br />
+{SURVEYURL}<br />
+<br />
+Kui Teil on küsimusi, Te pole registreerunud ankeedile vastama või Te arvate, et e-kiri on viga, palun kontakteeruge {ADMINNAME} ({ADMINEMAIL}).]]></surveyls_email_register>
+    <surveyls_email_confirm_subj><![CDATA[Uuringus osalemise kinnitus ]]></surveyls_email_confirm_subj>
+    <surveyls_email_confirm><![CDATA[Hea {FIRSTNAME}!<br />
+<br />
+See e-kiri kinnitab, et olete vastanud küsitlusele {SURVEYNAME} ja teie vastus on salvestatud. Aitäh, et osalesite!<br />
+<br />
+Kui teil on selle e-kirja kohta küsimusi, võtke ühendust administraatoriga {ADMINNAME} aadressil {ADMINEMAIL}.<br />
+<br />
+Tervitades<br />
+<br />
+{ADMINNAME}]]></surveyls_email_confirm>
+    <surveyls_dateformat><![CDATA[4]]></surveyls_dateformat>
+    <surveyls_alias/>
+    <email_admin_notification_subj><![CDATA[Response submission for survey {SURVEYNAME}]]></email_admin_notification_subj>
+    <email_admin_notification><![CDATA[Tere!<br />
+<br />
+Teie küsitlusele {SURVEYNAME} saadeti uus vastus.<br />
+<br />
+Klõpsake üksikvastuse nägemiseks seda linki:<br />
+{VIEWRESPONSEURL}<br />
+<br />
+Klõpsake üksikvastuse redigeerimiseks seda linki:<br />
+{EDITRESPONSEURL}<br />
+<br />
+Statistika vaatamiseks klõpsake siin:<br />
+{STATISTICSURL}]]></email_admin_notification>
+    <email_admin_responses_subj><![CDATA[Ankeedile {SURVEYNAME} on vastatud järgnevate tulemustega]]></email_admin_responses_subj>
+    <email_admin_responses><![CDATA[Tere!<br />
+<br />
+Teie küsitlusele {SURVEYNAME} saadeti uus vastus.<br />
+<br />
+Klõpsake üksikvastuse nägemiseks seda linki:<br />
+{VIEWRESPONSEURL}<br />
+<br />
+Klõpsake üksikvastuse redigeerimiseks seda linki:<br />
+{EDITRESPONSEURL}<br />
+<br />
+Statistika vaatamiseks klõpsake siin:<br />
+{STATISTICSURL}<br />
+<br />
+<br />
+Osaleja andis järgmised vastused:<br />
+{ANSWERTABLE}]]></email_admin_responses>
+    <surveyls_numberformat><![CDATA[0]]></surveyls_numberformat>
+    <surveyls_language><![CDATA[et]]></surveyls_language>
+    <surveyls_title/>
     <surveyls_description/>
     <surveyls_welcometext/>
     <surveyls_endtext/>
