@@ -55,11 +55,10 @@ class ComprehensiveAttributeExportTest extends DatabaseTestCase
             [\Question::QT_N_NUMERICAL, 'hidden', '0', '1'],
             [\Question::QT_N_NUMERICAL, 'hide_tip', '0', '1'],
             [\Question::QT_N_NUMERICAL, 'num_value_int_only', '0', '1'],
-            [\Question::QT_N_NUMERICAL, 'min_num_value', '', '1'],
-            [\Question::QT_N_NUMERICAL, 'max_num_value', '', '100'],
+            [\Question::QT_N_NUMERICAL, 'min_num_value_n', '', '1'],
+            [\Question::QT_N_NUMERICAL, 'max_num_value_n', '', '100'],
             // Language-specific attributes
             [\Question::QT_N_NUMERICAL, 'em_validation_q_tip', '', 'Number validation tip'],
-            [\Question::QT_N_NUMERICAL, 'num_value_int_only_text', '', 'Integer only message'],
             
             // === MULTIPLE CHOICE (M) ===
             // Global attributes

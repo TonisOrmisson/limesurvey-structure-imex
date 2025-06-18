@@ -178,10 +178,8 @@ class ExportImportFunctionalTest extends DatabaseTestCase
         // Add some non-default attributes including hide_tip which should definitely export
         $attributes = [
             'hide_tip' => '1',  // This should definitely be exported since it's non-default
-            'max_answers' => '5',
-            'min_answers' => '1',
-            'display_columns' => '3',
-            'answer_width' => '100',
+            'maximum_chars' => '500',  // Valid for T type
+            'display_rows' => '10',    // Valid for T type
             'prefix' => 'Test Prefix',
             'suffix' => 'Test Suffix'
         ];
@@ -191,6 +189,7 @@ class ExportImportFunctionalTest extends DatabaseTestCase
             $attr->qid = $question->qid;
             $attr->attribute = $attributeName;
             $attr->value = $value;
+            $attr->language = ''; // Global attributes use empty string for language
             $attr->save();
         }
         
@@ -230,9 +229,9 @@ class ExportImportFunctionalTest extends DatabaseTestCase
                     $cells = $row->getCells();
                     if (count($cells) > 0 && $cells[2]->getValue() === $question->title) {
                         // This should be the question row
-                        // Check if the options column (last column) contains attributes
-                        $optionsColumn = end($cells);
-                        $optionsValue = $optionsColumn->getValue();
+                        // Check if the options column contains attributes
+                        // The global options are in column 9 (0-indexed)
+                        $optionsValue = isset($cells[9]) ? $cells[9]->getValue() : '';
                         
                         $this->assertNotNull($optionsValue, 'Question should have attributes exported');
                         $this->assertNotEmpty($optionsValue, 'Attributes should not be empty');
