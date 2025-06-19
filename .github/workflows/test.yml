@@ -195,12 +195,11 @@ jobs:
         echo "Creating plugin directory in vendor LimeSurvey"
         mkdir -p vendor/limesurvey/limesurvey/upload/plugins/StructureImEx
         
-        # Copy our plugin files (excluding src to avoid trait collision)
+        # Copy our plugin files (excluding vendor and tests to avoid conflicts)
+        cp -r src vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         cp StructureImEx.php vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         cp config.xml vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         cp composer.json vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
-        # Create symlink to src instead of copying to avoid duplication
-        ln -s /home/runner/work/limesurvey-structure-imex/limesurvey-structure-imex/src vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/src
         
         # Install plugin dependencies in vendor LimeSurvey
         cd vendor/limesurvey/limesurvey/upload/plugins/StructureImEx
