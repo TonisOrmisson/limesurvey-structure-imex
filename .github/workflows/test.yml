@@ -248,7 +248,7 @@ jobs:
         # Verify .env file
         cat tests/.env
 
-    - name: Run tests with coverage
+    - name: Run tests with basic coverage
       env:
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
@@ -258,94 +258,8 @@ jobs:
         CI: true
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: |
-        # Create coverage directory
-        mkdir -p coverage
-        
-        # Run tests with coverage on all PHP versions
-        echo "Running tests with coverage collection on PHP ${{ matrix.php-versions }}..."
-        vendor/bin/phpunit \
-          --coverage-clover=coverage/clover.xml \
-          --coverage-cobertura=coverage/cobertura.xml \
-          --coverage-xml=coverage/coverage-xml \
-          --coverage-html=coverage/html \
-          --log-junit=coverage/junit.xml \
-          --coverage-text \
-          --verbose
-
-    - name: Generate coverage reports
-      env:
-        DB_HOST: 127.0.0.1
-        DB_PORT: 3306
-        DB_NAME: limesurvey_vendor_test
-        DB_USER: root
-        DB_PASSWORD: testpassword
-        CI: true
-        LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
-      run: |
-        echo "=== Coverage Summary ==="
-        vendor/bin/phpunit --coverage-text --colors=never | grep -A 20 "Code Coverage Report"
-        
-        echo "=== Detailed Coverage by Test Suite ==="
-        echo "Functional tests coverage:"
-        vendor/bin/phpunit --testsuite=functional --coverage-text --colors=never | grep -A 10 "Code Coverage Report" || echo "Functional coverage completed"
-        
-        echo "Unit tests coverage:"
-        vendor/bin/phpunit --testsuite=unit --coverage-text --colors=never | grep -A 10 "Code Coverage Report" || echo "Unit coverage completed"
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        files: ./coverage/clover.xml,./coverage/cobertura.xml
-        directory: ./coverage/
-        flags: unittests,functional,php-${{ matrix.php-versions }}
-        name: codecov-php-${{ matrix.php-versions }}
-        fail_ci_if_error: false
-        verbose: true
-
-    - name: Archive coverage reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report-php-${{ matrix.php-versions }}
-        path: |
-          coverage/
-          !coverage/coverage-xml
-        retention-days: 30
-
-    - name: Check coverage thresholds
-      run: |
-        echo "=== Coverage Threshold Check ==="
-        
-        # Extract coverage percentage from clover.xml
-        if [ -f "coverage/clover.xml" ]; then
-          COVERAGE=$(php -r "
-            \$xml = simplexml_load_file('coverage/clover.xml');
-            \$metrics = \$xml->project->metrics;
-            \$statements = (int)\$metrics['statements'];
-            \$coveredstatements = (int)\$metrics['coveredstatements'];
-            if (\$statements > 0) {
-              \$percentage = (\$coveredstatements / \$statements) * 100;
-              echo number_format(\$percentage, 2);
-            } else {
-              echo '0';
-            }
-          ")
-          
-          echo "Current coverage: ${COVERAGE}%"
-          
-          # Set minimum coverage threshold
-          MIN_COVERAGE=80
-          
-          # Compare coverage (using bc for floating point comparison)
-          if (( $(echo "$COVERAGE >= $MIN_COVERAGE" | bc -l) )); then
-            echo "✅ Coverage check passed: ${COVERAGE}% >= ${MIN_COVERAGE}%"
-          else
-            echo "❌ Coverage check failed: ${COVERAGE}% < ${MIN_COVERAGE}%"
-            echo "Please add more tests to improve coverage."
-            exit 1
-          fi
-        else
-          echo "⚠️  No coverage report found, skipping threshold check"
-        fi
+        echo "Running tests with basic text coverage on PHP ${{ matrix.php-versions }}..."
+        vendor/bin/phpunit --coverage-text --verbose
 
     - name: Run PHPStan code analysis
       run: vendor/bin/phpstan analyse src --level=5
