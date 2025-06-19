@@ -248,7 +248,7 @@ jobs:
         # Verify .env file
         cat tests/.env
 
-    - name: Run tests with basic coverage
+    - name: Run tests
       env:
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
@@ -258,8 +258,8 @@ jobs:
         CI: true
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: |
-        echo "Running tests with basic text coverage on PHP ${{ matrix.php-versions }}..."
-        vendor/bin/phpunit --coverage-text --verbose
+        echo "Running tests on PHP ${{ matrix.php-versions }}..."
+        vendor/bin/phpunit --verbose
 
     - name: Run PHPStan code analysis
       run: vendor/bin/phpstan analyse src --level=5
