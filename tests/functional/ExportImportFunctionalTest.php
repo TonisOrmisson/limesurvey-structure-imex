@@ -3,7 +3,7 @@
 namespace tonisormisson\ls\structureimex\Tests\Functional;
 
 use tonisormisson\ls\structureimex\export\ExportQuestions;
-use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
+use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\StructureImEx;
 use Survey;
 use Question;
@@ -290,7 +290,7 @@ class ExportImportFunctionalTest extends DatabaseTestCase
     private function importQuestionsFromFile($surveyId, $filePath)
     {
         $survey = Survey::model()->findByPk($surveyId);
-        $importer = new ImportStructureV4Plus($this->plugin, $survey);
+        $importer = new ImportStructure($this->plugin, $survey);
         $importer->fileName = $filePath;
         $importer->process();
     }

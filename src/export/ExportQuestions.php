@@ -8,7 +8,7 @@ use OpenSpout\Common\Entity\Row;
 use Question;
 use QuestionAttribute;
 use QuestionGroup;
-use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
+use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
@@ -413,25 +413,25 @@ class ExportQuestions extends AbstractExport
     protected function loadHeader()
     {
         $this->header = [
-            ImportStructureV4Plus::COLUMN_TYPE,
-            ImportStructureV4Plus::COLUMN_SUBTYPE,
-            ImportStructureV4Plus::COLUMN_CODE,
+            ImportStructure::COLUMN_TYPE,
+            ImportStructure::COLUMN_SUBTYPE,
+            ImportStructure::COLUMN_CODE,
         ];
         
         foreach ($this->languages as $language) {
-            $this->header[] = ImportStructureV4Plus::COLUMN_VALUE . "-" . $language;
-            $this->header[] = ImportStructureV4Plus::COLUMN_HELP . "-" . $language;
-            $this->header[] = ImportStructureV4Plus::COLUMN_SCRIPT . "-" . $language;
+            $this->header[] = ImportStructure::COLUMN_VALUE . "-" . $language;
+            $this->header[] = ImportStructure::COLUMN_HELP . "-" . $language;
+            $this->header[] = ImportStructure::COLUMN_SCRIPT . "-" . $language;
         }
 
-        $this->header[] = ImportStructureV4Plus::COLUMN_RELEVANCE;
-        $this->header[] = ImportStructureV4Plus::COLUMN_MANDATORY;
-        $this->header[] = ImportStructureV4Plus::COLUMN_THEME;
-        $this->header[] = ImportStructureV4Plus::COLUMN_OPTIONS;
+        $this->header[] = ImportStructure::COLUMN_RELEVANCE;
+        $this->header[] = ImportStructure::COLUMN_MANDATORY;
+        $this->header[] = ImportStructure::COLUMN_THEME;
+        $this->header[] = ImportStructure::COLUMN_OPTIONS;
         
         // Add language-specific options columns
         foreach ($this->languages as $language) {
-            $this->header[] = ImportStructureV4Plus::COLUMN_OPTIONS . "-" . $language;
+            $this->header[] = ImportStructure::COLUMN_OPTIONS . "-" . $language;
         }
     }
 

@@ -196,7 +196,7 @@ class RealDatabaseImportTest extends DatabaseTestCase
         $survey = Survey::model()->findByPk($this->testSurveyId);
         
         // Use the import class directly
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($this->plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($this->plugin, $survey);
         
         // Set the file
         $import->fileName = $csvFile;

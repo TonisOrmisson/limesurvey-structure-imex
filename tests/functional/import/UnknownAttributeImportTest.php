@@ -37,7 +37,7 @@ class UnknownAttributeImportTest extends DatabaseTestCase
         // Enable unknown attribute import for this test
         $plugin->setSetting('importUnknownAttributes', true, 'Survey', $this->testSurveyId);
         
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -89,7 +89,7 @@ class UnknownAttributeImportTest extends DatabaseTestCase
         // Import the file
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -143,7 +143,7 @@ class UnknownAttributeImportTest extends DatabaseTestCase
         // Explicitly disable unknown attribute import (default behavior)
         $plugin->setSetting('importUnknownAttributes', false, 'Survey', $this->testSurveyId);
         
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();

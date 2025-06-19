@@ -84,7 +84,7 @@ class ImportChangesDBTest extends DatabaseTestCase
         file_put_contents($tempFile, $csvContent);
         
         // Try to import
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $import->fileName = $tempFile;
 
         $result = $import->process();

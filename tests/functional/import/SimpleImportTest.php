@@ -68,7 +68,7 @@ class SimpleImportTest extends DatabaseTestCase
         $survey = \Survey::model()->findByPk($surveyId);
         
         // Try to create the import class
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $this->assertNotNull($import, 'Should be able to create import instance');
     }
     

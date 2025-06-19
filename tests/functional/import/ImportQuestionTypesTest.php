@@ -2,7 +2,7 @@
 
 namespace tonisormisson\ls\structureimex\Tests\Functional;
 
-use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
+use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\StructureImEx;
 use Survey;
 use Question;
@@ -478,7 +478,7 @@ class ImportQuestionTypesTest extends DatabaseTestCase
     private function importTestData(array $testData): void
     {
         // Create importer (plugin already has survey set)
-        $importer = new ImportStructureV4Plus($this->plugin);
+        $importer = new ImportStructure($this->plugin);
         
         // Set the test data directly in the importer bypassing file operations
         $this->setImporterTestData($importer, $testData);
@@ -487,7 +487,7 @@ class ImportQuestionTypesTest extends DatabaseTestCase
         $importer->process();
     }
 
-    private function setImporterTestData(ImportStructureV4Plus $importer, array $testData): void
+    private function setImporterTestData(ImportStructure $importer, array $testData): void
     {
         // Convert test data to the indexed format expected by the importer (post-processing)
         $processedData = [];

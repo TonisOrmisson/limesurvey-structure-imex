@@ -6,7 +6,7 @@ use CUploadedFile;
 use PluginBase;
 use Survey;
 use tonisormisson\ls\structureimex\import\ImportRelevance;
-use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
+use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\export\ExportRelevances;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
 
@@ -176,7 +176,7 @@ class StructureImEx extends PluginBase
             if ($this->survey->getIsActive()) {
                 $this->app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
-                $import = new ImportStructureV4Plus($this);
+                $import = new ImportStructure($this);
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
                     $this->app()->setFlashMessage($import->getError('file'), 'error');

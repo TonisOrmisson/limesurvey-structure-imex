@@ -199,7 +199,7 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
         // Import the file
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $import->fileName = $csvFile;
 
         $prepareResult = $import->prepare();

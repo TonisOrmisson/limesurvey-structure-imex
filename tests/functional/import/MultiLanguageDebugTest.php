@@ -33,7 +33,7 @@ class MultiLanguageDebugTest extends DatabaseTestCase
         
         // Import the file
         $plugin = $this->createRealPlugin($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();

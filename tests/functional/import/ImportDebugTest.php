@@ -28,7 +28,7 @@ class ImportDebugTest extends DatabaseTestCase
         file_put_contents($tempFile, $csvContent);
         
         // Create import instance
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $import->fileName = $tempFile;
         
         $import->prepare();

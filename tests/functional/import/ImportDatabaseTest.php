@@ -183,7 +183,7 @@ class ImportDatabaseTest extends DatabaseTestCase
         $plugin = $this->createRealPlugin($this->testSurveyId);
         
         // Create completely new import instance
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
         
         // Set fileName directly and call prepare to read the file
         $import->fileName = $csvFile;

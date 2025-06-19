@@ -101,7 +101,7 @@ class CurlyQuotesImportTest extends DatabaseTestCase
         $plugin->setSetting('importUnknownAttributes', true, 'Survey', $this->testSurveyId);
         
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -152,7 +152,7 @@ class CurlyQuotesImportTest extends DatabaseTestCase
         $plugin->setSetting('importUnknownAttributes', true, 'Survey', $this->testSurveyId);
         
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
         $import->fileName = $csvFile;
 
         

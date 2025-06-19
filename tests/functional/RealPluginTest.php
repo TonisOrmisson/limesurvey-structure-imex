@@ -4,7 +4,7 @@ namespace tonisormisson\ls\structureimex\Tests\Functional;
 
 use tonisormisson\ls\structureimex\StructureImEx;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
-use tonisormisson\ls\structureimex\import\ImportStructureV4Plus;
+use tonisormisson\ls\structureimex\import\ImportStructure;
 use Survey;
 
 /**
@@ -76,9 +76,9 @@ class RealPluginTest extends DatabaseTestCase
     public function testCanCreateImporterWithRealPlugin()
     {
 
-        // Test creating ImportStructureV4Plus
-        $importer = new ImportStructureV4Plus($this->plugin);
-        $this->assertInstanceOf(ImportStructureV4Plus::class, $importer, 'Should create ImportStructureV4Plus with real plugin');
+        // Test creating ImportStructure
+        $importer = new ImportStructure($this->plugin);
+        $this->assertInstanceOf(ImportStructure::class, $importer, 'Should create ImportStructure with real plugin');
         
         // Verify importer has access to survey
         $survey = $this->plugin->getSurvey();
