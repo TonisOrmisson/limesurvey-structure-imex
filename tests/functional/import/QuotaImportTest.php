@@ -71,12 +71,14 @@ class QuotaImportTest extends DatabaseTestCase
 
     public function testImportQuotaWithMembers()
     {
-        $question = $this->createQuotaTestQuestion('gender', 'Gender Question');
+        $question1 = $this->createQuotaTestQuestion('gender', 'Gender Question');
+        $question2 = $this->createQuotaTestQuestion('agegroup', 'Age Group Question');
         
+        // Test with different questions (allowed) instead of same question multiple times (not allowed)
         $importData = [
-            ['type' => 'Q', 'name' => 'Gender Quota', 'value' => '50', 'active' => '1', 'autoload_url' => '0'],
+            ['type' => 'Q', 'name' => 'Demo Quota', 'value' => '50', 'active' => '1', 'autoload_url' => '0'],
             ['type' => 'QM', 'name' => 'gender', 'value' => 'M', 'active' => '', 'autoload_url' => ''],
-            ['type' => 'QM', 'name' => 'gender', 'value' => 'F', 'active' => '', 'autoload_url' => ''],
+            ['type' => 'QM', 'name' => 'agegroup', 'value' => '25-34', 'active' => '', 'autoload_url' => ''],
         ];
         
         $fileName = $this->createExcelFileFromData($importData);
@@ -90,17 +92,48 @@ class QuotaImportTest extends DatabaseTestCase
         
         $quota = Quota::model()->find('sid = :sid AND name = :name', [
             ':sid' => $this->testSurveyId,
-            ':name' => 'Gender Quota'
+            ':name' => 'Demo Quota'
         ]);
         
         $this->assertNotNull($quota, 'Quota should be created');
         
         $members = QuotaMember::model()->findAll('quota_id = :quota_id', [':quota_id' => $quota->id]);
-        $this->assertCount(2, $members, 'Should have 2 quota members');
+        $this->assertCount(2, $members, 'Should have 2 quota members for different questions');
         
         $memberCodes = array_map(function($m) { return $m->code; }, $members);
         $this->assertContains('M', $memberCodes);
-        $this->assertContains('F', $memberCodes);
+        $this->assertContains('25-34', $memberCodes);
+        
+        // Clean up temp file
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
+    }
+
+    public function testImportDuplicateQuestionInSameQuotaFails()
+    {
+        $question = $this->createQuotaTestQuestion('gender', 'Gender Question');
+        
+        // Test with same question multiple times (should fail due to AND logic limitation)
+        $importData = [
+            ['type' => 'Q', 'name' => 'Invalid Quota', 'value' => '50', 'active' => '1', 'autoload_url' => '0'],
+            ['type' => 'QM', 'name' => 'gender', 'value' => 'M', 'active' => '', 'autoload_url' => ''],
+            ['type' => 'QM', 'name' => 'gender', 'value' => 'F', 'active' => '', 'autoload_url' => ''], // Same question - not allowed
+        ];
+        
+        $fileName = $this->createExcelFileFromData($importData);
+        $import = $this->createImport();
+        
+        $import->fileName = $fileName;
+        $this->assertTrue($import->prepare());
+        $import->process();
+        
+        $this->assertNotEmpty($import->getErrors(), 'Import should have validation errors for duplicate question');
+        
+        // Check that the specific validation error is present
+        $errors = $import->getErrors();
+        $validationErrors = $errors['validation'] ?? [];
+        $this->assertContains("Question 'gender' appears multiple times in quota 'Invalid Quota'", $validationErrors);
         
         // Clean up temp file
         if (file_exists($fileName)) {

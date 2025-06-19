@@ -223,14 +223,19 @@ class QuotaEmptyFieldsTest extends DatabaseTestCase
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $import = new ImportQuotas($plugin);
         
-        $mockFile = $this->createMockUploadedFile($fileName);
+        $import->fileName = $fileName;
         
-        if (!$import->loadFile($mockFile)) {
+        if (!$import->prepare()) {
             return false;
         }
         
         $import->process();
         $errors = $import->getErrors();
+        
+        // Clean up temp file
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
         
         return empty($errors);
     }
@@ -265,20 +270,4 @@ class QuotaEmptyFieldsTest extends DatabaseTestCase
         return $fileName;
     }
 
-    /**
-     * Create mock uploaded file
-     */
-    private function createMockUploadedFile(string $filePath): \CUploadedFile
-    {
-        $mockFile = $this->getMockBuilder(\CUploadedFile::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-            
-        $mockFile->method('getTempName')->willReturn($filePath);
-        $mockFile->method('getName')->willReturn(basename($filePath));
-        $mockFile->method('getError')->willReturn(UPLOAD_ERR_OK);
-        $mockFile->method('getSize')->willReturn(filesize($filePath));
-        
-        return $mockFile;
-    }
 }

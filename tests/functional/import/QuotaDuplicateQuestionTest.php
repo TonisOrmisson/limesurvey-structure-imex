@@ -65,8 +65,8 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $import = new ImportQuotas($plugin);
         
-        $mockFile = $this->createMockUploadedFile($fileName);
-        $import->loadFile($mockFile);
+        $import->fileName = $fileName;
+        $import->prepare();
         $import->process();
         
         $errors = $import->getErrors();
@@ -86,6 +86,11 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
         }
         
         $this->assertTrue($hasValidationError, 'Should have specific duplicate question validation error');
+        
+        // Clean up temp file
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
     }
 
     /**
@@ -93,21 +98,24 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
      */
     public function testSameQuestionInDifferentQuotasIsAllowed()
     {
+        // Get the actual question title that exists in the survey
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+        $questionTitle = $question->title;
+        
         $quotaData = [
             ['type' => 'Q', 'name' => 'QuotaA', 'value' => '10', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''],
+            ['type' => 'QM', 'name' => $questionTitle, 'value' => 'Y', 'active' => ''],
             ['type' => 'Q', 'name' => 'QuotaB', 'value' => '20', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'N', 'active' => ''], // Same question, different quota
+            ['type' => 'QM', 'name' => $questionTitle, 'value' => 'N', 'active' => ''], // Same question, different quota
         ];
         
         $result = $this->importQuotas($quotaData);
-        
         $this->assertTrue($result, 'Import should succeed - same question allowed in different quotas');
         
         // Verify both quota members were created
         $criteria = new \CDbCriteria();
         $criteria->condition = 'sid = :sid AND qid = :qid';
-        $criteria->params = [':sid' => $this->survey->sid, ':qid' => $this->testQuestion->qid];
+        $criteria->params = [':sid' => $this->testSurveyId, ':qid' => $question->qid];
         
         $quotaMembers = QuotaMember::model()->findAll($criteria);
         $this->assertCount(2, $quotaMembers, 'Should have 2 quota members for same question in different quotas');
@@ -122,13 +130,23 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
      */
     public function testMultipleQuestionsInSameQuotaIsAllowed()
     {
-        // Create second test question
-        $groupData = $this->createTestSurveyWithQuestions();
-        $secondQuestion = Question::model()->findByPk($groupData['questions'][1]);
+        // Get existing questions and create a second one if needed
+        $questions = Question::model()->findAll('sid = :sid', [':sid' => $this->testSurveyId]);
+        $firstQuestion = $questions[0];
+        
+        // Create a second question for this test
+        $secondQuestionId = $this->createTestQuestion(
+            $this->testSurveyId, 
+            $firstQuestion->gid, 
+            'Q002', 
+            'L', 
+            'Second Question'
+        );
+        $secondQuestion = Question::model()->findByPk($secondQuestionId);
         
         $quotaData = [
             ['type' => 'Q', 'name' => 'MultiQuestionQuota', 'value' => '100', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''],
+            ['type' => 'QM', 'name' => $firstQuestion->title, 'value' => 'Y', 'active' => ''],
             ['type' => 'QM', 'name' => $secondQuestion->title, 'value' => 'A', 'active' => ''], // Different question
         ];
         
@@ -154,14 +172,19 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $import = new ImportQuotas($plugin);
         
-        $mockFile = $this->createMockUploadedFile($fileName);
+        $import->fileName = $fileName;
         
-        if (!$import->loadFile($mockFile)) {
+        if (!$import->prepare()) {
             return false;
         }
         
         $import->process();
         $errors = $import->getErrors();
+        
+        // Clean up temp file
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
         
         return empty($errors);
     }

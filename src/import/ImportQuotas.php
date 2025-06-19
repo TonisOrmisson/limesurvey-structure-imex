@@ -162,13 +162,12 @@ class ImportQuotas extends ImportFromFile
 
     private function findOrCreateQuotaMember(Quota $quota, Question $question, string $code): QuotaMember
     {
-        // Try to find existing quota member for this specific question + answer code combination
+        // Find existing quota member for this question in this quota (only one allowed per question)
         $criteria = new \CDbCriteria();
-        $criteria->condition = 'quota_id = :quota_id AND qid = :qid AND code = :code';
+        $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
         $criteria->params = [
             ':quota_id' => $quota->id,
-            ':qid' => $question->qid,
-            ':code' => $code
+            ':qid' => $question->qid
         ];
 
         /** @var QuotaMember|null $member */
@@ -271,16 +270,16 @@ class ImportQuotas extends ImportFromFile
     private function validateQuestionReferences(): void
     {
         $missingQuestions = [];
-        $duplicateMembers = [];
+        $duplicateQuestions = [];
         $currentQuotaName = '';
-        $quotaMembers = []; // Track question+answer combinations per quota
+        $quotaQuestions = []; // Track questions per quota (only one member per question allowed)
 
         foreach ($this->readerData as $row) {
             $type = $row['type'] ?? '';
             
             if ($type === 'Q') {
                 $currentQuotaName = $row['name'] ?? '';
-                $quotaMembers[$currentQuotaName] = []; // Reset for new quota
+                $quotaQuestions[$currentQuotaName] = []; // Reset for new quota
             } elseif ($type === 'QM') {
                 $questionCode = $row['name'] ?? '';
                 $answerCode = $row['value'] ?? '';
@@ -295,12 +294,12 @@ class ImportQuotas extends ImportFromFile
                     continue;
                 }
 
-                // Check for duplicate question+answer combination within same quota in import file
-                $memberKey = "$questionCode=$answerCode";
-                if (in_array($memberKey, $quotaMembers[$currentQuotaName] ?? [])) {
-                    $duplicateMembers[] = "Quota member '$memberKey' appears multiple times in quota '$currentQuotaName'";
+                // Check for duplicate question within same quota in import file
+                // LimeSurvey quota members use AND logic, so only one member per question per quota is allowed
+                if (in_array($questionCode, $quotaQuestions[$currentQuotaName] ?? [])) {
+                    $duplicateQuestions[] = "Question '$questionCode' appears multiple times in quota '$currentQuotaName'";
                 } else {
-                    $quotaMembers[$currentQuotaName][] = $memberKey;
+                    $quotaQuestions[$currentQuotaName][] = $questionCode;
                 }
 
                 // Check if question exists
@@ -315,9 +314,9 @@ class ImportQuotas extends ImportFromFile
             }
         }
 
-        // Report duplicate member errors
-        if (!empty($duplicateMembers)) {
-            foreach ($duplicateMembers as $error) {
+        // Report duplicate question errors
+        if (!empty($duplicateQuestions)) {
+            foreach ($duplicateQuestions as $error) {
                 $this->addError('validation', $error);
             }
         }

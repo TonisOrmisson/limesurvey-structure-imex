@@ -54,11 +54,12 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         $this->existingQuota->save();
         
         // Create existing quota member for the test question
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
         $existingMember = new QuotaMember();
         $existingMember->sid = $this->survey->sid;
         $existingMember->quota_id = $this->existingQuota->id;
-        $existingMember->qid = $this->testQuestion->qid;
-        $existingMember->code = 'EXISTING_VALUE';
+        $existingMember->qid = $question->qid;
+        $existingMember->code = 'EXISTING';
         $existingMember->save();
         
         $this->assertNotNull($this->existingQuota->id, 'Existing quota should be created');
@@ -71,10 +72,14 @@ class QuotaExistingMemberTest extends DatabaseTestCase
      */
     public function testImportDuplicateQuestionMemberUpdates()
     {
+        // Get the actual question title that exists in the survey
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+        $questionTitle = $question->title;
+        
         // Try to import another quota member for the same question in the same quota
         $quotaData = [
             ['type' => 'Q', 'name' => 'ExistingQuota', 'value' => '100', 'active' => '1'], // Update existing quota
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'NEW_VALUE', 'active' => ''], // Same question, different value
+            ['type' => 'QM', 'name' => $questionTitle, 'value' => 'NEWVAL', 'active' => ''], // Same question, different value
         ];
         
         $result = $this->importQuotas($quotaData);
@@ -85,11 +90,11 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         // Verify the quota member was updated to new value
         $criteria = new \CDbCriteria();
         $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
-        $criteria->params = [':quota_id' => $this->existingQuota->id, ':qid' => $this->testQuestion->qid];
+        $criteria->params = [':quota_id' => $this->existingQuota->id, ':qid' => $question->qid];
         
         $quotaMember = QuotaMember::model()->find($criteria);
         $this->assertNotNull($quotaMember, 'QuotaMember should exist');
-        $this->assertEquals('NEW_VALUE', $quotaMember->code, 'QuotaMember should be updated to new value');
+        $this->assertEquals('NEWVAL', $quotaMember->code, 'QuotaMember should be updated to new value');
         
         // Verify only one quota member exists (no duplicates)
         $allMembers = QuotaMember::model()->findAll($criteria);
@@ -102,13 +107,23 @@ class QuotaExistingMemberTest extends DatabaseTestCase
      */
     public function testImportDifferentQuestionInSameQuotaSucceeds()
     {
-        // Create second test question
-        $groupData = $this->createTestSurveyWithQuestions();
-        $secondQuestion = Question::model()->findByPk($groupData['questions'][1]);
+        // Get existing questions and create a second one if needed
+        $questions = Question::model()->findAll('sid = :sid', [':sid' => $this->testSurveyId]);
+        $firstQuestion = $questions[0];
+        
+        // Create a second question for this test
+        $secondQuestionId = $this->createTestQuestion(
+            $this->testSurveyId, 
+            $firstQuestion->gid, 
+            'Q002', 
+            'L', 
+            'Second Question'
+        );
+        $secondQuestion = Question::model()->findByPk($secondQuestionId);
         
         $quotaData = [
             ['type' => 'Q', 'name' => 'ExistingQuota', 'value' => '100', 'active' => '1'],
-            ['type' => 'QM', 'name' => $secondQuestion->title, 'value' => 'NEW_VALUE', 'active' => ''], // Different question
+            ['type' => 'QM', 'name' => $secondQuestion->title, 'value' => 'NEWVAL', 'active' => ''], // Different question
         ];
         
         $result = $this->importQuotas($quotaData);
@@ -129,9 +144,13 @@ class QuotaExistingMemberTest extends DatabaseTestCase
      */
     public function testImportSameQuestionInDifferentQuotaSucceeds()
     {
+        // Get the actual question title that exists in the survey
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+        $questionTitle = $question->title;
+        
         $quotaData = [
             ['type' => 'Q', 'name' => 'NewQuota', 'value' => '75', 'active' => '1'], // Different quota
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'NEW_VALUE', 'active' => ''], // Same question
+            ['type' => 'QM', 'name' => $questionTitle, 'value' => 'NEWVAL', 'active' => ''], // Same question
         ];
         
         $result = $this->importQuotas($quotaData);
@@ -141,7 +160,7 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         // Verify quota members exist in both quotas
         $criteria = new \CDbCriteria();
         $criteria->condition = 'qid = :qid AND sid = :sid';
-        $criteria->params = [':qid' => $this->testQuestion->qid, ':sid' => $this->survey->sid];
+        $criteria->params = [':qid' => $question->qid, ':sid' => $this->testSurveyId];
         
         $quotaMembers = QuotaMember::model()->findAll($criteria);
         $this->assertCount(2, $quotaMembers, 'Should have 2 quota members for same question in different quotas');
@@ -152,9 +171,13 @@ class QuotaExistingMemberTest extends DatabaseTestCase
      */
     public function testUpdateExistingQuotaMemberSucceeds()
     {
+        // Get the actual question title that exists in the survey
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+        $questionTitle = $question->title;
+        
         $quotaData = [
             ['type' => 'Q', 'name' => 'ExistingQuota', 'value' => '100', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'EXISTING_VALUE', 'active' => ''], // Same value as existing
+            ['type' => 'QM', 'name' => $questionTitle, 'value' => 'EXISTING', 'active' => ''], // Same value as existing
         ];
         
         $result = $this->importQuotas($quotaData);
@@ -164,11 +187,11 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         // Verify only one quota member exists (no duplicates)
         $criteria = new \CDbCriteria();
         $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
-        $criteria->params = [':quota_id' => $this->existingQuota->id, ':qid' => $this->testQuestion->qid];
+        $criteria->params = [':quota_id' => $this->existingQuota->id, ':qid' => $question->qid];
         
         $quotaMembers = QuotaMember::model()->findAll($criteria);
         $this->assertCount(1, $quotaMembers, 'Should have exactly 1 quota member after update');
-        $this->assertEquals('EXISTING_VALUE', $quotaMembers[0]->code, 'Quota member should keep existing value');
+        $this->assertEquals('EXISTING', $quotaMembers[0]->code, 'Quota member should keep existing value');
     }
 
     /**
@@ -180,14 +203,19 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $import = new ImportQuotas($plugin);
         
-        $mockFile = $this->createMockUploadedFile($fileName);
+        $import->fileName = $fileName;
         
-        if (!$import->loadFile($mockFile)) {
+        if (!$import->prepare()) {
             return false;
         }
         
         $import->process();
         $errors = $import->getErrors();
+        
+        // Clean up temp file
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
         
         return empty($errors);
     }
@@ -222,20 +250,4 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         return $fileName;
     }
 
-    /**
-     * Create mock uploaded file
-     */
-    private function createMockUploadedFile(string $filePath): \CUploadedFile
-    {
-        $mockFile = $this->getMockBuilder(\CUploadedFile::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-            
-        $mockFile->method('getTempName')->willReturn($filePath);
-        $mockFile->method('getName')->willReturn(basename($filePath));
-        $mockFile->method('getError')->willReturn(UPLOAD_ERR_OK);
-        $mockFile->method('getSize')->willReturn(filesize($filePath));
-        
-        return $mockFile;
-    }
 }
