@@ -30,6 +30,7 @@
         <exclude>
             <directory>vendor</directory>
             <directory>tests</directory>
+            <directory>src/views</directory>
         </exclude>
     </coverage>
 
