@@ -297,7 +297,7 @@ class ImportStructureV4Plus extends ImportFromFile
         if (!empty($this->rowAttributes[self::COLUMN_THEME])) {
             $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
         }
-        if (isset($options['question_template']) && strlen(isset($options['question_template']) > 0)) {
+        if (isset($options['question_template']) && strlen($options['question_template']) > 0) {
             $questionTheme = trim($options['question_template']);
         }
         if (!empty($questionTheme)) {
