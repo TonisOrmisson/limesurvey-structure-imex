@@ -15,7 +15,7 @@ jobs:
     
     services:
       mysql:
-        image: mariadb:lts
+        image: mysql:lts
         env:
           MYSQL_ROOT_PASSWORD: testpassword
           MYSQL_DATABASE: limesurvey_test

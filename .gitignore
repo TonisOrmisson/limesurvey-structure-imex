@@ -4,5 +4,4 @@
 vendor/
 !.github
 phpstan-dev.neon
-CLAUDE.local.md
 /tasks/todo.md
