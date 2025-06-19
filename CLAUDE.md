@@ -2,21 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Task Management Process
-
-**IMPORTANT**: Before starting any new work, ALWAYS check the `tasks/todo.md` file first. This file contains:
-- Active tasks that need to be completed
-- Known issues that need addressing  
-- Future enhancements planned
-- Context about ongoing work
-
-When working on tasks:
-1. Check `tasks/todo.md` for current priorities
-2. Update the file when starting work on a task (move to "Active" section)
-3. Update the file when completing a task (move to "Completed" section)
-4. Add new issues or tasks discovered during development
-5. Reference specific line numbers and files when documenting issues
-
 # StructureImEx LimeSurvey Plugin
 
 ## Project Overview
@@ -141,54 +126,7 @@ try {
 ```
 
 ## Development Reminders
-- Remember to run tests on the lime1 container
-- Never write temporary test cases unless you get ad hoc permission
-- After each task always run on container the phpstan like `vendor/bin/phpstan -cphpstan-dev.neon`
-
-## Code Behavior Guidelines
-- Stop telling me that its fine if stuff fails
+- **ALWAYS check and update CHANGELOG.md** when making significant changes to track development progress
 
 ## Logging
-
-### Test Environment Logging Setup
-The functional test environment is configured for immediate log debugging:
-
-**Log Configuration:**
-- **Category**: `plugin.andmemasin.imex` (matches log route filter `plugin.andmemasin.*`)
-- **Log File**: `/var/www/html/upload/plugins/StructureImEx/tests/runtime/andmemasin.log`
-- **Auto-Flush**: Configured to flush after every single log message for immediate debugging
-- **Levels**: `trace, info, error, warning, debug`
-
-**Auto-Flush Configuration** (in `DatabaseTestCase.php`):
-```php
-// Configure logger for immediate flushing (after app is created)
-$logger = \Yii::getLogger();
-$logger->autoFlush = 1;      // Flush after every message
-$logger->autoDump = true;    // Write to file immediately
-```
-
-**Usage in Tests:**
-```php
-\Yii::log("Debug message", 'debug', 'plugin.andmemasin.imex');
-\Yii::log("Info message", 'info', 'plugin.andmemasin.imex');
-// Messages appear immediately in tests/runtime/andmemasin.log
-```
-
-**Key Properties:**
-- `autoFlush = 1`: Flushes buffer after every single log message (default: 10,000)
-- `autoDump = true`: Writes to actual file immediately when flushed (default: false)
-
-**Log Format:**
-```
-2025/06/19 06:03:49 [debug] [plugin.andmemasin.imex] Your debug message here
-2025/06/19 06:03:49 [info] [plugin.andmemasin.imex] Your info message here
-```
-
-## Debugging Guidelines
-- NEVER ECHO in test for debuggging. let Exceptions be thrown. use phpunit internal debigging if needed
-- Use `\Yii::log()` with category `plugin.andmemasin.imex` for test debugging - logs flush immediately
-- Check `/var/www/html/upload/plugins/StructureImEx/tests/runtime/andmemasin.log` for debug output
-
-## Memories
-- the whole source code including parent LimeSurvey is fully writeable on container via mounted volume
-- never make thinks like "temporary fix" NEVER EVER!!! I killl you if i see simethin like that 
+- log category is 'plugin.andmemasin.imex' 

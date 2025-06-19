@@ -16,7 +16,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.0.4",
+        "php": ">=8.0.4 <8.4",
         "ext-json": "*",
         "openspout/openspout": "^4.0",
         "sebastian/version": "^3.0"
