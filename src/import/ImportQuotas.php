@@ -14,7 +14,7 @@ use tonisormisson\ls\structureimex\exceptions\ImexException;
  * Imports survey quotas from Excel/CSV format including:
  * - Core quota information (name, limit, active, etc.)
  * - Quota members (question/answer conditions)
- * - Multi-language quota settings
+ * - Multi-language     quota settings
  * 
  * Import format follows hierarchical structure similar to QuestionGroup → Questions:
  * - Q rows: Quota information with language-specific content
@@ -26,11 +26,6 @@ class ImportQuotas extends ImportFromFile
 
     protected function beforeProcess(): void
     {
-        if (!$this->survey) {
-            $this->addError('survey', 'Survey not found');
-            return;
-        }
-
         if ($this->survey->active === 'Y') {
             $this->addError('survey', 'Cannot import quotas to an active survey');
             return;
@@ -135,10 +130,11 @@ class ImportQuotas extends ImportFromFile
         $criteria->condition = 'sid = :sid AND name = :name';
         $criteria->params = [':sid' => $this->survey->sid, ':name' => $name];
 
+        /** @var Quota|null $quota */
         $quota = Quota::model()->find($criteria);
         
         if (!$quota) {
-            $quota = new Quota();
+            return new Quota();
         }
 
         return $quota;
@@ -150,6 +146,7 @@ class ImportQuotas extends ImportFromFile
         $criteria->condition = 'sid = :sid AND name = :name';
         $criteria->params = [':sid' => $this->survey->sid, ':name' => $name];
 
+        /** @var Quota|null */
         return Quota::model()->find($criteria);
     }
 
@@ -159,6 +156,7 @@ class ImportQuotas extends ImportFromFile
         $criteria->condition = 'sid = :sid AND title = :title';
         $criteria->params = [':sid' => $this->survey->sid, ':title' => $code];
 
+        /** @var Question|null */
         return Question::model()->find($criteria);
     }
 
@@ -172,6 +170,7 @@ class ImportQuotas extends ImportFromFile
             ':qid' => $question->qid
         ];
 
+        /** @var QuotaMember|null $member */
         $member = QuotaMember::model()->find($criteria);
         
         if (!$member) {
@@ -181,17 +180,6 @@ class ImportQuotas extends ImportFromFile
         return $member;
     }
 
-    private function findExistingQuotaMember(Quota $quota, Question $question): ?QuotaMember
-    {
-        $criteria = new \CDbCriteria();
-        $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
-        $criteria->params = [
-            ':quota_id' => $quota->id,
-            ':qid' => $question->qid
-        ];
-
-        return QuotaMember::model()->find($criteria);
-    }
 
     private function importQuotaLanguageSettings(Quota $quota, array $attributes): void
     {
@@ -236,6 +224,7 @@ class ImportQuotas extends ImportFromFile
         $criteria->condition = 'quotals_quota_id = :quota_id AND quotals_language = :language';
         $criteria->params = [':quota_id' => $quota->id, ':language' => $language];
 
+        /** @var QuotaLanguageSetting|null $setting */
         $setting = QuotaLanguageSetting::model()->find($criteria);
         
         if (!$setting) {

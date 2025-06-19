@@ -11,22 +11,37 @@ use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 class QuotaImportTest extends DatabaseTestCase
 {
+    protected $survey;
+    protected $questionGroup;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        
+        // Import test survey and set up basic structure
+        $this->testSurveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
+        $this->survey = \Survey::model()->findByPk($this->testSurveyId);
+        
+        // Ensure survey is inactive for import
+        if ($this->survey && $this->survey->active === 'Y') {
+            $this->survey->active = 'N';
+            $this->survey->save();
+        }
+
+        // Create a basic question group for tests that need questions
+        $groupData = $this->createTestSurveyWithQuestions();
+        $this->questionGroup = \QuestionGroup::model()->findByPk($groupData['groups'][0]);
+    }
+
     public function testImportBasicQuota()
     {
-        $this->testSurveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
-        
-        $survey = \Survey::model()->findByPk($this->testSurveyId);
-        if ($survey && $survey->active === 'Y') {
-            $survey->active = 'N';
-            $survey->save();
-        }
         
         $importData = [
             ['type' => 'Q', 'name' => 'Test Quota', 'value' => '100', 'active' => '1', 'autoload_url' => '0', 'message-en' => 'Test message'],
         ];
         
         $fileName = $this->createExcelFileFromData($importData);
-        $import = new ImportQuotas($this->createTestPlugin($this->testSurveyId));
+        $import = new ImportQuotas($this->createRealPlugin($this->testSurveyId));
         
         $mockFile = $this->createMockUploadedFile($fileName);
         $this->assertTrue($import->loadFile($mockFile));
@@ -178,4 +193,63 @@ class QuotaImportTest extends DatabaseTestCase
         $qid = $this->createTestQuestion($this->testSurveyId, $this->questionGroup->gid, $code, 'L', $question);
         return Question::model()->findByPk($qid);
     }
+
+    /**
+     * Create Excel file from data array
+     */
+    private function createExcelFileFromData(array $data): string
+    {
+        $fileName = sys_get_temp_dir() . '/quota_test_' . uniqid() . '.xlsx';
+        
+        $writer = new \OpenSpout\Writer\XLSX\Writer();
+        $writer->openToFile($fileName);
+        
+        // Get headers from first row
+        if (!empty($data)) {
+            $headers = array_keys($data[0]);
+            $headerRow = \OpenSpout\Common\Entity\Row::fromValues($headers);
+            $writer->addRow($headerRow);
+            
+            foreach ($data as $rowData) {
+                $values = [];
+                foreach ($headers as $header) {
+                    $values[] = $rowData[$header] ?? '';
+                }
+                $dataRow = \OpenSpout\Common\Entity\Row::fromValues($values);
+                $writer->addRow($dataRow);
+            }
+        }
+        
+        $writer->close();
+        return $fileName;
+    }
+
+    /**
+     * Create mock uploaded file
+     */
+    private function createMockUploadedFile(string $filePath): \CUploadedFile
+    {
+        $mockFile = $this->getMockBuilder(\CUploadedFile::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+            
+        $mockFile->method('getTempName')->willReturn($filePath);
+        $mockFile->method('getName')->willReturn(basename($filePath));
+        $mockFile->method('getError')->willReturn(UPLOAD_ERR_OK);
+        $mockFile->method('getSize')->willReturn(filesize($filePath));
+        
+        return $mockFile;
+    }
+
+    /**
+     * Helper method for older test methods
+     */
+    private function createImportFile(array $data): void
+    {
+        $fileName = $this->createExcelFileFromData($data);
+        $this->mockFile = $this->createMockUploadedFile($fileName);
+    }
+
+    /** @var \CUploadedFile */
+    private $mockFile;
 }

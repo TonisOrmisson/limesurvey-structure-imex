@@ -483,7 +483,7 @@ abstract class DatabaseTestCase extends TestCase
      */
     protected function createTestAttribute(int $questionId, string $attribute, string $value): void
     {
-        self::$db->createCommand()->insert('question_attributes', [
+        self::$db->createCommand()->insert('{{question_attributes}}', [
             'qid' => $questionId,
             'attribute' => $attribute,
             'value' => $value,
