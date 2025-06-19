@@ -47,7 +47,7 @@ abstract class AbstractExport extends CModel
     protected $sheet;
 
     /** @var string */
-    protected $sheetName = "";
+    protected $sheetName = "data";
 
     /** @var integer */
     protected $sheetsCount = 0;

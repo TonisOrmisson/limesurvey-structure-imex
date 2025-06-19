@@ -5,10 +5,13 @@ namespace tonisormisson\ls\structureimex;
 use CUploadedFile;
 use PluginBase;
 use Survey;
+use tonisormisson\ls\structureimex\exceptions\InvalidInputException;
 use tonisormisson\ls\structureimex\import\ImportRelevance;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\export\ExportRelevances;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
+use tonisormisson\ls\structureimex\export\ExportQuotas;
+use tonisormisson\ls\structureimex\import\ImportQuotas;
 
 /**
  * @author Tõnis Ormisson <tonis@andmemasin.eu>
@@ -34,12 +37,13 @@ class StructureImEx extends PluginBase
 
     const ACTION_QUESTIONS = "questions";
     const ACTION_RELEVANCES = "relevances";
+    const ACTION_QUOTAS = "quotas";
 
     /** @var string */
     public $type;    /* Register plugin on events*/
     public function init()
     {
-        \Yii::log("init", 'info', 'plugin.andmemasin.imex');
+        \Yii::log("init", 'info', 'plugin.tonisormisson.imex');
         $this->subscribe('beforeToolsMenuRender');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
@@ -165,6 +169,62 @@ class StructureImEx extends PluginBase
         return $this->renderPartial('relevances', $this->data, true);
     }
 
+    public function actionQuotas($sid)
+    {
+        \Yii::log("actionQuotas: Starting with sid=$sid", 'info', 'plugin.tonisormisson.imex');
+        
+        $this->type = self::ACTION_QUOTAS;
+        $this->beforeAction($sid);
+
+        $import = null;
+
+        if ($this->app()->request->getIsPostRequest()) {
+            \Yii::log("actionQuotas: Processing file upload", 'info', 'plugin.tonisormisson.imex');
+            
+            $import = new ImportQuotas($this);
+            $oFile = CUploadedFile::getInstanceByName("the_file");
+            
+            if (!$import->loadFile($oFile)) {
+                \Yii::log("actionQuotas: File load failed: " . $import->getError('file'), 'error', 'plugin.tonisormisson.imex');
+                $this->app()->setFlashMessage($import->getError('file'), 'error');
+            } else {
+                \Yii::log("actionQuotas: File loaded successfully, processing import", 'info', 'plugin.tonisormisson.imex');
+                
+                $result = $import->process();
+
+                $allErrors = $import->getErrors();
+                $hasErrors = false;
+                
+                \Yii::log("actionQuotas: Import completed, checking errors. Error count: " . count($allErrors), 'info', 'plugin.tonisormisson.imex');
+                
+                if (!empty($allErrors)) {
+                    foreach ($allErrors as $field => $errors) {
+                        if (!empty($errors)) {
+                            $hasErrors = true;
+                            foreach ((array)$errors as $error) {
+                                \Yii::log("actionQuotas: Import error [$field]: $error", 'error', 'plugin.tonisormisson.imex');
+                                $this->app()->setFlashMessage($error, 'error');
+                            }
+                        }
+                    }
+                }
+                
+                if (!$hasErrors) {
+                    \Yii::log("actionQuotas: Import successful. Success count: {$import->successfulModelsCount}, Failed count: {$import->failedModelsCount}", 'info', 'plugin.tonisormisson.imex');
+                    $this->app()->setFlashMessage('Survey quotas imported successfully!', 'success');
+                }
+            }
+        } else {
+            \Yii::log("actionQuotas: No file upload detected (GET request or no file)", 'info', 'plugin.tonisormisson.imex');
+        }
+
+        $this->data['import'] = $import;
+        $this->data['exportPlugin'] = $this;
+
+        \Yii::log("actionQuotas: Rendering quotas view", 'info', 'plugin.tonisormisson.imex');
+        return $this->renderPartial('quotas', $this->data, true);
+    }
+
     public function actionQuestions($sid)
     {
         $this->type = self::ACTION_QUESTIONS;
@@ -225,20 +285,32 @@ class StructureImEx extends PluginBase
 
     public function actionExport($sid)
     {
+        \Yii::log("actionExport: Starting with sid=$sid", 'info', 'plugin.tonisormisson.imex');
 
         $this->survey = Survey::model()->findByPk($sid);
         $type = $this->app()->request->getParam('type');
+        
+        \Yii::log("actionExport: Export type: $type", 'info', 'plugin.tonisormisson.imex');
 
         switch ($type) {
             case self::ACTION_RELEVANCES:
+                \Yii::log("actionExport: Creating ExportRelevances", 'info', 'plugin.tonisormisson.imex');
                 $model = new ExportRelevances($this);
                 break;
             case self::ACTION_QUESTIONS:
+                \Yii::log("actionExport: Creating ExportQuestions", 'info', 'plugin.tonisormisson.imex');
                 $model = new ExportQuestions($this);
                 break;
+            case self::ACTION_QUOTAS:
+                \Yii::log("actionExport: Creating ExportQuotas", 'info', 'plugin.tonisormisson.imex');
+                $model = new ExportQuotas($this);
+                break;
             default:
-                throw new \Exception('Unknown type: ' . $type);
+                \Yii::log("actionExport: Unknown export type: $type", 'error', 'plugin.tonisormisson.imex');
+                throw new InvalidInputException('Unknown type: ' . $type);
         }
+
+        \Yii::log("actionExport: Export model created successfully. File: " . $model->getFullFileName(), 'info', 'plugin.tonisormisson.imex');
 
         // headers
         header('Content-Type: application/excel');
@@ -249,6 +321,8 @@ class StructureImEx extends PluginBase
         header("Pragma: public");
         readfile($model->getFullFileName());
         unlink($model->getFullFileName());
+        
+        \Yii::log("actionExport: Export completed and file sent", 'info', 'plugin.tonisormisson.imex');
         App()->end();
     }
 
@@ -292,6 +366,7 @@ class StructureImEx extends PluginBase
         return [
             self::ACTION_QUESTIONS => $this->createUrl('actionQuestions'),
             self::ACTION_RELEVANCES => $this->createUrl('actionRelevances'),
+            self::ACTION_QUOTAS => $this->createUrl('actionQuotas'),
         ];
     }
 

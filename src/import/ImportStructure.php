@@ -357,23 +357,23 @@ class ImportStructure extends ImportFromFile
      */
     private function saveQuestionAttributes()
     {
-        \Yii::log("saveQuestionAttributes: Starting for question {$this->question->title} (QID: {$this->question->qid})", 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("saveQuestionAttributes: Starting for question {$this->question->title} (QID: {$this->question->qid})", 'debug', 'plugin.tonisormisson.imex');
         
         // Collect all attribute data from global and language-specific columns
         $allAttributeData = $this->collectAttributeData();
 
         if (empty($allAttributeData)) {
-            \Yii::log("saveQuestionAttributes: No attribute data found, skipping", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveQuestionAttributes: No attribute data found, skipping", 'debug', 'plugin.tonisormisson.imex');
             return;
         }
         
-        \Yii::log("saveQuestionAttributes: Collected attribute data: " . print_r($allAttributeData, true), 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("saveQuestionAttributes: Collected attribute data: " . print_r($allAttributeData, true), 'debug', 'plugin.tonisormisson.imex');
         
         // Save global attributes
         foreach ($allAttributeData['global'] as $attributeName => $value) {
 
             if (!is_null($value)) {
-                \Yii::log("saveQuestionAttributes: Processing global attribute: $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
+                \Yii::log("saveQuestionAttributes: Processing global attribute: $attributeName = $value", 'debug', 'plugin.tonisormisson.imex');
                 $this->saveGlobalQuestionAttribute($attributeName, $value);
             }
         }
@@ -381,7 +381,7 @@ class ImportStructure extends ImportFromFile
         foreach ($allAttributeData['language_specific'] as $language => $attributes) {
             foreach ($attributes as $attributeName => $value) {
                 if (!is_null($value)) {
-                    \Yii::log("saveQuestionAttributes: Processing language-specific attribute: $attributeName = $value (language: $language)", 'debug', 'plugin.andmemasin.imex');
+                    \Yii::log("saveQuestionAttributes: Processing language-specific attribute: $attributeName = $value (language: $language)", 'debug', 'plugin.tonisormisson.imex');
                     $this->saveLanguageSpecificQuestionAttributeForLanguage($attributeName, $value, $language);
                 }
             }
@@ -402,11 +402,11 @@ class ImportStructure extends ImportFromFile
             'language_specific' => []
         ];
         
-        \Yii::log("collectAttributeData: Starting collection. Row attributes keys: " . implode(', ', array_keys($this->rowAttributes)), 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("collectAttributeData: Starting collection. Row attributes keys: " . implode(', ', array_keys($this->rowAttributes)), 'debug', 'plugin.tonisormisson.imex');
         
         // Process global options column
         if (isset($this->rowAttributes[self::COLUMN_OPTIONS]) && !empty($this->rowAttributes[self::COLUMN_OPTIONS])) {
-            \Yii::log("collectAttributeData: Processing global options column", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("collectAttributeData: Processing global options column", 'debug', 'plugin.tonisormisson.imex');
             $globalAttributes = $this->parseOptionsColumn($this->rowAttributes[self::COLUMN_OPTIONS]);
             
             // Separate global attributes from language-specific ones found in the global column
@@ -426,7 +426,7 @@ class ImportStructure extends ImportFromFile
         foreach ($this->rowAttributes as $columnName => $columnValue) {
             if (preg_match('/^options-([a-z]{2,3})$/', $columnName, $matches)) {
                 $language = $matches[1];
-                \Yii::log("collectAttributeData: Found language-specific column: $columnName for language: $language, value: $columnValue", 'debug', 'plugin.andmemasin.imex');
+                \Yii::log("collectAttributeData: Found language-specific column: $columnName for language: $language, value: $columnValue", 'debug', 'plugin.tonisormisson.imex');
                 
                 if (!empty($columnValue)) {
                     $languageAttributes = $this->parseOptionsColumn($columnValue);
@@ -439,7 +439,7 @@ class ImportStructure extends ImportFromFile
             }
         }
         
-        \Yii::log("collectAttributeData: Final result: " . print_r($result, true), 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("collectAttributeData: Final result: " . print_r($result, true), 'debug', 'plugin.tonisormisson.imex');
         
         // Apply validation filtering if enabled
         if (!$this->plugin->getImportUnknownAttributes()) {
@@ -465,18 +465,18 @@ class ImportStructure extends ImportFromFile
             return [];
         }
         
-        \Yii::log("parseOptionsColumn: Raw input: " . $optionsInput, 'debug', 'plugin.andmemasin.imex');
-        \Yii::log("parseOptionsColumn: Raw input hex: " . bin2hex($optionsInput), 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("parseOptionsColumn: Raw input: " . $optionsInput, 'debug', 'plugin.tonisormisson.imex');
+        \Yii::log("parseOptionsColumn: Raw input hex: " . bin2hex($optionsInput), 'debug', 'plugin.tonisormisson.imex');
         
         // Comprehensive quote normalization for spreadsheet JSON
         $optionsInput = $this->normalizeSpreadsheetJson($optionsInput);
         
-        \Yii::log("parseOptionsColumn: After normalization: " . $optionsInput, 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("parseOptionsColumn: After normalization: " . $optionsInput, 'debug', 'plugin.tonisormisson.imex');
         
         $attributeArray = (array)json_decode($optionsInput, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            \Yii::log("parseOptionsColumn: JSON decode error: " . json_last_error_msg() . " Input: {$optionsInput}", 'warning', 'plugin.andmemasin.imex');
+            \Yii::log("parseOptionsColumn: JSON decode error: " . json_last_error_msg() . " Input: {$optionsInput}", 'warning', 'plugin.tonisormisson.imex');
             // Don't throw exception for JSON errors - just return empty array and let the import continue
             // This maintains backward compatibility with existing tests
             return [];
@@ -487,12 +487,12 @@ class ImportStructure extends ImportFromFile
         $originalInput = func_get_args()[0] ?? '';
         $trimmedInput = trim($originalInput);
         if (!empty($trimmedInput) && empty($attributeArray) && $trimmedInput !== '[]' && $trimmedInput !== '{}') {
-            \Yii::log("parseOptionsColumn: Had input content but got empty result - normalization failed: '{$originalInput}'", 'warning', 'plugin.andmemasin.imex');
+            \Yii::log("parseOptionsColumn: Had input content but got empty result - normalization failed: '{$originalInput}'", 'warning', 'plugin.tonisormisson.imex');
             // Don't throw exception - just return empty array and let the import continue
             return [];
         }
         
-        \Yii::log("parseOptionsColumn: Parsed array: " . print_r($attributeArray, true), 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("parseOptionsColumn: Parsed array: " . print_r($attributeArray, true), 'debug', 'plugin.tonisormisson.imex');
         return $attributeArray;
     }
 
@@ -514,7 +514,7 @@ class ImportStructure extends ImportFromFile
             return $input;
         }
         
-        \Yii::log("normalizeSpreadsheetJson: Input: " . $input, 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("normalizeSpreadsheetJson: Input: " . $input, 'debug', 'plugin.tonisormisson.imex');
         
         // Step 1: Fix UTF-8 curly quotes (smart quotes)
         $input = str_replace("\xE2\x80\x9C", '"', $input); // UTF-8 left double quote "
@@ -522,23 +522,23 @@ class ImportStructure extends ImportFromFile
         $input = str_replace("\xE2\x80\x98", '"', $input); // UTF-8 left single quote ' → "
         $input = str_replace("\xE2\x80\x99", '"', $input); // UTF-8 right single quote ' → "
         
-        \Yii::log("normalizeSpreadsheetJson: After UTF-8 quotes: " . $input, 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("normalizeSpreadsheetJson: After UTF-8 quotes: " . $input, 'debug', 'plugin.tonisormisson.imex');
         
         // Step 2: Handle single quotes used as JSON delimiters
         // This is tricky because we need to preserve apostrophes in values
         // Pattern: look for single quotes that act as JSON string delimiters
         if (preg_match('/^[\s]*[\{\[]/', $input) && strpos($input, "'") !== false) {
             $input = $this->convertJsonSingleQuotes($input);
-            \Yii::log("normalizeSpreadsheetJson: After single quote conversion: " . $input, 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("normalizeSpreadsheetJson: After single quote conversion: " . $input, 'debug', 'plugin.tonisormisson.imex');
         }
         
         // Step 3: Fix malformed JSON patterns (missing quotes, etc)
         $input = $this->fixMalformedJson($input);
-        \Yii::log("normalizeSpreadsheetJson: After malformed fix: " . $input, 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("normalizeSpreadsheetJson: After malformed fix: " . $input, 'debug', 'plugin.tonisormisson.imex');
         
         // Step 4: Fix truncated JSON structures
         $input = $this->fixTruncatedJson($input);
-        \Yii::log("normalizeSpreadsheetJson: After structure fix: " . $input, 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("normalizeSpreadsheetJson: After structure fix: " . $input, 'debug', 'plugin.tonisormisson.imex');
         
         return $input;
     }
@@ -587,13 +587,13 @@ class ImportStructure extends ImportFromFile
         
         // Handle object truncation: { ... but no closing }
         if (substr($trimmed, 0, 1) === '{' && substr($trimmed, -1) !== '}') {
-            \Yii::log("fixTruncatedJson: Adding missing closing brace", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("fixTruncatedJson: Adding missing closing brace", 'debug', 'plugin.tonisormisson.imex');
             $input = $trimmed . '}';
         }
         
         // Handle array truncation: [ ... but no closing ]
         if (substr($trimmed, 0, 1) === '[' && substr($trimmed, -1) !== ']') {
-            \Yii::log("fixTruncatedJson: Adding missing closing bracket", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("fixTruncatedJson: Adding missing closing bracket", 'debug', 'plugin.tonisormisson.imex');
             $input = $trimmed . ']';
         }
         
@@ -648,7 +648,7 @@ class ImportStructure extends ImportFromFile
             throw new InvalidModelTypeException();
         }
         
-        \Yii::log("saveGlobalQuestionAttribute: Saving global $attributeName = $value for question {$model->title} (QID: {$model->qid})", 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("saveGlobalQuestionAttribute: Saving global $attributeName = $value for question {$model->title} (QID: {$model->qid})", 'debug', 'plugin.tonisormisson.imex');
         
         // Global attributes are stored with language = NULL or empty string
         $attributeModel = QuestionAttribute::model()
@@ -658,7 +658,7 @@ class ImportStructure extends ImportFromFile
             ]);
             
         if (!($attributeModel instanceof QuestionAttribute)) {
-            \Yii::log("saveGlobalQuestionAttribute: Creating new global QuestionAttribute for $attributeName", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveGlobalQuestionAttribute: Creating new global QuestionAttribute for $attributeName", 'debug', 'plugin.tonisormisson.imex');
             $attributeModel = new QuestionAttribute();
             $attributeValues = [
                 'language' => '', // Global attributes use empty string for language
@@ -668,7 +668,7 @@ class ImportStructure extends ImportFromFile
             ];
             $attributeModel->setAttributes($attributeValues);
         } else {
-            \Yii::log("saveGlobalQuestionAttribute: Updating existing global QuestionAttribute for $attributeName", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveGlobalQuestionAttribute: Updating existing global QuestionAttribute for $attributeName", 'debug', 'plugin.tonisormisson.imex');
         }
         
         // Set values explicitly (in case LS validation is missing)
@@ -677,11 +677,11 @@ class ImportStructure extends ImportFromFile
 
         $attributeModel->validate();
         if (!$attributeModel->save()) {
-            \Yii::log("saveGlobalQuestionAttribute: FAILED to save global $attributeName: " . serialize($attributeModel->getErrors()), 'error', 'plugin.andmemasin.imex');
+            \Yii::log("saveGlobalQuestionAttribute: FAILED to save global $attributeName: " . serialize($attributeModel->getErrors()), 'error', 'plugin.tonisormisson.imex');
             throw new Exception("error creating global question attribute '{$attributeName}' for question {$model->title}, errors: "
                 . serialize($attributeModel->getErrors()));
         } else {
-            \Yii::log("saveGlobalQuestionAttribute: Successfully saved global $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveGlobalQuestionAttribute: Successfully saved global $attributeName = $value", 'debug', 'plugin.tonisormisson.imex');
         }
     }
 
@@ -704,7 +704,7 @@ class ImportStructure extends ImportFromFile
             throw new InvalidModelTypeException();
         }
         
-        \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Saving $attributeName = $value for language $language (QID: {$model->qid})", 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Saving $attributeName = $value for language $language (QID: {$model->qid})", 'debug', 'plugin.tonisormisson.imex');
         
         // Find existing attribute for this specific language
         $attributeModel = QuestionAttribute::model()
@@ -716,7 +716,7 @@ class ImportStructure extends ImportFromFile
 
 
         if (!($attributeModel instanceof QuestionAttribute)) {
-            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Creating new QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Creating new QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.tonisormisson.imex');
             $attributeModel = new QuestionAttribute();
             $attributeValues = [
                 'language' => $language,
@@ -726,7 +726,7 @@ class ImportStructure extends ImportFromFile
             ];
             $attributeModel->setAttributes($attributeValues);
         } else {
-            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Updating existing QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Updating existing QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.tonisormisson.imex');
         }
 
         // Set values explicitly (in case LS validation is missing)
@@ -735,11 +735,11 @@ class ImportStructure extends ImportFromFile
 
         $attributeModel->validate();
         if (!$attributeModel->save()) {
-            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: FAILED to save $attributeName ($language): " . serialize($attributeModel->getErrors()), 'error', 'plugin.andmemasin.imex');
+            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: FAILED to save $attributeName ($language): " . serialize($attributeModel->getErrors()), 'error', 'plugin.tonisormisson.imex');
             throw new Exception("error creating language-specific question attribute '{$attributeName}' for question {$model->title} ($language), errors: "
                 . serialize($attributeModel->getErrors()));
         } else {
-            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Successfully saved $attributeName = $value ($language)", 'debug', 'plugin.andmemasin.imex');
+            \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Successfully saved $attributeName = $value ($language)", 'debug', 'plugin.tonisormisson.imex');
         }
 
     }

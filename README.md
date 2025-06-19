@@ -101,20 +101,16 @@ This will:
 ### 3. Run Tests
 
 ```bash
-# Run all tests
-composer test
+vendor/bin/phpunit
+```
+Coverage. We only can run codecoverage on local env right now. There is an issue that on GH actions, in order
+to have a LimeSurvey instance for testing we duplicate the plugin code inside the LS isside vendor, so we have 
+something like ./vendor/limesurvey/limesurvey/upload/plugins/StructireImex ... while the root itself is the plugin
+source. This will create an autoload conflict for the codecoverage process that I have not been able to solve for 
+gh actions. So fir now, run codecoverage on your local env:
 
-# Run only unit tests (fast, no database)
-composer test-unit
-
-# Run only functional tests (requires database)
-composer test-functional
-
-# Run with coverage report
-composer test-coverage
-
-# Run static analysis
-composer phpstan
+```bash
+XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html tests/runtime/coverage
 ```
 
 ## CI/CD (GitHub Actions)
