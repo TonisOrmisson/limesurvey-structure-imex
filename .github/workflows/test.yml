@@ -248,7 +248,7 @@ jobs:
         # Verify .env file
         cat tests/.env
 
-    - name: Run tests
+    - name: Run tests with coverage
       env:
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
@@ -258,8 +258,18 @@ jobs:
         CI: true
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: |
-        echo "Running tests on PHP ${{ matrix.php-versions }}..."
-        vendor/bin/phpunit --verbose
+        echo "Running tests with coverage on PHP ${{ matrix.php-versions }}..."
+        # Exclude the vendor LimeSurvey copy from coverage to avoid trait collision
+        vendor/bin/phpunit --coverage-clover=coverage.xml --verbose
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: php-${{ matrix.php-versions }}
+        name: codecov-php-${{ matrix.php-versions }}
+        fail_ci_if_error: false
+        verbose: true
 
     - name: Run PHPStan code analysis
       run: vendor/bin/phpstan analyse src --level=5

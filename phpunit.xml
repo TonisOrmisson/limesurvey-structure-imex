@@ -30,6 +30,7 @@
         <exclude>
             <directory>vendor</directory>
             <directory>tests</directory>
+            <directory>vendor/limesurvey/limesurvey/upload/plugins/StructureImEx</directory>
         </exclude>
     </coverage>
 
