@@ -11,11 +11,11 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.1','8.2','8.3','8.4']
+        php-versions: ['8.1','8.2','8.3']
     
     services:
       mysql:
-        image: mysql:8.0
+        image: mariadb:stable
         env:
           MYSQL_ROOT_PASSWORD: testpassword
           MYSQL_DATABASE: limesurvey_test

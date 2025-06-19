@@ -16,7 +16,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.0.4",
+        "php": ">=8.0.4 <8.4",
         "ext-json": "*",
         "openspout/openspout": "^4.0",
         "sebastian/version": "^3.0"
@@ -32,7 +32,7 @@
 
     "extra": {
         "branch-alias": {
-            "dev-master": "1.3.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     },  "autoload": {
     "psr-4": {
@@ -52,8 +52,7 @@
     "test-coverage": "phpunit --coverage-html coverage",
     "test-setup": "bin/setup-test-db.sh",
     "install-dev": "bin/install-dev.sh",
-    "install-ci": "bin/install-ci.sh",
-    "phpstan": "phpstan analyse src"
+    "install-ci": "bin/install-ci.sh"
   },
     "repositories": [
         {
