@@ -30,7 +30,6 @@
         <exclude>
             <directory>vendor</directory>
             <directory>tests</directory>
-            <directory>vendor/limesurvey/limesurvey</directory>
         </exclude>
     </coverage>
 
