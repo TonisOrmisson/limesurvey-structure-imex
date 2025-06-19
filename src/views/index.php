@@ -1,114 +1,98 @@
 <?php
 
-use tonisormisson\ls\structureimex\import\ImportRelevance;
-
 /** @var Survey $survey */
 /** @var AdminController $this */
-/** @var string $exportUrl */
-/** @var ImportRelevance $import */
 /** @var array $navUrls */
 /** @var StructureImEx $exportPlugin */
 
 ?>
 
+<div id='structure-imex-landing'>
+    <div class="page-header">
+        <span class="h1">StructureImEx - Survey Import/Export Tool</span>
+        <p class="lead">Choose what you want to work with:</p>
+    </div>
 
-<div id='relevance-imex'>
-    <div class="page-header"><span class="h1">Import/Export survey relevance logic</span></div>
+    <!-- Persistent Warnings -->
+    <?php if($exportPlugin->getWarningManager()->hasActiveWarnings()): ?>
+    <div class="row">
+        <div class="col-md-12">
+            <?= $exportPlugin->getWarningManager()->renderWarnings(); ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
-    <?= $exportPlugin->renderPartial('_menu', ['navUrls' => $navUrls, 'exportPlugin' => $exportPlugin]) ;?>
-    <div class="tab-content">
-
-        <!-- Persistent Warnings -->
-        <?php if($exportPlugin->getWarningManager()->hasActiveWarnings()): ?>
-        <div class="row">
-            <div class="col-md-12">
-                <?= $exportPlugin->getWarningManager()->renderWarnings(); ?>
+    <div class="row justify-content-center mt-5">
+        
+        <!-- Questions & Groups Card -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 border-primary">
+                <div class="card-header bg-primary text-white text-center">
+                    <i class="ri-questionnaire-line fa-3x mb-2"></i>
+                    <h3 class="card-title mb-0">Questions & Groups</h3>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">
+                        Import and export your survey's question structure, groups, and question attributes. 
+                        This includes question types, settings, and organization.
+                    </p>
+                    <div class="alert alert-warning">
+                        <small><strong>Note:</strong> This will modify your survey structure. Cannot be used on active surveys.</small>
+                    </div>
+                    <a href="<?= $navUrls[StructureImEx::ACTION_QUESTIONS];?>" 
+                       class="btn btn-primary btn-lg mt-auto">
+                        <i class="ri-questionnaire-line me-2"></i>
+                        Work with Questions
+                    </a>
+                </div>
             </div>
         </div>
-        <?php endif; ?>
 
-        <?php if($import instanceof ImportRelevance):?>
-            <div class="row">
-                <div class="col-md-12">
-                    <?php if(!empty($import->getErrors())):?>
-                        <div id="relevance-import-results" class="alert alert-danger">
-                            <div class="h4">Errors while importing the logic file!</div>
-                            <?php foreach($import->getErrors('currentModel') as $error): ?>
-                                <div class="h4 text-danger"><?= $error; ?></div>
-                            <?php endforeach;?>
-                        </div>
-                    <?php else:?>
-
-                    <div id="relevance-import-results" class="alert alert-success">
-                        <div class="h4">Successfully updated <?= $import->successfulModelsCount?> models logic.</div>
-                        <?php if ($import->failedModelsCount > 0): ?>
-                            <div class="h4 text-danger">Failed to find <?= $import->failedModelsCount?> models.</div>
-                        <?php endif;?>
+        <!-- Logic & Conditions Card -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <i class="ri-git-branch-line fa-3x mb-2"></i>
+                    <h3 class="card-title mb-0">Logic & Conditions</h3>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">
+                        Import and export relevance equations and conditional logic. 
+                        Control when questions are shown based on previous answers.
+                    </p>
+                    <div class="alert alert-info">
+                        <small><strong>Note:</strong> This will modify question conditions and relevance logic.</small>
                     </div>
-                    <?php endif;?>
+                    <a href="<?= $navUrls[StructureImEx::ACTION_RELEVANCES];?>" 
+                       class="btn btn-success btn-lg mt-auto">
+                        <i class="ri-git-branch-line me-2"></i>
+                        Work with Logic
+                    </a>
                 </div>
             </div>
-        <?php endif;?>
+        </div>
 
-        <div class="row">
-            <?= CHtml::form(null, 'post',['enctype'=>'multipart/form-data']); ?>
-            <!-- Export relevances -->
-            <div class="col-md-12 col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title">
-                            <strong> <?php eT("Export")?></strong>
-                        </div>
-                        <div class="alert alert-info">
-                            <div class="h3">Download</div>
-                            <p>
-                                Download the existing logic or base structure of the groups and questions for editing in your preferred spreadsheet editor.
-                            </p>
-                        </div>
-                        <div class="card-body">
-                            <a role='button' class = "btn btn-success pull-right" href='<?= $exportUrl; ?>'>Export</a>
-                        </div>
+    </div>
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="alert alert-info text-center">
+                <h5><i class="ri-information-line me-2"></i>What's the difference?</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Questions & Groups:</strong> The structure and content of your survey - what questions exist, their types, and settings.
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Logic & Conditions:</strong> The behavior and flow - when questions are shown based on answers to other questions.
                     </div>
                 </div>
             </div>
-
-            <!-- Import relevances -->
-            <div class="col-md-12 col-lg-6">
-                <div class="card card-danger mt-3">
-                    <div class="card-body">
-                        <div class="card-title">
-                            <strong> <?php eT("Import")?></strong>
-                        </div>
-                        <div class="alert alert-danger">
-                            <div class="h3">NB! Conditions will be removed!</div>
-                            <p>
-                                Note that by importing the relevances via the import file, will overwrite all relevances described in the file and will also remove all current question conditions (if defined).
-                            </p>
-                        </div>
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <?php echo CHtml::fileField('the_file','',['required'=>'required','accept'=>".xlsx, .xls, .ods"]); ?>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type='submit' class = "btn btn-success pull-right" value='<?php eT("Import"); ?>' />
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-
-            <input type='hidden' name='sid' value='<?= $survey->primaryKey;?>' />
-            <?php echo CHtml::endForm() ?>
         </div>
     </div>
 
     <?= $exportPlugin->renderPartial('_footer', ['exportPlugin' => $exportPlugin]);?>
 
+</div>
+
 <!-- Include warning manager JavaScript -->
 <?= $exportPlugin->getWarningManager()->getJavaScript(); ?>
-
-</div>
