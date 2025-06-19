@@ -25,7 +25,7 @@
     <div class="row justify-content-center mt-5">
         
         <!-- Questions & Groups Card -->
-        <div class="col-md-5 mb-4">
+        <div class="col-md-4 mb-4">
             <div class="card h-100 border-primary">
                 <div class="card-header bg-primary text-white text-center">
                     <i class="ri-questionnaire-line fa-3x mb-2"></i>
@@ -49,7 +49,7 @@
         </div>
 
         <!-- Logic & Conditions Card -->
-        <div class="col-md-5 mb-4">
+        <div class="col-md-4 mb-4">
             <div class="card h-100 border-success">
                 <div class="card-header bg-success text-white text-center">
                     <i class="ri-git-branch-line fa-3x mb-2"></i>
@@ -72,18 +72,45 @@
             </div>
         </div>
 
+        <!-- Quotas & Limits Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-warning">
+                <div class="card-header bg-warning text-dark text-center">
+                    <i class="ri-pie-chart-line fa-3x mb-2"></i>
+                    <h3 class="card-title mb-0">Quotas & Limits</h3>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">
+                        Import and export survey quotas and response limits. 
+                        Control how many responses are allowed for specific answer combinations.
+                    </p>
+                    <div class="alert alert-info">
+                        <small><strong>Note:</strong> This will modify quota settings and response limits. Cannot be used on active surveys.</small>
+                    </div>
+                    <a href="<?= $navUrls[StructureImEx::ACTION_QUOTAS];?>" 
+                       class="btn btn-warning btn-lg mt-auto">
+                        <i class="ri-pie-chart-line me-2"></i>
+                        Work with Quotas
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div class="row justify-content-center mt-4">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="alert alert-info text-center">
                 <h5><i class="ri-information-line me-2"></i>What's the difference?</h5>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <strong>Questions & Groups:</strong> The structure and content of your survey - what questions exist, their types, and settings.
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <strong>Logic & Conditions:</strong> The behavior and flow - when questions are shown based on answers to other questions.
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Quotas & Limits:</strong> Response limits and restrictions - how many responses are allowed for specific answer combinations.
                     </div>
                 </div>
             </div>
