@@ -1,0 +1,51 @@
+# Codecov configuration for StructureImEx plugin
+# https://docs.codecov.io/docs/codecov-yaml
+
+coverage:
+  # Acceptable coverage threshold
+  range: "70...95"
+  round: down
+  precision: 2
+
+  # Coverage status checks
+  status:
+    project:
+      default:
+        # Project must maintain at least 80% coverage
+        target: 80%
+        threshold: 2% # Allow 2% drop
+        base: auto
+    patch:
+      default:
+        # New code must have at least 85% coverage
+        target: 85%
+        threshold: 5%
+        base: auto
+
+  # Ignore certain files/directories
+  ignore:
+    - "tests/**/*"
+    - "vendor/**/*"
+
+# Comment configuration
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+# Pull request comments
+github_checks:
+  annotations: true
+
+# Flags for different test suites
+flags:
+  unittests:
+    paths:
+      - src/
+    carryforward: false
+  functional:
+    paths:
+      - src/
+    carryforward: false
