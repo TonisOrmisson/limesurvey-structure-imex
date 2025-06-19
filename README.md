@@ -1,3 +1,12 @@
+# LimeSurvey Structure Import/Export Plugin
+
+[![Tests](https://github.com/TonisOrmisson/limesurvey-structure-imex/workflows/Tests/badge.svg)](https://github.com/TonisOrmisson/limesurvey-structure-imex/actions)
+[![codecov](https://codecov.io/gh/TonisOrmisson/limesurvey-structure-imex/branch/develop/graph/badge.svg)](https://codecov.io/gh/TonisOrmisson/limesurvey-structure-imex)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue.svg)](https://php.net)
+
+A LimeSurvey plugin for importing and exporting survey structure and relevance logic via Excel files.
+
 # Installation & set-up
 ## Install to plugins folder
 

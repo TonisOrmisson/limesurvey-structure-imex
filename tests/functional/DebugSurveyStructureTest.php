@@ -36,7 +36,7 @@ class DebugSurveyStructureTest extends DatabaseTestCase
             $testQuestion->sid = $surveyId;
             $testQuestion->gid = $firstGroup->gid;
             $testQuestion->type = 'T';
-            $testQuestion->title = 'TEST_' . uniqid();
+            $testQuestion->title = 'Q' . substr(uniqid(), 0, 8);
             $testQuestion->question_order = 999;
             $testQuestion->scale_id = 0;
             $testQuestion->parent_qid = 0;
