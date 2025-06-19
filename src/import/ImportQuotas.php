@@ -162,12 +162,13 @@ class ImportQuotas extends ImportFromFile
 
     private function findOrCreateQuotaMember(Quota $quota, Question $question, string $code): QuotaMember
     {
-        // First try to find existing quota member for this question in this quota (regardless of code)
+        // Try to find existing quota member for this specific question + answer code combination
         $criteria = new \CDbCriteria();
-        $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
+        $criteria->condition = 'quota_id = :quota_id AND qid = :qid AND code = :code';
         $criteria->params = [
             ':quota_id' => $quota->id,
-            ':qid' => $question->qid
+            ':qid' => $question->qid,
+            ':code' => $code
         ];
 
         /** @var QuotaMember|null $member */
@@ -270,29 +271,36 @@ class ImportQuotas extends ImportFromFile
     private function validateQuestionReferences(): void
     {
         $missingQuestions = [];
-        $duplicateQuestions = [];
+        $duplicateMembers = [];
         $currentQuotaName = '';
-        $quotaQuestions = []; // Track questions per quota
+        $quotaMembers = []; // Track question+answer combinations per quota
 
         foreach ($this->readerData as $row) {
             $type = $row['type'] ?? '';
             
             if ($type === 'Q') {
                 $currentQuotaName = $row['name'] ?? '';
-                $quotaQuestions[$currentQuotaName] = []; // Reset for new quota
+                $quotaMembers[$currentQuotaName] = []; // Reset for new quota
             } elseif ($type === 'QM') {
                 $questionCode = $row['name'] ?? '';
+                $answerCode = $row['value'] ?? '';
                 
                 if (empty($questionCode)) {
                     $this->addError('validation', "Quota member in quota '$currentQuotaName' has empty question code");
                     continue;
                 }
+                
+                if (empty($answerCode)) {
+                    $this->addError('validation', "Quota member in quota '$currentQuotaName' has empty answer code");
+                    continue;
+                }
 
-                // Check for duplicate question reference within same quota in import file
-                if (in_array($questionCode, $quotaQuestions[$currentQuotaName] ?? [])) {
-                    $duplicateQuestions[] = "Question '$questionCode' appears multiple times in quota '$currentQuotaName'";
+                // Check for duplicate question+answer combination within same quota in import file
+                $memberKey = "$questionCode=$answerCode";
+                if (in_array($memberKey, $quotaMembers[$currentQuotaName] ?? [])) {
+                    $duplicateMembers[] = "Quota member '$memberKey' appears multiple times in quota '$currentQuotaName'";
                 } else {
-                    $quotaQuestions[$currentQuotaName][] = $questionCode;
+                    $quotaMembers[$currentQuotaName][] = $memberKey;
                 }
 
                 // Check if question exists
@@ -307,9 +315,9 @@ class ImportQuotas extends ImportFromFile
             }
         }
 
-        // Report duplicate question errors
-        if (!empty($duplicateQuestions)) {
-            foreach ($duplicateQuestions as $error) {
+        // Report duplicate member errors
+        if (!empty($duplicateMembers)) {
+            foreach ($duplicateMembers as $error) {
                 $this->addError('validation', $error);
             }
         }
