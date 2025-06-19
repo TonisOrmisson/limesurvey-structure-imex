@@ -41,6 +41,9 @@ class ImportDebugTest extends DatabaseTestCase
 
         $import->process();
 
-
+        // Clean up
+        if (file_exists($tempFile)) {
+            unlink($tempFile);
+        }
     }
 }

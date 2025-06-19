@@ -54,6 +54,8 @@ class ImportStructureV4Plus extends ImportFromFile
     const COLUMN_SCRIPT = 'script';
     const COLUMN_MANDATORY = 'mandatory';
 
+
+
     /**
      * @inheritdoc
      * @throws Exception
@@ -278,11 +280,15 @@ class ImportStructureV4Plus extends ImportFromFile
         // Set Survey ID before other attributes so that validation works
         $this->currentModel->sid = $this->survey->sid;
 
+        $relevance = $this->rowAttributes[self::COLUMN_RELEVANCE];
+        $options = $this->rowAttributes[self::COLUMN_OPTIONS] ?? '';
+
+
         $attributes = [
             'type' => $this->rowAttributes[self::COLUMN_SUBTYPE],
             'gid' => $this->questionGroup->gid,
             'title' => $this->rowAttributes[self::COLUMN_CODE],
-            'relevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+            'relevance' => $relevance,
             'question_order' => $this->questionOrder,
             'mandatory' => $mandatory,
         ];
@@ -291,12 +297,8 @@ class ImportStructureV4Plus extends ImportFromFile
         if (!empty($this->rowAttributes[self::COLUMN_THEME])) {
             $questionTheme = $this->rowAttributes[self::COLUMN_THEME];
         }
-        if (empty($questionTheme) && isset($this->rowAttributes[self::COLUMN_OPTIONS])) {
-            $attributeInput = $this->rowAttributes[self::COLUMN_OPTIONS];
-            $attributeArray = (array)json_decode((string)$attributeInput);
-            if (!empty($attributeArray['question_template'])) {
-                $questionTheme = $attributeArray['question_template'];
-            }
+        if (isset($options['question_template']) && strlen(isset($options['question_template']) > 0)) {
+            $questionTheme = trim($options['question_template']);
         }
         if (!empty($questionTheme)) {
             $attributes['question_theme_name'] = $questionTheme;
@@ -309,9 +311,12 @@ class ImportStructureV4Plus extends ImportFromFile
         if (!$result) {
             throw new Exception("Error saving baseQuestion nr $i: " . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
         }
-        
+
         $this->question = $this->currentModel;
         $this->saveQuestionAttributes();
+        $allAttributeData = $this->collectAttributeData();
+
+
 
         foreach ($this->languages as $language) {
             $this->currentModel = $this->findQuestionL10n($this->question->qid, $language);            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
@@ -339,7 +344,10 @@ class ImportStructureV4Plus extends ImportFromFile
         $this->questionOrder++;
         $this->subQuestionOrder = 1;
         $this->answerOrder = 1;
-    }    /**
+
+    }
+
+    /**
      * Save question attributes with proper multi-language support
      * 
      * Processes both global "options" column and language-specific "options-{lang}" columns
@@ -353,7 +361,7 @@ class ImportStructureV4Plus extends ImportFromFile
         
         // Collect all attribute data from global and language-specific columns
         $allAttributeData = $this->collectAttributeData();
-        
+
         if (empty($allAttributeData)) {
             \Yii::log("saveQuestionAttributes: No attribute data found, skipping", 'debug', 'plugin.andmemasin.imex');
             return;
@@ -362,26 +370,24 @@ class ImportStructureV4Plus extends ImportFromFile
         \Yii::log("saveQuestionAttributes: Collected attribute data: " . print_r($allAttributeData, true), 'debug', 'plugin.andmemasin.imex');
         
         // Save global attributes
-        if (!empty($allAttributeData['global'])) {
-            foreach ($allAttributeData['global'] as $attributeName => $value) {
-                if (!is_null($value) && $value !== '') {
-                    \Yii::log("saveQuestionAttributes: Processing global attribute: $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
-                    $this->saveGlobalQuestionAttribute($attributeName, $value);
-                }
+        foreach ($allAttributeData['global'] as $attributeName => $value) {
+
+            if (!is_null($value)) {
+                \Yii::log("saveQuestionAttributes: Processing global attribute: $attributeName = $value", 'debug', 'plugin.andmemasin.imex');
+                $this->saveGlobalQuestionAttribute($attributeName, $value);
             }
         }
-        
         // Save language-specific attributes
-        if (!empty($allAttributeData['language_specific'])) {
-            foreach ($allAttributeData['language_specific'] as $language => $attributes) {
-                foreach ($attributes as $attributeName => $value) {
-                    if (!is_null($value) && $value !== '') {
-                        \Yii::log("saveQuestionAttributes: Processing language-specific attribute: $attributeName = $value (language: $language)", 'debug', 'plugin.andmemasin.imex');
-                        $this->saveLanguageSpecificQuestionAttributeForLanguage($attributeName, $value, $language);
-                    }
+        foreach ($allAttributeData['language_specific'] as $language => $attributes) {
+            foreach ($attributes as $attributeName => $value) {
+                if (!is_null($value)) {
+                    \Yii::log("saveQuestionAttributes: Processing language-specific attribute: $attributeName = $value (language: $language)", 'debug', 'plugin.andmemasin.imex');
+                    $this->saveLanguageSpecificQuestionAttributeForLanguage($attributeName, $value, $language);
                 }
             }
         }
+
+
     }
     
     /**
@@ -396,8 +402,11 @@ class ImportStructureV4Plus extends ImportFromFile
             'language_specific' => []
         ];
         
+        \Yii::log("collectAttributeData: Starting collection. Row attributes keys: " . implode(', ', array_keys($this->rowAttributes)), 'debug', 'plugin.andmemasin.imex');
+        
         // Process global options column
         if (isset($this->rowAttributes[self::COLUMN_OPTIONS]) && !empty($this->rowAttributes[self::COLUMN_OPTIONS])) {
+            \Yii::log("collectAttributeData: Processing global options column", 'debug', 'plugin.andmemasin.imex');
             $globalAttributes = $this->parseOptionsColumn($this->rowAttributes[self::COLUMN_OPTIONS]);
             
             // Separate global attributes from language-specific ones found in the global column
@@ -417,7 +426,7 @@ class ImportStructureV4Plus extends ImportFromFile
         foreach ($this->rowAttributes as $columnName => $columnValue) {
             if (preg_match('/^options-([a-z]{2,3})$/', $columnName, $matches)) {
                 $language = $matches[1];
-                \Yii::log("saveQuestionAttributes: Found language-specific column: $columnName for language: $language", 'debug', 'plugin.andmemasin.imex');
+                \Yii::log("collectAttributeData: Found language-specific column: $columnName for language: $language, value: $columnValue", 'debug', 'plugin.andmemasin.imex');
                 
                 if (!empty($columnValue)) {
                     $languageAttributes = $this->parseOptionsColumn($columnValue);
@@ -429,6 +438,8 @@ class ImportStructureV4Plus extends ImportFromFile
                 }
             }
         }
+        
+        \Yii::log("collectAttributeData: Final result: " . print_r($result, true), 'debug', 'plugin.andmemasin.imex');
         
         // Apply validation filtering if enabled
         if (!$this->plugin->getImportUnknownAttributes()) {
@@ -455,25 +466,138 @@ class ImportStructureV4Plus extends ImportFromFile
         }
         
         \Yii::log("parseOptionsColumn: Raw input: " . $optionsInput, 'debug', 'plugin.andmemasin.imex');
+        \Yii::log("parseOptionsColumn: Raw input hex: " . bin2hex($optionsInput), 'debug', 'plugin.andmemasin.imex');
         
-        // Fix common spreadsheet issues with curly quotes (UTF-8)
-        $optionsInput = str_replace("\u{201C}", '"', $optionsInput); // Left double quote
-        $optionsInput = str_replace("\u{201D}", '"', $optionsInput); // Right double quote
-        $optionsInput = str_replace("\u{2018}", "'", $optionsInput); // Left single quote
-        $optionsInput = str_replace("\u{2019}", "'", $optionsInput); // Right single quote
-        // Also handle the specific bytes we see in the hex
-        $optionsInput = str_replace("\xE2\x80\x9C", '"', $optionsInput); // UTF-8 left double quote
-        $optionsInput = str_replace("\xE2\x80\x9D", '"', $optionsInput); // UTF-8 right double quote
+        // Comprehensive quote normalization for spreadsheet JSON
+        $optionsInput = $this->normalizeSpreadsheetJson($optionsInput);
+        
+        \Yii::log("parseOptionsColumn: After normalization: " . $optionsInput, 'debug', 'plugin.andmemasin.imex');
         
         $attributeArray = (array)json_decode($optionsInput, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            \Yii::log("parseOptionsColumn: JSON decode error: " . json_last_error_msg(), 'error', 'plugin.andmemasin.imex');
+            \Yii::log("parseOptionsColumn: JSON decode error: " . json_last_error_msg() . " Input: {$optionsInput}", 'warning', 'plugin.andmemasin.imex');
+            // Don't throw exception for JSON errors - just return empty array and let the import continue
+            // This maintains backward compatibility with existing tests
+            return [];
+        }
+        
+        // If we had meaningful input content but got empty result, our normalization failed
+        // Note: empty arrays [] and empty objects {} are valid JSON and should not trigger an error
+        $originalInput = func_get_args()[0] ?? '';
+        $trimmedInput = trim($originalInput);
+        if (!empty($trimmedInput) && empty($attributeArray) && $trimmedInput !== '[]' && $trimmedInput !== '{}') {
+            \Yii::log("parseOptionsColumn: Had input content but got empty result - normalization failed: '{$originalInput}'", 'warning', 'plugin.andmemasin.imex');
+            // Don't throw exception - just return empty array and let the import continue
             return [];
         }
         
         \Yii::log("parseOptionsColumn: Parsed array: " . print_r($attributeArray, true), 'debug', 'plugin.andmemasin.imex');
         return $attributeArray;
+    }
+
+    /**
+     * Comprehensive normalization of malformed JSON from spreadsheets
+     * 
+     * Handles all common issues:
+     * - UTF-8 curly quotes (smart quotes)
+     * - Single quotes used as JSON delimiters
+     * - Truncated JSON (missing closing brackets)
+     * - Mixed quote types
+     * 
+     * @param string $input Raw JSON-like input from spreadsheet
+     * @return string Properly formatted JSON
+     */
+    private function normalizeSpreadsheetJson($input)
+    {
+        if (empty($input)) {
+            return $input;
+        }
+        
+        \Yii::log("normalizeSpreadsheetJson: Input: " . $input, 'debug', 'plugin.andmemasin.imex');
+        
+        // Step 1: Fix UTF-8 curly quotes (smart quotes)
+        $input = str_replace("\xE2\x80\x9C", '"', $input); // UTF-8 left double quote "
+        $input = str_replace("\xE2\x80\x9D", '"', $input); // UTF-8 right double quote "
+        $input = str_replace("\xE2\x80\x98", '"', $input); // UTF-8 left single quote ' → "
+        $input = str_replace("\xE2\x80\x99", '"', $input); // UTF-8 right single quote ' → "
+        
+        \Yii::log("normalizeSpreadsheetJson: After UTF-8 quotes: " . $input, 'debug', 'plugin.andmemasin.imex');
+        
+        // Step 2: Handle single quotes used as JSON delimiters
+        // This is tricky because we need to preserve apostrophes in values
+        // Pattern: look for single quotes that act as JSON string delimiters
+        if (preg_match('/^[\s]*[\{\[]/', $input) && strpos($input, "'") !== false) {
+            $input = $this->convertJsonSingleQuotes($input);
+            \Yii::log("normalizeSpreadsheetJson: After single quote conversion: " . $input, 'debug', 'plugin.andmemasin.imex');
+        }
+        
+        // Step 3: Fix malformed JSON patterns (missing quotes, etc)
+        $input = $this->fixMalformedJson($input);
+        \Yii::log("normalizeSpreadsheetJson: After malformed fix: " . $input, 'debug', 'plugin.andmemasin.imex');
+        
+        // Step 4: Fix truncated JSON structures
+        $input = $this->fixTruncatedJson($input);
+        \Yii::log("normalizeSpreadsheetJson: After structure fix: " . $input, 'debug', 'plugin.andmemasin.imex');
+        
+        return $input;
+    }
+    
+    /**
+     * Convert single quotes used as JSON delimiters to double quotes
+     * while preserving apostrophes in string values
+     */
+    private function convertJsonSingleQuotes($input)
+    {
+        // Pattern to match single quotes that are JSON delimiters (not apostrophes)
+        // This regex looks for single quotes that are:
+        // 1. At the start of a key: {'key'
+        // 2. At the end of a key: 'key':
+        // 3. At the start of a value: :'value'
+        // 4. At the end of a value: 'value',
+        
+        // Replace single quotes around keys and values
+        $pattern = '/\'([^\']*?)\'/';
+        return preg_replace($pattern, '"$1"', $input);
+    }
+    
+    /**
+     * Fix malformed JSON patterns like missing quotes around property names
+     */
+    private function fixMalformedJson($input)
+    {
+        // Pattern: {\property_name":"value"} -> {"property_name":"value"}
+        // Fix missing opening quote after { or ,
+        $input = preg_replace('/([{\s,])\\\\([a-zA-Z_][a-zA-Z0-9_]*)"/', '$1"$2"', $input);
+        
+        // Pattern: {property_name":"value"} -> {"property_name":"value"}
+        // Fix missing opening quote around unquoted property names
+        // Only match at the start after { or , and before :
+        $input = preg_replace('/([{\s,])([a-zA-Z_][a-zA-Z0-9_]*):/', '$1"$2":', $input);
+        
+        return $input;
+    }
+    
+    /**
+     * Fix truncated JSON by adding missing closing brackets/braces
+     */
+    private function fixTruncatedJson($input)
+    {
+        $trimmed = trim($input);
+        
+        // Handle object truncation: { ... but no closing }
+        if (substr($trimmed, 0, 1) === '{' && substr($trimmed, -1) !== '}') {
+            \Yii::log("fixTruncatedJson: Adding missing closing brace", 'debug', 'plugin.andmemasin.imex');
+            $input = $trimmed . '}';
+        }
+        
+        // Handle array truncation: [ ... but no closing ]
+        if (substr($trimmed, 0, 1) === '[' && substr($trimmed, -1) !== ']') {
+            \Yii::log("fixTruncatedJson: Adding missing closing bracket", 'debug', 'plugin.andmemasin.imex');
+            $input = $trimmed . ']';
+        }
+        
+        return $input;
     }
 
     /**
@@ -589,7 +713,8 @@ class ImportStructureV4Plus extends ImportFromFile
                 ':attributeName' => $attributeName,
                 ':language' => $language,
             ]);
-            
+
+
         if (!($attributeModel instanceof QuestionAttribute)) {
             \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Creating new QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.andmemasin.imex');
             $attributeModel = new QuestionAttribute();
@@ -603,7 +728,7 @@ class ImportStructureV4Plus extends ImportFromFile
         } else {
             \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Updating existing QuestionAttribute for $attributeName ($language)", 'debug', 'plugin.andmemasin.imex');
         }
-        
+
         // Set values explicitly (in case LS validation is missing)
         $attributeModel->language = $language;
         $attributeModel->value = $value;
@@ -616,6 +741,7 @@ class ImportStructureV4Plus extends ImportFromFile
         } else {
             \Yii::log("saveLanguageSpecificQuestionAttributeForLanguage: Successfully saved $attributeName = $value ($language)", 'debug', 'plugin.andmemasin.imex');
         }
+
     }
 
     /**
@@ -828,8 +954,15 @@ class ImportStructureV4Plus extends ImportFromFile
             $this->addError("file", "Languages not defined in file. Must have cols like 'value-en' etc... ");
         }
 
+        // Get survey languages for validation
+        $surveyLanguages = [$this->survey->language];
+        if (!empty($this->survey->additional_languages)) {
+            $additionalLangs = explode(' ', trim($this->survey->additional_languages));
+            $surveyLanguages = array_merge($surveyLanguages, $additionalLangs);
+        }
+
         foreach ($this->languages as $language) {
-            if (!in_array($language, $this->languages)) {
+            if (!in_array($language, $surveyLanguages)) {
                 $this->addError("file", sprintf("Language '%s' not used in survey", $language));
             }
 

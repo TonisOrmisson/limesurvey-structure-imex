@@ -353,8 +353,9 @@ class ComprehensiveAttributeExportTest extends DatabaseTestCase
         
         // Check attribute export based on type
         if (QuestionAttributeLanguageManager::isGlobal($attributeName)) {
-            // Global attribute should be in column 9 (global options)
-            $globalOptions = isset($questionRow[9]) ? $questionRow[9] : '';
+            // Global attribute should be in column 12 (global options) for 2-language survey
+            // Structure: type, subtype, code, value-en, help-en, script-en, value-et, help-et, script-et, relevance, mandatory, theme, options
+            $globalOptions = isset($questionRow[12]) ? $questionRow[12] : '';
             $this->assertNotEmpty($globalOptions, "Global options should not be empty for global attribute $attributeName");
             
             $optionsArray = json_decode($globalOptions, true);
@@ -362,9 +363,9 @@ class ComprehensiveAttributeExportTest extends DatabaseTestCase
             $this->assertArrayHasKey($attributeName, $optionsArray, "Global attribute $attributeName should be exported");
             $this->assertEquals($changedValue, $optionsArray[$attributeName], "Global attribute value should match");
         } else {
-            // Language-specific attribute should be in columns 10 and 11
-            $enOptions = isset($questionRow[10]) ? $questionRow[10] : '';
-            $etOptions = isset($questionRow[11]) ? $questionRow[11] : '';
+            // Language-specific attribute should be in columns 13 and 14 for 2-language survey
+            $enOptions = isset($questionRow[13]) ? $questionRow[13] : '';
+            $etOptions = isset($questionRow[14]) ? $questionRow[14] : '';
             
             // Check English options
             $this->assertNotEmpty($enOptions, "English options should not be empty for language-specific attribute $attributeName");

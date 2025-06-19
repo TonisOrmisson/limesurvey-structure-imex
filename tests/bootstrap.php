@@ -7,7 +7,6 @@
 ob_start();
 
 define('YII_DEBUG', true);
-
 // Check if we're running unit tests BEFORE loading any autoloaders
 $isUnitTestRun = false;
 if (isset($_SERVER['argv'])) {
@@ -217,25 +216,6 @@ ini_set('display_startup_errors', '1');
 ini_set('log_errors', '0'); // Disable logging to show errors directly
 error_reporting(E_ALL);
 
-
-// Set global config for LimeSurvey debug mode (will be used by DatabaseTestCase)
-$GLOBALS['LIMESURVEY_TEST_CONFIG'] = [
-    'debug' => 2,
-    'log_routes' => [
-        'custom' => [
-            'class' => 'CFileLogRoute',
-            'levels' => 'error,warning,info',
-            'logFile' => 'error.log',
-        ],
-        'plugin' => [
-            'class' => 'CFileLogRoute',
-            'levels' => 'trace, info, error, warning,debug',
-            'categories' => 'plugin.andmemasin.*',  // The category will be the name of the plugin
-            'logFile' => 'andmemasin.log',
-        ]
-
-    ]
-];
 
 // LimeSurvey classes should now be available - no mocks needed
 

@@ -18,7 +18,7 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Import the multi-language survey for testing
         $this->testSurveyId = $this->importSurveyFromFile($this->getMultiLanguageSurveyPath());
     }
@@ -83,7 +83,7 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         $this->setLanguageSpecificAttribute($questionId, 'em_validation_q_tip', 'et', 'Original Estonian tip');
         $this->setLanguageSpecificAttribute($questionId, 'other_replace_text', 'en', 'Other (English)');
         $this->setLanguageSpecificAttribute($questionId, 'other_replace_text', 'et', 'Muu (Estonian)');
-        
+
         // Export the survey
         $plugin = $this->createRealPlugin($this->testSurveyId);
         $exportClass = new \ReflectionClass('\\tonisormisson\\ls\\structureimex\\export\\ExportQuestions');
@@ -100,7 +100,7 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         
         // Delete the original question
         Question::model()->deleteByPk($questionId);
-        
+
         // Import the exported file back
         $import = new \tonisormisson\ls\structureimex\import\ImportStructureV4Plus($plugin);
         $import->fileName = $exportFile;
@@ -117,20 +117,23 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
             ':sid' => $this->testSurveyId,
             ':title' => 'RoundTrip'
         ]);
+
+
         $this->assertNotNull($reimportedQuestion, "Re-imported question should exist");
-        
+
         // Verify that all attributes were preserved correctly
         $this->assertEquals('1', $this->getQuestionAttribute($reimportedQuestion->qid, 'hidden', ''), "Global 'hidden' should be preserved");
         $this->assertEquals('1', $this->getQuestionAttribute($reimportedQuestion->qid, 'hide_tip', ''), "Global 'hide_tip' should be preserved");
-        
+
         $this->assertEquals('Original English tip', $this->getQuestionAttribute($reimportedQuestion->qid, 'em_validation_q_tip', 'en'), "English validation tip should be preserved");
         $this->assertEquals('Original Estonian tip', $this->getQuestionAttribute($reimportedQuestion->qid, 'em_validation_q_tip', 'et'), "Estonian validation tip should be preserved");
-        
+
         $this->assertEquals('Other (English)', $this->getQuestionAttribute($reimportedQuestion->qid, 'other_replace_text', 'en'), "English other text should be preserved");
         $this->assertEquals('Muu (Estonian)', $this->getQuestionAttribute($reimportedQuestion->qid, 'other_replace_text', 'et'), "Estonian other text should be preserved");
-        
         // Clean up
-        unlink($exportFile);
+        if (file_exists($exportFile)) {
+            unlink($exportFile);
+        }
     }
     
     private function getOrCreateGroup()
@@ -162,7 +165,10 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         $attribute->attribute = $attributeName;
         $attribute->value = $value;
         $attribute->language = '';
-        $attribute->save();
+        
+        if (!$attribute->save()) {
+            throw new \Exception("Failed to save global attribute $attributeName: " . print_r($attribute->getErrors(), true));
+        }
     }
     
     private function setLanguageSpecificAttribute($questionId, $attributeName, $language, $value)
@@ -177,7 +183,10 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         $attribute->attribute = $attributeName;
         $attribute->value = $value;
         $attribute->language = $language;
-        $attribute->save();
+        
+        if (!$attribute->save()) {
+            throw new \Exception("Failed to save language-specific attribute $attributeName ($language): " . print_r($attribute->getErrors(), true));
+        }
     }
     
     private function getQuestionAttribute($questionId, $attributeName, $language)

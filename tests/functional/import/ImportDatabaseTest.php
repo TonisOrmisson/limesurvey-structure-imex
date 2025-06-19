@@ -61,7 +61,9 @@ class ImportDatabaseTest extends DatabaseTestCase
         $this->assertEquals('random', $newAnswerOrder, 'CRITICAL: answer_order should be changed to random after import');
         
         // Clean up
-        unlink($csvFile);
+        if (file_exists($csvFile)) {
+            unlink($csvFile);
+        }
     }
     
     /**
@@ -155,7 +157,7 @@ class ImportDatabaseTest extends DatabaseTestCase
             // Group row first (required)
             'G,,TestGroup,"Test Group","","",1,,,',
             // Question with changed attributes - JSON format
-            'Q,L,TestQ1,"Test Question","","",1,N,"","{\"hide_tip\":\"1\",\"answer_order\":\"random\"}"'
+            'Q,L,TestQ1,"Test Question","","",1,N,"","{""hide_tip"":""1"",""answer_order"":""random""}"'
         ];
         
         return implode("\n", $csvLines);

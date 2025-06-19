@@ -40,7 +40,6 @@ abstract class DatabaseTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
         // Clear any previous test data
         $this->cleanupTestSurveys();
     }
@@ -155,7 +154,7 @@ abstract class DatabaseTestCase extends TestCase
             );
             self::$db->username = $dbConfig['username'];
             self::$db->password = $dbConfig['password'];
-            
+
             return;
         }
 
@@ -248,7 +247,7 @@ abstract class DatabaseTestCase extends TestCase
         // Create the LimeSurvey application exactly like LimeSurvey's own tests do
         // This should automatically load all dependencies when they're needed
         self::$app = \Yii::createApplication('LSYii_Application', $config);
-        
+
         // Configure error handler for clean test output
         if (self::$app->errorHandler instanceof \CErrorHandler) {
             // For tests, we want exceptions to be thrown instead of HTML pages
@@ -276,9 +275,14 @@ abstract class DatabaseTestCase extends TestCase
                 require_once $importFile;
             }
         }
-        
+
         // Restore original working directory
         chdir($originalCwd);
+        
+        // Configure logger for immediate flushing (after app is created)
+        $logger = \Yii::getLogger();
+        $logger->autoFlush = 1;      // Flush after every message
+        $logger->autoDump = true;    // Write to file immediately
         
         self::$db = self::$app->db;
 

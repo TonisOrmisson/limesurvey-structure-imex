@@ -149,7 +149,46 @@ try {
 - Stop telling me that its fine if stuff fails
 
 ## Logging
-- log category is 'plugin.andmemasin.imex'
+
+### Test Environment Logging Setup
+The functional test environment is configured for immediate log debugging:
+
+**Log Configuration:**
+- **Category**: `plugin.andmemasin.imex` (matches log route filter `plugin.andmemasin.*`)
+- **Log File**: `/var/www/html/upload/plugins/StructureImEx/tests/runtime/andmemasin.log`
+- **Auto-Flush**: Configured to flush after every single log message for immediate debugging
+- **Levels**: `trace, info, error, warning, debug`
+
+**Auto-Flush Configuration** (in `DatabaseTestCase.php`):
+```php
+// Configure logger for immediate flushing (after app is created)
+$logger = \Yii::getLogger();
+$logger->autoFlush = 1;      // Flush after every message
+$logger->autoDump = true;    // Write to file immediately
+```
+
+**Usage in Tests:**
+```php
+\Yii::log("Debug message", 'debug', 'plugin.andmemasin.imex');
+\Yii::log("Info message", 'info', 'plugin.andmemasin.imex');
+// Messages appear immediately in tests/runtime/andmemasin.log
+```
+
+**Key Properties:**
+- `autoFlush = 1`: Flushes buffer after every single log message (default: 10,000)
+- `autoDump = true`: Writes to actual file immediately when flushed (default: false)
+
+**Log Format:**
+```
+2025/06/19 06:03:49 [debug] [plugin.andmemasin.imex] Your debug message here
+2025/06/19 06:03:49 [info] [plugin.andmemasin.imex] Your info message here
+```
 
 ## Debugging Guidelines
 - NEVER ECHO in test for debuggging. let Exceptions be thrown. use phpunit internal debigging if needed
+- Use `\Yii::log()` with category `plugin.andmemasin.imex` for test debugging - logs flush immediately
+- Check `/var/www/html/upload/plugins/StructureImEx/tests/runtime/andmemasin.log` for debug output
+
+## Memories
+- the whole source code including parent LimeSurvey is fully writeable on container via mounted volume
+- never make thinks like "temporary fix" NEVER EVER!!! I killl you if i see simethin like that 

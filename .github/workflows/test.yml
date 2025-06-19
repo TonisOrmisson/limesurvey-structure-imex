@@ -8,7 +8,11 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-versions: ['8.1','8.2','8.3','8.4']
     
     services:
       mysql:
@@ -26,7 +30,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1'
+        php-version: ${{ matrix.php-versions }}
         extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
 
     - name: Cache Composer packages

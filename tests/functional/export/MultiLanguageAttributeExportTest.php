@@ -107,10 +107,10 @@ class MultiLanguageAttributeExportTest extends DatabaseTestCase
         $this->assertContains('options-en', $headerRow, "Header should contain options-en column");
         
         // The actual data is in different columns due to missing relevance/mandatory/theme columns
-        // Based on the debug output: question row has 12 columns, data is at positions 9, 10, 11
-        $globalOptions = isset($questionRow[9]) ? $questionRow[9] : '';
-        $enOptions = isset($questionRow[10]) ? $questionRow[10] : '';  // English is column 10
-        $etOptions = isset($questionRow[11]) ? $questionRow[11] : '';  // Estonian is column 11
+        // For 2-language survey: type, subtype, code, value-en, help-en, script-en, value-et, help-et, script-et, relevance, mandatory, theme, options, options-en, options-et
+        $globalOptions = isset($questionRow[12]) ? $questionRow[12] : '';
+        $enOptions = isset($questionRow[13]) ? $questionRow[13] : '';  // English is column 13
+        $etOptions = isset($questionRow[14]) ? $questionRow[14] : '';  // Estonian is column 14
         
         
         // Global options should contain the global attribute

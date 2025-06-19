@@ -160,12 +160,18 @@ class RealDatabaseImportTest extends DatabaseTestCase
      */
     private function createImportCSVWithChangedAttributes()
     {
-        // Create a simple CSV with the changed question
+        // Get the survey language
+        $survey = Survey::model()->findByPk($this->testSurveyId);
+        $lang = $survey->language ?? 'en';
+        
+        // Create a CSV with proper language-specific columns
         $csvLines = [
-            // Header
-            'type,subtype,code,value-en,help-en,script-en,relevance,mandatory,theme,options',
+            // Header with language-specific columns
+            "type,subtype,code,value-{$lang},help-{$lang},script-{$lang},relevance,mandatory,theme,options",
+            // Group first (required for questions)
+            "G,,TestGroup,\"Test Group\",\"\",\"\",1,,,",
             // Question with changed attributes
-            'Q,L,TestQImport,"Test import question","","",1,N,,"{"hide_tip":"1","answer_order":"random"}"'
+            "Q,L,TestQImport,\"Test import question\",\"\",\"\",1,N,\"\",\"{\"\"hide_tip\"\":\"\"1\"\",\"\"answer_order\"\":\"\"random\"\"}\""
         ];
         
         return implode("\n", $csvLines);
@@ -194,6 +200,21 @@ class RealDatabaseImportTest extends DatabaseTestCase
         
         // Set the file
         $import->fileName = $csvFile;
+        
+        // Prepare first to validate structure
+        $prepareResult = $import->prepare();
+        if (!$prepareResult) {
+            $errors = $import->getErrors();
+            if (!empty($errors)) {
+                $errorMessage = 'Import prepare failed with errors: ';
+                foreach ($errors as $field => $fieldErrors) {
+                    foreach ((array)$fieldErrors as $error) {
+                        $errorMessage .= "$field: $error; ";
+                    }
+                }
+                $this->fail($errorMessage);
+            }
+        }
         
         // Process the import
         $result = $import->process();

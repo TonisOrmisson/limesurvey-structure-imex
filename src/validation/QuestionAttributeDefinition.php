@@ -589,6 +589,7 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
+            'text_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']

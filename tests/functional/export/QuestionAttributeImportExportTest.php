@@ -22,7 +22,8 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
     {
         parent::setUp();
         
-        $this->testSurveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
+        // Use multi-language survey to test both global and language-specific attributes
+        $this->testSurveyId = $this->importSurveyFromFile($this->getMultiLanguageSurveyPath());
         
         // Ensure survey is inactive for import testing
         $survey = \Survey::model()->findByPk($this->testSurveyId);
@@ -132,8 +133,8 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
                 $code = $cells[2]->getValue();
                 
                 if ($type === 'Q' && $code === 'TestQ1') {
-                    if (count($cells) >= 10) {
-                        $exportedOptions = $cells[9]->getValue(); // options column
+                    if (count($cells) >= 13) {
+                        $exportedOptions = $cells[12]->getValue(); // global options column (column 12 for 2-language survey)
                     }
                     $found = true;
                     break;
@@ -148,7 +149,7 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
         
         // Check attribute export based on whether it's global or language-specific
         if (QuestionAttributeLanguageManager::isGlobal($attributeName)) {
-            // Global attribute should be in the global options column
+            // Global attribute should be in the global options column (column 12 for 2-language survey)
             $this->assertNotEmpty($exportedOptions, "Global options column should not be empty for global attribute $attributeName");
             
             $optionsArray = json_decode($exportedOptions, true);
@@ -157,13 +158,23 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
             $this->assertEquals($changedValue, $optionsArray[$attributeName], "Global attribute value should match");
         } else {
             // Language-specific attribute should be in language-specific columns
-            // For this test, we set the attribute for the survey's default language
+            // For multi-language survey, check the appropriate language column
             $survey = \Survey::model()->findByPk($this->testSurveyId);
-            $language = $survey->language;
+            $primaryLanguage = $survey->language;
             
-            // We need to find the correct language column and check it
-            // This is a simplified check - in a real scenario we'd parse all language columns
-            $this->markTestSkipped("Language-specific attribute testing requires multi-language survey setup");
+            // Find the language-specific options column for the primary language
+            // For 2-language survey: column 13 should be options-{primaryLanguage}
+            if (count($cells) >= 14) {
+                $languageOptions = $cells[13]->getValue(); // First language-specific options column
+                $this->assertNotEmpty($languageOptions, "Language-specific options should not be empty for attribute $attributeName");
+                
+                $languageArray = json_decode($languageOptions, true);
+                $this->assertIsArray($languageArray, "Language-specific options should be valid JSON");
+                $this->assertArrayHasKey($attributeName, $languageArray, "Language-specific attribute $attributeName should be exported");
+                $this->assertEquals($changedValue, $languageArray[$attributeName], "Language-specific attribute value should match");
+            } else {
+                $this->fail("Not enough columns in export for language-specific testing");
+            }
         }
     }
     
@@ -298,16 +309,71 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
     
     private function createImportCSV($questionType, $attributeName, $attributeValue)
     {
-        // Get the survey to determine the correct language
+        // Get the survey to determine the languages (this is a multi-language survey)
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $lang = $survey->language;
+        $primaryLang = $survey->language;
+        $languages = array_filter(explode(' ', trim($survey->additional_languages . ' ' . $primaryLang)));
         
-        $options = json_encode([$attributeName => $attributeValue]);
+        // Build header for multi-language survey
+        $header = ['type', 'subtype', 'code'];
+        foreach ($languages as $lang) {
+            $header[] = "value-{$lang}";
+            $header[] = "help-{$lang}";
+            $header[] = "script-{$lang}";
+        }
+        $header = array_merge($header, ['relevance', 'mandatory', 'theme', 'options']);
+        foreach ($languages as $lang) {
+            $header[] = "options-{$lang}";
+        }
+        
+        // Determine if attribute is global or language-specific
+        $isLanguageSpecific = QuestionAttributeLanguageManager::isLanguageSpecific($attributeName);
+        
+        // Create appropriate options values
+        $globalOptions = '';
+        $languageOptions = [];
+        
+        if ($isLanguageSpecific) {
+            // Language-specific attribute goes in language columns
+            foreach ($languages as $lang) {
+                $languageOptions[] = json_encode([$attributeName => $attributeValue]);
+            }
+        } else {
+            // Global attribute goes in global options column
+            $globalOptions = json_encode([$attributeName => $attributeValue]);
+            foreach ($languages as $lang) {
+                $languageOptions[] = ''; // Empty language-specific columns
+            }
+        }
+        
+        // Build group row
+        $groupRow = ['G', '', 'TestGroup'];
+        foreach ($languages as $lang) {
+            $groupRow[] = '"Test Group"';
+            $groupRow[] = '""';
+            $groupRow[] = '""';
+        }
+        $groupRow = array_merge($groupRow, ['1', '', '', '']);
+        foreach ($languages as $lang) {
+            $groupRow[] = '';
+        }
+        
+        // Build question row
+        $questionRow = ['Q', $questionType, 'TestQ1'];
+        foreach ($languages as $lang) {
+            $questionRow[] = '"Test Question"';
+            $questionRow[] = '""';
+            $questionRow[] = '""';
+        }
+        $questionRow = array_merge($questionRow, ['1', 'N', '""', $globalOptions]);
+        foreach ($languageOptions as $languageOption) {
+            $questionRow[] = $languageOption;
+        }
         
         $csvLines = [
-            "type,subtype,code,value-{$lang},help-{$lang},script-{$lang},relevance,mandatory,theme,options",
-            'G,,TestGroup,"Test Group","","",1,,,',
-            "Q,$questionType,TestQ1,\"Test Question\",\"\",\"\",1,N,\"\",$options"
+            implode(',', $header),
+            implode(',', $groupRow),
+            implode(',', $questionRow)
         ];
         
         return implode("\n", $csvLines);
