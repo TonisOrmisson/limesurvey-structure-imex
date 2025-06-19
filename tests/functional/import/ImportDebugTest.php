@@ -37,9 +37,12 @@ class ImportDebugTest extends DatabaseTestCase
         $reflection = new \ReflectionClass($import);
         $readerDataProperty = $reflection->getProperty('readerData');
         $readerDataProperty->setAccessible(true);
-        $readerDataProperty->getValue($import);
+        $readerData = $readerDataProperty->getValue($import);
 
         $import->process();
+
+        // Add assertion to make test valid
+        $this->assertNotNull($readerData, 'Reader data should be populated after prepare()');
 
         // Clean up
         if (file_exists($tempFile)) {
