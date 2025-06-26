@@ -179,11 +179,14 @@ class ImportDatabaseTest extends DatabaseTestCase
      */
     private function performImport($csvFile)
     {
-        // Create completely fresh plugin and survey instances to avoid state issues
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
+
         // Create completely new import instance
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         
         // Set fileName directly and call prepare to read the file
         $import->fileName = $csvFile;

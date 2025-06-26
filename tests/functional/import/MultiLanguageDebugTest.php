@@ -29,11 +29,15 @@ class MultiLanguageDebugTest extends DatabaseTestCase
         ]);
         
         $csvFile = $this->writeTempCSV($csvContent);
-        
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
+
+
         // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();

@@ -55,9 +55,8 @@ class QuestionAttributeImportTest extends DatabaseTestCase
         $csvFile = $this->writeTempCSV($csvContent);
 
         // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $csvFile;
 
         $prepareResult = $import->prepare();

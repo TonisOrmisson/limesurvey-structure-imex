@@ -11,11 +11,11 @@ class PersistentWarningManager
 {
     private const SESSION_KEY = 'structureimex_persistent_warnings';
     
-    private StructureImEx $plugin;
-    
-    public function __construct(StructureImEx $plugin)
+
+    public function __construct(
+        protected \CHttpSession $session
+    )
     {
-        $this->plugin = $plugin;
     }
     
     /**
@@ -79,7 +79,7 @@ class PersistentWarningManager
      */
     private function getWarnings(): array
     {
-        $session = $this->plugin->getSession();
+        $session = $this->session;
         
         return $session->get(self::SESSION_KEY, []);
     }
@@ -89,7 +89,7 @@ class PersistentWarningManager
      */
     private function saveWarnings(array $warnings): void
     {
-        $session = $this->plugin->getSession();
+        $session = $this->session;
         $session->add(self::SESSION_KEY, $warnings);
     }
     

@@ -11,6 +11,7 @@ use OpenSpout\Reader\SheetInterface;
 use Survey;
 use tonisormisson\ls\structureimex\AppTrait;
 use tonisormisson\ls\structureimex\exceptions\ImexException;
+use tonisormisson\ls\structureimex\PersistentWarningManager;
 use tonisormisson\ls\structureimex\StructureImEx;
 use Yii;
 
@@ -32,7 +33,6 @@ abstract class ImportFromFile extends CModel
 
     public array $readerData = [];
 
-    protected Survey $survey;
 
     protected string $type = "";
 
@@ -55,19 +55,15 @@ abstract class ImportFromFile extends CModel
 
     protected StructureImEx $plugin;
 
-    //FIXME validate filetypes (eg rules)
-
-    const TYPE_GROUP = 1;
-    const TYPE_QUESTION = 2;
-    const TYPE_SUBQUESTION = 3;
-
     use AppTrait;
 
 
-    function __construct(StructureImEx $plugin)
+    function __construct(
+        protected Survey $survey,
+        protected PersistentWarningManager $warningManager,
+        protected bool $importUnknownAttributes = false
+    )
     {
-        $this->plugin = $plugin;
-        $this->survey = $plugin->getSurvey();
         $this->language = $this->survey->language ?? 'en';
         if ($this->survey->sid === null) {
             throw new ImexException("survey sid is null");

@@ -290,7 +290,7 @@ class ExportImportFunctionalTest extends DatabaseTestCase
     private function importQuestionsFromFile($surveyId, $filePath)
     {
         $survey = Survey::model()->findByPk($surveyId);
-        $importer = new ImportStructure($this->plugin, $survey);
+        $importer = new ImportStructure($survey, $this->warningManager);
         $importer->fileName = $filePath;
         $importer->process();
     }

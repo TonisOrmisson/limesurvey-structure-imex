@@ -39,9 +39,13 @@ class QuotaImportTest extends DatabaseTestCase
         $importData = [
             ['type' => 'Q', 'name' => 'Test Quota', 'value' => '100', 'active' => '1', 'autoload_url' => '0', 'message-en' => 'Test message'],
         ];
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
         $fileName = $this->createExcelFileFromData($importData);
-        $import = new ImportQuotas($this->createRealPlugin($this->testSurveyId));
+        $import = new ImportQuotas($survey, $this->warningManager);
         
         // Use the same approach as other tests - set fileName directly and bypass loadFile
         $import->fileName = $fileName;
@@ -255,7 +259,12 @@ class QuotaImportTest extends DatabaseTestCase
 
     private function createImport(): ImportQuotas
     {
-        return new ImportQuotas($this->createRealPlugin($this->testSurveyId));
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
+        return new ImportQuotas($survey, $this->warningManager);
     }
 
     protected function createQuotaTestQuestion(string $code, string $question): Question

@@ -134,7 +134,7 @@ class StructureImEx extends PluginBase
 
 
         if ($this->app()->request->getIsPostRequest()) {
-            $import = new ImportRelevance($this);
+            $import = new ImportRelevance($this->survey, $this->warningManager);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if (!$import->loadFile($oFile)) {
                 $this->app()->setFlashMessage($import->getError('file'), 'error');
@@ -181,7 +181,7 @@ class StructureImEx extends PluginBase
         if ($this->app()->request->getIsPostRequest()) {
             \Yii::log("actionQuotas: Processing file upload", 'info', 'plugin.tonisormisson.imex');
             
-            $import = new ImportQuotas($this);
+            $import = new ImportQuotas($this->survey, $this->warningManager);
             $oFile = CUploadedFile::getInstanceByName("the_file");
             
             if (!$import->loadFile($oFile)) {
@@ -236,7 +236,7 @@ class StructureImEx extends PluginBase
             if ($this->survey->getIsActive()) {
                 $this->app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
-                $import = new ImportStructure($this);
+                $import = new ImportStructure($this->survey, $this->warningManager);
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
                     $this->app()->setFlashMessage($import->getError('file'), 'error');
@@ -382,7 +382,7 @@ class StructureImEx extends PluginBase
     public function getWarningManager(): PersistentWarningManager
     {
         if (!$this->warningManager) {
-            $this->warningManager = new PersistentWarningManager($this);
+            $this->warningManager = new PersistentWarningManager($this->getSession());
         }
         return $this->warningManager;
     }

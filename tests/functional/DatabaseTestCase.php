@@ -8,6 +8,8 @@ use CDbConnection;
 use Survey;
 use Question;
 use QuestionGroup;
+use tonisormisson\ls\structureimex\PersistentWarningManager;
+use Yii;
 
 /**
  * Base class for database-driven functional tests
@@ -24,6 +26,9 @@ abstract class DatabaseTestCase extends TestCase
     protected $testSurveyId;
     protected $createdSurveyIds = [];
 
+    /** @var PersistentWarningManager */
+    protected $warningManager;
+
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -35,6 +40,7 @@ abstract class DatabaseTestCase extends TestCase
             self::setupDatabase();
             self::$isDbSetup = true;
         }
+
     }
 
     protected function setUp(): void
@@ -42,6 +48,15 @@ abstract class DatabaseTestCase extends TestCase
         parent::setUp();
         // Clear any previous test data
         $this->cleanupTestSurveys();
+        $session = new \CHttpSession();
+
+        $mockWarningManager = $this->getMockBuilder(PersistentWarningManager::class)
+            ->setConstructorArgs([$session])
+            ->getMock();
+
+
+
+        $this->warningManager = $mockWarningManager;
     }
 
     protected function tearDown(): void

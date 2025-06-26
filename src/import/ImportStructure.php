@@ -442,7 +442,7 @@ class ImportStructure extends ImportFromFile
         \Yii::log("collectAttributeData: Final result: " . print_r($result, true), 'debug', 'plugin.tonisormisson.imex');
         
         // Apply validation filtering if enabled
-        if (!$this->plugin->getImportUnknownAttributes()) {
+        if (!$this->importUnknownAttributes) {
             $result['global'] = $this->filterValidAttributes($result['global']);
             
             foreach ($result['language_specific'] as $language => $attributes) {
@@ -631,7 +631,7 @@ class ImportStructure extends ImportFromFile
         // Log invalid attributes as warnings but continue with valid ones
         if (!empty($invalidAttributes)) {
             $invalidNames = array_keys($invalidAttributes);
-            $this->plugin->getWarningManager()->addWarning(
+            $this->warningManager->addWarning(
                 "Skipping invalid attributes for question '{$this->question->title}' (type '{$questionType}'): " . implode(', ', $invalidNames),
                 'warning'
             );

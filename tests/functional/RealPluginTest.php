@@ -77,7 +77,7 @@ class RealPluginTest extends DatabaseTestCase
     {
 
         // Test creating ImportStructure
-        $importer = new ImportStructure($this->plugin);
+        $importer = new ImportStructure($this->plugin->getSurvey(), $this->warningManager);
         $this->assertInstanceOf(ImportStructure::class, $importer, 'Should create ImportStructure with real plugin');
         
         // Verify importer has access to survey

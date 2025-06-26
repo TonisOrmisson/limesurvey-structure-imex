@@ -15,8 +15,7 @@ class ImportDebugTest extends DatabaseTestCase
         // Import a survey
         $blankSurveyPath = $this->getBlankSurveyPath();
         $surveyId = $this->importSurveyFromFile($blankSurveyPath);
-        
-        $plugin = $this->createRealPlugin($surveyId);
+
         $survey = \Survey::model()->findByPk($surveyId);
         
         // Create simple CSV with group first, then question
@@ -28,7 +27,7 @@ class ImportDebugTest extends DatabaseTestCase
         file_put_contents($tempFile, $csvContent);
         
         // Create import instance
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $tempFile;
         
         $import->prepare();

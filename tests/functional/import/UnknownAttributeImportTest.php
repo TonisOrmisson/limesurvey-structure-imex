@@ -30,14 +30,13 @@ class UnknownAttributeImportTest extends DatabaseTestCase
         ]);
         
         $csvFile = $this->writeTempCSV($csvContent);
-        
-        // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        
-        // Enable unknown attribute import for this test
-        $plugin->setSetting('importUnknownAttributes', true, 'Survey', $this->testSurveyId);
-        
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
+
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager, true);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -87,9 +86,8 @@ class UnknownAttributeImportTest extends DatabaseTestCase
         $csvFile = $this->writeTempCSV($csvContent);
         
         // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -136,14 +134,14 @@ class UnknownAttributeImportTest extends DatabaseTestCase
         ]);
         
         $csvFile = $this->writeTempCSV($csvContent);
-        
-        // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
+
         // Explicitly disable unknown attribute import (default behavior)
-        $plugin->setSetting('importUnknownAttributes', false, 'Survey', $this->testSurveyId);
-        
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager, false);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();

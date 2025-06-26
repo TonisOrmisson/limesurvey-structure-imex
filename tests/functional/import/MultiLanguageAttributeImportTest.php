@@ -4,6 +4,8 @@ namespace tonisormisson\ls\structureimex\Tests\Functional;
 
 use Question;
 use QuestionAttribute;
+use tonisormisson\ls\structureimex\export\ExportQuestions;
+use tonisormisson\ls\structureimex\PersistentWarningManager;
 
 /**
  * Test multi-language attribute import functionality
@@ -34,10 +36,13 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         // Create CSV with both global and language-specific options
         $csvContent = $this->createMultiLanguageCSV();
         $csvFile = $this->writeTempCSV($csvContent);
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
         // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -75,7 +80,11 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
     {
         // Create a question with mixed global and language-specific attributes
         $questionId = $this->createTestQuestion($this->testSurveyId, $this->getOrCreateGroup(), 'RoundTrip', \Question::QT_L_LIST, 'Round Trip Question');
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
         // Set up mixed attributes
         $this->setGlobalAttribute($questionId, 'hidden', '1');
         $this->setGlobalAttribute($questionId, 'hide_tip', '1');
@@ -86,7 +95,10 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
 
         // Export the survey
         $plugin = $this->createRealPlugin($this->testSurveyId);
-        $exportClass = new \ReflectionClass('\\tonisormisson\\ls\\structureimex\\export\\ExportQuestions');
+        $exportClass = new \ReflectionClass(ExportQuestions::class);
+
+
+
         $export = $exportClass->newInstanceWithoutConstructor();
         $pathProperty = $exportClass->getProperty('path');
         $pathProperty->setAccessible(true);
@@ -102,7 +114,7 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         Question::model()->deleteByPk($questionId);
 
         // Import the exported file back
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $exportFile;
         
         $prepareResult = $import->prepare();

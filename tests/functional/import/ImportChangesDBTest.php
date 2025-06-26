@@ -21,7 +21,7 @@ class ImportChangesDBTest extends DatabaseTestCase
         // Import a survey
         $blankSurveyPath = $this->getBlankSurveyPath();
         $surveyId = $this->importSurveyFromFile($blankSurveyPath);
-        
+
         // Find any question in the survey
         $question = Question::model()->find([
             'condition' => 'sid = :sid',
@@ -72,7 +72,6 @@ class ImportChangesDBTest extends DatabaseTestCase
         $blankSurveyPath = $this->getBlankSurveyPath();
         $surveyId = $this->importSurveyFromFile($blankSurveyPath);
         
-        $plugin = $this->createRealPlugin($surveyId);
         $survey = \Survey::model()->findByPk($surveyId);
         
         // Create a simple CSV content with one question change
@@ -84,7 +83,7 @@ class ImportChangesDBTest extends DatabaseTestCase
         file_put_contents($tempFile, $csvContent);
         
         // Try to import
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $import->fileName = $tempFile;
 
         $result = $import->process();

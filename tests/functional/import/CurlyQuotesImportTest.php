@@ -89,19 +89,18 @@ class CurlyQuotesImportTest extends DatabaseTestCase
         foreach ($expectedAttributes as $attributeName => $expectedValue) {
             $this->setQuestionAttribute($questionId, $attributeName, '');
         }
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
         // Create import CSV with invalid JSON quotes
         $csvContent = $this->createImportCSVWithInvalidJson('L', $invalidJson);
         $csvFile = $this->writeTempCSV($csvContent);
         
-        // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        
-        // Enable unknown attribute import for this test
-        $plugin->setSetting('importUnknownAttributes', true, 'Survey', $this->testSurveyId);
-        
+
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager, true);
         $import->fileName = $csvFile;
         
         $prepareResult = $import->prepare();
@@ -139,20 +138,20 @@ class CurlyQuotesImportTest extends DatabaseTestCase
     {
         $questionId = $this->createTestQuestion($this->testSurveyId, $this->getOrCreateGroup(), 'TestQ1', 'L', 'Test Question');
         $this->setQuestionAttribute($questionId, 'em_validation_q_tip', '');
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
         // Valid JSON with straight quotes - only language-specific attribute
         $validJson = '{"em_validation_q_tip":"Valid JSON"}';
         $csvContent = $this->createImportCSVWithInvalidJson('L', $validJson);
         $csvFile = $this->writeTempCSV($csvContent);
         
-        // Import the file
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        
-        // Enable unknown attribute import for this test
-        $plugin->setSetting('importUnknownAttributes', true, 'Survey', $this->testSurveyId);
-        
+
+
         $survey = \Survey::model()->findByPk($this->testSurveyId);
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager, true);
         $import->fileName = $csvFile;
 
         

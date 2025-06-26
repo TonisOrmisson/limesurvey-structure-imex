@@ -64,11 +64,10 @@ class SimpleImportTest extends DatabaseTestCase
         // Import a survey
         $surveyId = $this->importSurveyFromFile($this->getBlankSurveyPath());
         
-        $plugin = $this->createRealPlugin($surveyId);
         $survey = \Survey::model()->findByPk($surveyId);
         
         // Try to create the import class
-        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($plugin, $survey);
+        $import = new \tonisormisson\ls\structureimex\import\ImportStructure($survey, $this->warningManager);
         $this->assertNotNull($import, 'Should be able to create import instance');
     }
     

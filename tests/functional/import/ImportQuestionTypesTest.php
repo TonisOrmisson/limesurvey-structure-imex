@@ -477,8 +477,12 @@ class ImportQuestionTypesTest extends DatabaseTestCase
 
     private function importTestData(array $testData): void
     {
+        $survey = \Survey::model()->findByPk($this->importedSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->importedSurveyId} not found for plugin setup");
+        }
         // Create importer (plugin already has survey set)
-        $importer = new ImportStructure($this->plugin);
+        $importer = new ImportStructure($survey, $this->warningManager);
         
         // Set the test data directly in the importer bypassing file operations
         $this->setImporterTestData($importer, $testData);

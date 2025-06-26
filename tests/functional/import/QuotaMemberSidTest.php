@@ -129,8 +129,12 @@ class QuotaMemberSidTest extends DatabaseTestCase
     private function importQuotas(array $quotaData): bool
     {
         $fileName = $this->createExcelFileFromData($quotaData);
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        $import = new ImportQuotas($plugin);
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+        if (!$survey) {
+            throw new \Exception("Survey {$this->testSurveyId} not found for plugin setup");
+        }
+
+        $import = new ImportQuotas($survey, $this->warningManager);
         
         $import->fileName = $fileName;
         
