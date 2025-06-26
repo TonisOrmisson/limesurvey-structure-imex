@@ -94,7 +94,6 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         $this->setLanguageSpecificAttribute($questionId, 'other_replace_text', 'et', 'Muu (Estonian)');
 
         // Export the survey
-        $plugin = $this->createRealPlugin($this->testSurveyId);
         $exportClass = new \ReflectionClass(ExportQuestions::class);
 
 
@@ -105,7 +104,7 @@ class MultiLanguageAttributeImportTest extends DatabaseTestCase
         $pathProperty->setValue($export, \Yii::app()->runtimePath . '/');
         
         $constructor = $exportClass->getConstructor();
-        $constructor->invoke($export, $plugin);
+        $constructor->invoke($export, $survey);
         
         $exportFile = $export->getFullFileName();
         $this->assertFileExists($exportFile, "Export file should be created");

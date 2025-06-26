@@ -10,8 +10,6 @@ use OpenSpout\Writer\AbstractWriterMultiSheets;
 use OpenSpout\Writer\Common\Entity\Sheet;
 use Survey;
 use tonisormisson\ls\structureimex\AppTrait;
-use tonisormisson\ls\structureimex\StructureImEx;
-use Yii;
 
 abstract class AbstractExport extends CModel
 {
@@ -65,7 +63,6 @@ abstract class AbstractExport extends CModel
     /** @var integer main LimeSurvey application sw version number eg 3 etc */
     protected $applicationMajorVersion = 3;
 
-    protected StructureImEx $plugin;
 
     use AppTrait;
 
