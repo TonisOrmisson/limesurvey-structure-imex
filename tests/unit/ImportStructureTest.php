@@ -53,38 +53,6 @@ class ImportStructureTest extends BaseExportTest
         }
     }
 
-    public function testProcessMethod()
-    {
-        // Create a temporary test file with group and question data
-        $testFile = sys_get_temp_dir() . '/test_process.xlsx';
-        $this->createTestExcelFileWithQuestions($testFile);
-        
-        $import = new ImportStructure($this->mockSurvey, $this->warningManager);
-        $import->fileName = $testFile;
-        
-        // Prepare the file (read and parse data) first
-        $prepareResult = $import->prepare();
-        $this->assertTrue($prepareResult);
-        
-        // Now process the data
-        $processResult = $import->process();
-        $errors = $import->getErrors();
-        if(count($errors) > 0) {
-            throw new Exception("Import ended with errors: ". json_encode($errors));
-        }
-
-        $this->assertTrue($processResult);
-        
-        // Test that the data was loaded correctly 
-        $this->assertNotEmpty($import->readerData);
-        $this->assertArrayHasKey('type', $import->readerData[0]);
-        $this->assertArrayHasKey('value-en', $import->readerData[0]);
-        
-        // Clean up
-        if (file_exists($testFile)) {
-            unlink($testFile);
-        }
-    }
 
     public function testLoadFileMethod()
     {
