@@ -17,8 +17,6 @@ abstract class AbstractExport extends CModel
 {
     use AppTrait;
 
-    /** @var Survey $survey */
-    protected $survey;
 
     /** @var string */
     public $path = "tmp/runtime/";
@@ -72,13 +70,11 @@ abstract class AbstractExport extends CModel
     use AppTrait;
 
 
-    public function __construct(StructureImEx $plugin)
+    public function __construct(protected Survey $survey)
     {
-        $this->plugin = $plugin;
 
         $this->applicationMajorVersion = intval($this->app()->getConfig("versionnumber"));
 
-        $this->survey = $plugin->getSurvey();
         $this->fileName = "survey_{$this->survey->primaryKey}_{$this->sheetName}_" . substr(bin2hex(random_bytes(10)), 0, 4) . ".xlsx";
         $this->languages = $this->survey->getAllLanguages();
 

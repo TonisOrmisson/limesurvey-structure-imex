@@ -103,8 +103,8 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
         $this->setQuestionAttribute($questionId, $attributeName, $changedValue);
         
         // Export questions - need to override the path before constructor runs
-        $plugin = $this->createRealPlugin($this->testSurveyId);
-        
+        $survey = \Survey::model()->findByPk($this->testSurveyId);
+
         // Use reflection to set the path property before export happens in constructor
         $exportClass = new \ReflectionClass('\tonisormisson\ls\structureimex\export\ExportQuestions');
         $export = $exportClass->newInstanceWithoutConstructor();
@@ -114,7 +114,7 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
         
         // Now call the constructor to trigger the export with correct path
         $constructor = $exportClass->getConstructor();
-        $constructor->invoke($export, $plugin);
+        $constructor->invoke($export, $survey);
         
         // Get the filename in the test runtime directory
         $tempFile = $export->getFullFileName();

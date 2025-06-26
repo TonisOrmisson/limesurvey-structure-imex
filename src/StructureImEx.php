@@ -295,15 +295,15 @@ class StructureImEx extends PluginBase
         switch ($type) {
             case self::ACTION_RELEVANCES:
                 \Yii::log("actionExport: Creating ExportRelevances", 'info', 'plugin.tonisormisson.imex');
-                $model = new ExportRelevances($this);
+                $model = new ExportRelevances($this->survey);
                 break;
             case self::ACTION_QUESTIONS:
                 \Yii::log("actionExport: Creating ExportQuestions", 'info', 'plugin.tonisormisson.imex');
-                $model = new ExportQuestions($this);
+                $model = new ExportQuestions($this->survey);
                 break;
             case self::ACTION_QUOTAS:
                 \Yii::log("actionExport: Creating ExportQuotas", 'info', 'plugin.tonisormisson.imex');
-                $model = new ExportQuotas($this);
+                $model = new ExportQuotas($this->survey);
                 break;
             default:
                 \Yii::log("actionExport: Unknown export type: $type", 'error', 'plugin.tonisormisson.imex');
