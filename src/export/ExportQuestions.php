@@ -51,7 +51,6 @@ class ExportQuestions extends AbstractExport
         }
 
         $this->writeHelpSheet();
-        $this->writeOptionsSheet();
     }
 
 
@@ -274,80 +273,253 @@ class ExportQuestions extends AbstractExport
     private function writeHelpSheet()
     {
         $this->setSheet('helpSheet');
-        $header = ['Question type code', 'Question type'];
+        $header = ['Question Type', 'Attribute Name', 'Default Value', 'Description', 'Value Validation'];
 
         $row = Row::fromValues($header, $this->headerStyle);
         $this->writer->addRow($row);
 
         $data = [];
-        foreach ($this->qTypes() as $code => $qType) {
-            $data[] = Row::fromValues([$code, $qType['name']]);
+        
+        // Get all question types in a logical order
+        $questionTypes = $this->getAllQuestionTypes();
+        $myQuestionAttribute = new MyQuestionAttribute();
+        $possibleValues = $myQuestionAttribute->allowedValues();
+        
+        foreach ($questionTypes as $qType => $info) {
+            // Add question type header row
+            $data[] = Row::fromValues([
+                $qType . ' - ' . $info['name'],
+                '',
+                '',
+                $info['description'],
+                ''
+            ]);
+            
+            // Get attributes for this question type
+            $attributes = QuestionAttributeDefinition::getAttributesForQuestionType($qType);
+            
+            if (empty($attributes)) {
+                $data[] = Row::fromValues([
+                    '',
+                    'No specific attributes',
+                    '',
+                    'Uses only global question attributes (hidden, hide_tip)',
+                    ''
+                ]);
+            } else {
+                foreach ($attributes as $attrName => $attrDef) {
+                    $description = $this->getAttributeDescription($attrName);
+                    $validation = $possibleValues[$attrName] ?? 'Any value';
+                    
+                    $data[] = Row::fromValues([
+                        '',
+                        $attrName,
+                        $attrDef['default'] ?? '',
+                        $description,
+                        $validation
+                    ]);
+                }
+            }
+            
+            // Add empty row for separation
+            $data[] = Row::fromValues(['', '', '', '', '']);
         }
 
         $this->writer->addRows($data);
     }
 
 
-    private function writeOptionsSheet()
+
+
+    private function getAttributeDescription($attributeName)
     {
-        $this->setSheet('possibleAttributes');
-        $header = ['Attribute name', 'Attribute description', 'Value valiudation'];
-
-        $row = Row::fromValues($header, $this->headerStyle);
-        $this->writer->addRow($row);
-
-        $data = [];
-        $attributes = new MyQuestionAttribute();
-        $possibleValues = $attributes->allowedValues();
-        foreach ($attributes->attributeLabels() as $name => $label) {
-            $data[] = Row::fromValues([$name, $label, $possibleValues[$name]]);
-        }
-
-        $this->writer->addRows($data);
+        $descriptions = [
+            'hidden' => 'Hide question from respondents (0=visible, 1=hidden)',
+            'hide_tip' => 'Hide question help text (0=show, 1=hide)',
+            'readonly' => 'Make question read-only (N=editable, Y=readonly)',
+            'maximum_chars' => 'Maximum allowed characters for text input',
+            'text_input_width' => 'Width of text input field in pixels',
+            'display_rows' => 'Number of rows for textarea display',
+            'num_value_int_only' => 'Accept only integer values (0=any, 1=integers)',
+            'min_num_value_n' => 'Minimum allowed numerical value',
+            'max_num_value_n' => 'Maximum allowed numerical value',
+            'suffix' => 'Text to display after numerical input',
+            'answer_order' => 'Order of answer options (normal/random)',
+            'assessment_value' => 'Enable assessment scoring (0=off, 1=on)',
+            'scale_export' => 'Export scale values instead of codes (0=codes, 1=values)',
+            'min_answers' => 'Minimum required number of selections',
+            'max_answers' => 'Maximum allowed number of selections',
+            'em_validation_q_tip' => 'Custom validation error message (language-specific)',
+            'date_format' => 'Date display format (e.g., Y-m-d, d/m/Y)',
+            'dropdown_dates' => 'Use dropdown for date selection (0=calendar, 1=dropdown)',
+            'max_filesize' => 'Maximum file size in kilobytes',
+            'allowed_filetypes' => 'Comma-separated list of allowed file extensions',
+            'other_replace_text' => 'Custom text for "Other" option (language-specific)'
+        ];
+        
+        return $descriptions[$attributeName] ?? 'Attribute specific to question type';
     }
 
-    private function qTypes()
+
+    private function getAllQuestionTypes()
     {
         return [
-            self::QT_LONG_FREE => [
-                "name" => "Long free text",
+            // === BASIC INPUT TYPES ===
+            'T' => [
+                'name' => 'Long Free Text',
+                'common_attributes' => 'hidden, hide_tip, maximum_chars, text_input_width, display_rows',
+                'description' => 'Multi-line text input with configurable size and character limits'
             ],
-            self::QT_DROPDOWN => [
-                "name" => "Dropdown list",
+            'S' => [
+                'name' => 'Short Free Text', 
+                'common_attributes' => 'hidden, hide_tip, maximum_chars, text_input_width',
+                'description' => 'Single-line text input with character limit validation'
             ],
-            self::QT_RADIO => [
-                "name" => "Radio list",
+            'U' => [
+                'name' => 'Huge Free Text',
+                'common_attributes' => 'hidden, hide_tip, maximum_chars, display_rows',
+                'description' => 'Large text area for extensive text input'
             ],
-            self::QT_LIST_WITH_COMMENT => [
-                "name" => "Radio list with comment",
+            'N' => [
+                'name' => 'Numerical Input',
+                'common_attributes' => 'hidden, hide_tip, num_value_int_only, min_num_value_n, max_num_value_n',
+                'description' => 'Number input with range validation and integer-only option'
             ],
-            self::QT_MULTI => [
-                "name" => "Multiple choice",
+            
+            // === SINGLE CHOICE TYPES ===
+            'L' => [
+                'name' => 'List Radio',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value, scale_export',
+                'description' => 'Radio buttons with single selection from predefined options'
             ],
-            self::QT_MULTI_W_COMMENTS => [
-                "name" => "Multiple choice with comments",
+            '!' => [
+                'name' => 'List Dropdown',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Dropdown selection with single choice from list'
             ],
-            self::QT_ARRAY => [
-                "name" => "Array",
+            'O' => [
+                'name' => 'List with Comment',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value, other_replace_text',
+                'description' => 'Radio list with additional comment field for selected option'
             ],
-            self::QT_MULTIPLE_SHORT_TEXT => [
-                "name" => "Multiple short text",
+            'Y' => [
+                'name' => 'Yes/No Radio',
+                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'description' => 'Simple Yes/No radio button selection'
             ],
-            self::QT_MULTIPLE_NUMERICAL => [
-                "name" => "Multiple numerical input",
+            'G' => [
+                'name' => 'Gender',
+                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'description' => 'Gender selection with Male/Female options'
             ],
-            self::QT_NUMERICAL => [
-                "name" => "Numerical input",
+            'I' => [
+                'name' => 'Language Switch',
+                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'description' => 'Language selection for multi-language surveys'
             ],
-            self::QT_HTML => [
-                "name" => "Text display",
+            
+            // === MULTIPLE CHOICE TYPES ===
+            'M' => [
+                'name' => 'Multiple Choice',
+                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, answer_order',
+                'description' => 'Checkboxes allowing multiple selections with validation'
             ],
-            self::QT_SHORT_FREE_TEXT => [
-                "name" => "Short free text",
+            'P' => [
+                'name' => 'Multiple Choice with Comments',
+                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, answer_order',
+                'description' => 'Multiple choice with comment fields for each selected option'
             ],
-            self::QT_EQUATION => [
-                "name" => "Equation",
+            
+            // === ARRAY TYPES ===
+            'F' => [
+                'name' => 'Array (Flexible Labels)',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Matrix question with custom row/column labels'
             ],
+            'A' => [
+                'name' => 'Array 5 Point Choice',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Matrix with 5-point scale (1-5) for each row'
+            ],
+            'B' => [
+                'name' => 'Array 10 Choice Questions',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Matrix with 10-point scale (1-10) for each row'
+            ],
+            'C' => [
+                'name' => 'Array Yes/Uncertain/No',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Matrix with Yes/Uncertain/No options for each row'
+            ],
+            'E' => [
+                'name' => 'Array Increase/Same/Decrease',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Matrix with Increase/Same/Decrease options'
+            ],
+            'H' => [
+                'name' => 'Array by Column',
+                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'description' => 'Flexible array with dropdown selections in columns'
+            ],
+            '1' => [
+                'name' => 'Array Dual Scale',
+                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'description' => 'Matrix with two separate scales for each row'
+            ],
+            ':' => [
+                'name' => 'Array Numbers',
+                'common_attributes' => 'hidden, hide_tip, answer_order, num_value_int_only',
+                'description' => 'Matrix with numerical input fields'
+            ],
+            ';' => [
+                'name' => 'Array Text',
+                'common_attributes' => 'hidden, hide_tip, answer_order, maximum_chars',
+                'description' => 'Matrix with text input fields for each cell'
+            ],
+            
+            // === MULTIPLE INPUT TYPES ===
+            'Q' => [
+                'name' => 'Multiple Short Text',
+                'common_attributes' => 'hidden, hide_tip, maximum_chars, text_input_width',
+                'description' => 'Multiple text inputs based on subquestions'
+            ],
+            'K' => [
+                'name' => 'Multiple Numerical Input',
+                'common_attributes' => 'hidden, hide_tip, num_value_int_only, suffix',
+                'description' => 'Multiple numerical inputs with validation'
+            ],
+            
+            // === SPECIAL TYPES ===
+            'D' => [
+                'name' => 'Date',
+                'common_attributes' => 'hidden, hide_tip, date_format, dropdown_dates',
+                'description' => 'Date picker with configurable format and display options'
+            ],
+            'R' => [
+                'name' => 'Ranking',
+                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers',
+                'description' => 'Drag-and-drop ranking of options in order of preference'
+            ],
+            '|' => [
+                'name' => 'File Upload',
+                'common_attributes' => 'hidden, hide_tip, max_filesize, allowed_filetypes',
+                'description' => 'File upload with size and type restrictions'
+            ],
+            '*' => [
+                'name' => 'Equation',
+                'common_attributes' => 'hidden, hide_tip, readonly',
+                'description' => 'Calculate and display computed values based on other answers'
+            ],
+            'X' => [
+                'name' => 'Text Display',
+                'common_attributes' => 'hidden, hide_tip, readonly',
+                'description' => 'Display-only text or HTML content without input'
+            ],
+            '5' => [
+                'name' => '5 Point Choice',
+                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'description' => 'Single 5-point scale selection (1-5)'
+            ]
         ];
     }
 

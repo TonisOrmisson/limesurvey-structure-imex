@@ -257,6 +257,288 @@ class ExportQuotas extends AbstractExport
             $dataRow = \OpenSpout\Common\Entity\Row::fromValues($values);
             $this->writer->addRow($dataRow);
         }
+        
+        $this->writeHelpSheet();
+    }
+
+    private function writeHelpSheet()
+    {
+        $this->setSheet('helpSheet');
+        $header = ['Row Type', 'Field Name', 'Description', 'Example Values', 'Required'];
+
+        $row = \OpenSpout\Common\Entity\Row::fromValues($header, $this->headerStyle);
+        $this->writer->addRow($row);
+
+        $data = [];
+        
+        // Q (Quota) rows documentation
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Q - Quota Definition',
+            '',
+            'Defines a survey quota with participation limits',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'type',
+            'Row type identifier (always "Q" for quota rows)',
+            'Q',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'name',
+            'Unique quota name/identifier',
+            'quota_males, max_responses',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'value',
+            'Maximum number of responses allowed for this quota',
+            '100, 50, 200',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'active',
+            'Whether quota is active (1=active, 0=inactive)',
+            '1, 0',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'autoload_url',
+            'URL to redirect when quota is reached (optional)',
+            'https://example.com/quota-full',
+            'No'
+        ]);
+        
+        $survey = $this->getSurvey();
+        $languages = $this->getSurveyLanguages($survey);
+        
+        foreach ($languages as $language) {
+            $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+                '',
+                'message-' . $language,
+                'Quota exceeded message in ' . $language . ' language',
+                'Thank you, quota reached',
+                'No'
+            ]);
+            
+            $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+                '',
+                'url-' . $language,
+                'Language-specific redirect URL in ' . $language,
+                'https://example.com/' . $language . '/quota',
+                'No'
+            ]);
+            
+            $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+                '',
+                'url_description-' . $language,
+                'Description for redirect URL in ' . $language,
+                'Continue to main site',
+                'No'
+            ]);
+        }
+        
+        // Empty row for separation
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues(['', '', '', '', '']);
+        
+        // QM (Quota Member) rows documentation
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'QM - Quota Member',
+            '',
+            'Defines conditions for quota participation',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'type',
+            'Row type identifier (always "QM" for quota member rows)',
+            'QM',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'name',
+            'Question code that this member condition applies to',
+            'gender, age_group, Q001',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'value',
+            'Answer code that triggers this quota condition',
+            'M, F, A1, A2',
+            'Yes'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'active',
+            'Not used for quota members (leave empty)',
+            '',
+            'No'
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            'autoload_url',
+            'Not used for quota members (leave empty)',
+            '',
+            'No'
+        ]);
+        
+        foreach ($languages as $language) {
+            $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+                '',
+                'message-' . $language,
+                'Not used for quota members (leave empty)',
+                '',
+                'No'
+            ]);
+            
+            $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+                '',
+                'url-' . $language,
+                'Not used for quota members (leave empty)',
+                '',
+                'No'
+            ]);
+            
+            $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+                '',
+                'url_description-' . $language,
+                'Not used for quota members (leave empty)',
+                '',
+                'No'
+            ]);
+        }
+        
+        // Empty row for separation
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues(['', '', '', '', '']);
+        
+        // Usage examples
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Usage Examples',
+            '',
+            '',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Example 1: Gender Quota',
+            '',
+            'Limit survey to 100 males maximum',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Q row:',
+            'Q | quota_males | 100 | 1 | | Message... |',
+            '',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'QM row:',
+            'QM | gender | M | | | | |',
+            '',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Example 2: Age Group Quota',
+            '',
+            'Limit 18-25 age group to 50 responses',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Q row:',
+            'Q | quota_young | 50 | 1 | | Full message... |',
+            '',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'QM row:',
+            'QM | age_group | A1 | | | | |',
+            '',
+            '',
+            ''
+        ]);
+        
+        // Important notes
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues(['', '', '', '', '']);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Important Notes',
+            '',
+            '',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Quota Logic:',
+            '',
+            'LimeSurvey quotas use AND logic only',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            '',
+            'One quota member per question per quota maximum',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            '',
+            'For complex logic, use equation questions',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            'Question References:',
+            '',
+            'Question codes must exist in survey',
+            '',
+            ''
+        ]);
+        
+        $data[] = \OpenSpout\Common\Entity\Row::fromValues([
+            '',
+            '',
+            'Answer codes must match question answers',
+            '',
+            ''
+        ]);
+
+        $this->writer->addRows($data);
     }
 
     /**
