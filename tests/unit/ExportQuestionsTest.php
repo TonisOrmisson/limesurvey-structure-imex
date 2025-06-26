@@ -7,27 +7,6 @@ use tonisormisson\ls\structureimex\Tests\Unit\MockSurveyHelper;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
 use PHPUnit\Framework\MockObject\MockObject;
 
-abstract class BaseExportTest extends TestCase
-{
-    protected $mockData;
-    protected $mockSurvey;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        
-        // Set up mock data using MockSurveyHelper
-        $this->mockData = MockSurveyHelper::createMockSurveyData();
-        
-        // Create real Survey mock directly in test case (required for protected createMock method)
-        $this->mockSurvey = $this->createMock(\Survey::class);
-        $this->mockSurvey->method('getAllLanguages')->willReturn(['en', 'de']);
-        $this->mockSurvey->method('getPrimaryKey')->willReturn(123456);
-        
-        // Set global mock data for TestableExportQuestions to access
-        MockSurveyHelper::setGlobalMockData($this->mockData);
-    }
-}
 
 class ExportQuestionsTest extends BaseExportTest
 {
@@ -104,11 +83,8 @@ class TestableExportQuestions extends ExportQuestions
         // Initialize styles without file operations
         $this->initStyles();
         
-        // Now that we have a real Survey mock, we can set it directly
-        $reflection = new \ReflectionClass($this);
-        $surveyProperty = $reflection->getProperty('survey');
-        $surveyProperty->setAccessible(true);
-        $surveyProperty->setValue($this, $mockSurvey);
+        // Set the survey property directly (no reflection needed with proper mock)
+        $this->survey = $mockSurvey;
         
         // Load headers for testing
         $this->loadHeader();
@@ -128,13 +104,8 @@ class TestableExportQuestions extends ExportQuestions
     public function testWriteData()
     {
         // Override to avoid file operations but test the logic
-        try {
-            $this->writeDataLogicOnly();
-            $this->dataWritten = true;
-        } catch (Exception $e) {
-            // Expected since we don't have real survey data
-            $this->dataWritten = true;
-        }
+        $this->writeDataLogicOnly();
+        $this->dataWritten = true;
     }
     
     public function wasDataWritten()
