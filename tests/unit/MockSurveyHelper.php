@@ -56,6 +56,44 @@ class MockSurveyHelper
     }
 
     /**
+     * Create a real Survey mock object for PHPUnit testing that satisfies type constraints
+     * This should be used when you need an actual Survey instance for type-hinted parameters
+     */
+    public static function createRealSurveyMock(\PHPUnit\Framework\TestCase $testCase, int $surveyId = null): \PHPUnit\Framework\MockObject\MockObject
+    {
+        $surveyId = $surveyId ?? self::$defaultSurveyId;
+        
+        // Create a mock Survey object that satisfies the type constraint
+        $mock = $testCase->createMock(\Survey::class);
+        $mock->method('getAllLanguages')->willReturn(['en', 'de']);
+        $mock->method('getPrimaryKey')->willReturn($surveyId);
+        
+        // Set properties using reflection since we can't set them directly on mocks
+        $reflection = new \ReflectionClass($mock);
+        
+        // Try to set properties if they exist
+        if ($reflection->hasProperty('sid')) {
+            $sidProperty = $reflection->getProperty('sid');
+            $sidProperty->setAccessible(true);
+            $sidProperty->setValue($mock, $surveyId);
+        }
+        
+        if ($reflection->hasProperty('language')) {
+            $languageProperty = $reflection->getProperty('language');
+            $languageProperty->setAccessible(true);
+            $languageProperty->setValue($mock, 'en');
+        }
+        
+        if ($reflection->hasProperty('active')) {
+            $activeProperty = $reflection->getProperty('active');
+            $activeProperty->setAccessible(true);
+            $activeProperty->setValue($mock, 'N');
+        }
+        
+        return $mock;
+    }
+
+    /**
      * Create mock question groups with multilingual content
      */
     public static function createMockGroups(int $surveyId = null): array

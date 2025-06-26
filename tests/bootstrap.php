@@ -115,6 +115,7 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     Yii::import('application.core.*');
     Yii::import('application.models.*');
     Yii::import('application.models.Traits.*');
+    Yii::import('application.models.Interfaces.*');
     
     // Load our plugin's autoloader from vendor LimeSurvey installation
     // Skip this for unit tests to avoid plugin initialization
@@ -179,6 +180,7 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     Yii::import('application.core.*');
     Yii::import('application.models.*');
     Yii::import('application.models.Traits.*');
+    Yii::import('application.models.Interfaces.*');
 
 
 } else {
