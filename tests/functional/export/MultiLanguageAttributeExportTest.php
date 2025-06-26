@@ -6,6 +6,7 @@ use Question;
 use QuestionAttribute;
 use Survey;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * Test export of question attributes in multiple languages

@@ -7,6 +7,7 @@ use QuestionAttribute;
 use QuestionL10n;
 use Survey;
 use QuestionGroup;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * CRITICAL TEST: Verify that import actually changes the database

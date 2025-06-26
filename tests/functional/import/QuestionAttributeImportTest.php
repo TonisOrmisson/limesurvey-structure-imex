@@ -5,6 +5,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\import;
 use Question;
 use QuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * Test IMPORT of question attributes - global vs language-specific handling

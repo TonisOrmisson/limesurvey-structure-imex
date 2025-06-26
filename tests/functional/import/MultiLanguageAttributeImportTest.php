@@ -6,6 +6,7 @@ use Question;
 use QuestionAttribute;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
 use tonisormisson\ls\structureimex\PersistentWarningManager;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * Test multi-language attribute import functionality

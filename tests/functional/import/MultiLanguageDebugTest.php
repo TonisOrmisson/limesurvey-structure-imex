@@ -2,6 +2,8 @@
 
 namespace tonisormisson\ls\structureimex\tests\functional\import;
 
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
+
 /**
  * Debug test for multi-language attribute import
  */

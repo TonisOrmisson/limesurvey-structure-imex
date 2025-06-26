@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\Tests\Functional\import;
 
 use Question;
 use QuestionAttribute;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * CRITICAL TEST: Verify import functionality actually changes database

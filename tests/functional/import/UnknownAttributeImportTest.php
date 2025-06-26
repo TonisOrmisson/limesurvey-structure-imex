@@ -2,6 +2,8 @@
 
 namespace tonisormisson\ls\structureimex\tests\functional\import;
 
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
+
 /**
  * Test that unknown attributes (like other_replace_text3) can be imported
  * when the plugin setting allows it

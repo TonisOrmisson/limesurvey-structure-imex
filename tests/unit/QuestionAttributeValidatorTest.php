@@ -262,6 +262,224 @@ class QuestionAttributeValidatorTest extends BaseExportTest
         $this->assertTrue($this->validateAttributeValueWithMockedDefinition('test_attr', 'any_value', $attributeDefinition));
     }
 
+    public function testValidateQuestionAttributes()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $attributeDefinitions = [
+            'min_answers' => ['inputtype' => 'integer'],
+            'max_answers' => ['inputtype' => 'integer'],
+            'random_order' => ['inputtype' => 'boolean']
+        ];
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn($attributeDefinitions);
+
+        $attributes = [
+            'min_answers' => '1',
+            'max_answers' => '10',
+            'random_order' => '1'
+        ];
+
+        $this->assertTrue($mockValidator->validateQuestionAttributes('T', $attributes));
+
+        $invalidAttributes = [
+            'min_answers' => 'invalid',
+            'max_answers' => '5',
+            'random_order' => '1'
+        ];
+
+        $this->assertFalse($mockValidator->validateQuestionAttributes('T', $invalidAttributes));
+        $this->assertTrue($mockValidator->hasValidationErrors());
+    }
+
+    public function testIsAttributeAllowedForQuestionType()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $attributeDefinitions = [
+            'min_answers' => ['inputtype' => 'integer'],
+            'max_answers' => ['inputtype' => 'integer']
+        ];
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn($attributeDefinitions);
+
+        $this->assertTrue($mockValidator->isAttributeAllowedForQuestionType('T', 'min_answers'));
+        $this->assertTrue($mockValidator->isAttributeAllowedForQuestionType('T', 'max_answers'));
+        $this->assertFalse($mockValidator->isAttributeAllowedForQuestionType('T', 'unknown_attribute'));
+    }
+
+    public function testGetUnknownAttributes()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $attributeDefinitions = [
+            'min_answers' => ['inputtype' => 'integer'],
+            'max_answers' => ['inputtype' => 'integer']
+        ];
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn($attributeDefinitions);
+
+        $attributes = [
+            'min_answers' => '1',
+            'unknown_attr1' => 'value1',
+            'unknown_attr2' => 'value2'
+        ];
+
+        $unknownAttributes = $mockValidator->getUnknownAttributes('T', $attributes, true);
+        $this->assertEquals(['unknown_attr1', 'unknown_attr2'], $unknownAttributes);
+        $this->assertFalse($mockValidator->hasValidationErrors());
+
+        $mockValidator->clearValidationErrors();
+        $unknownAttributes = $mockValidator->getUnknownAttributes('T', $attributes, false);
+        $this->assertEquals(['unknown_attr1', 'unknown_attr2'], $unknownAttributes);
+        $this->assertTrue($mockValidator->hasValidationErrors());
+        $errors = $mockValidator->getValidationErrors();
+        $this->assertArrayHasKey('unknown_attr1', $errors);
+        $this->assertArrayHasKey('unknown_attr2', $errors);
+    }
+
+    public function testGetAttributeDefinition()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $attributeDefinitions = [
+            'min_answers' => ['inputtype' => 'integer', 'min' => 0, 'max' => 100],
+            'random_order' => ['inputtype' => 'boolean']
+        ];
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn($attributeDefinitions);
+
+        $definition = $mockValidator->getAttributeDefinition('T', 'min_answers');
+        $this->assertEquals(['inputtype' => 'integer', 'min' => 0, 'max' => 100], $definition);
+
+        $definition = $mockValidator->getAttributeDefinition('T', 'random_order');
+        $this->assertEquals(['inputtype' => 'boolean'], $definition);
+
+        $definition = $mockValidator->getAttributeDefinition('T', 'unknown_attribute');
+        $this->assertNull($definition);
+    }
+
+    public function testGetAttributeDefaultValue()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $attributeDefinitions = [
+            'with_default' => ['inputtype' => 'integer', 'default' => '5'],
+            'without_default' => ['inputtype' => 'boolean'],
+            'empty_default' => ['inputtype' => 'text', 'default' => '']
+        ];
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn($attributeDefinitions);
+
+        $this->assertEquals('5', $mockValidator->getAttributeDefaultValue('T', 'with_default'));
+        $this->assertEquals('', $mockValidator->getAttributeDefaultValue('T', 'without_default'));
+        $this->assertEquals('', $mockValidator->getAttributeDefaultValue('T', 'empty_default'));
+        $this->assertNull($mockValidator->getAttributeDefaultValue('T', 'unknown_attribute'));
+    }
+
+    public function testSetSurvey()
+    {
+        $newSurvey = $this->createMock(\Survey::class);
+        $newSurvey->method('getAllLanguages')->willReturn(['en', 'fr']);
+        $newSurvey->method('getPrimaryKey')->willReturn(789);
+
+        $this->validator->setSurvey($newSurvey);
+
+        $this->assertEquals($newSurvey, $this->getPrivateProperty($this->validator, 'survey'));
+    }
+
+    public function testAttributeNames()
+    {
+        $expectedAttributes = ['questionType', 'attributeName', 'value'];
+        $this->assertEquals($expectedAttributes, $this->validator->attributeNames());
+    }
+
+    public function testEdgeCasesWithEmptyAndNullValues()
+    {
+        $intDefinition = ['inputtype' => 'integer'];
+        
+        $this->assertFalse($this->validator->validateAttributeValueWithDefinition('test_attr', '', $intDefinition));
+        $this->assertFalse($this->validator->validateAttributeValueWithDefinition('test_attr', null, $intDefinition));
+        
+        $textDefinition = ['inputtype' => 'text'];
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '', $textDefinition));
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', null, $textDefinition));
+        
+        $selectDefinition = ['inputtype' => 'select', 'options' => ['opt1' => 'Option 1']];
+        $this->assertFalse($this->validator->validateAttributeValueWithDefinition('test_attr', '', $selectDefinition));
+        $this->assertFalse($this->validator->validateAttributeValueWithDefinition('test_attr', null, $selectDefinition));
+    }
+
+    public function testNumericStringValidation()
+    {
+        $intDefinition = ['inputtype' => 'integer'];
+        
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '123', $intDefinition));
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '-456', $intDefinition));
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '0', $intDefinition));
+        
+        $this->assertFalse($this->validator->validateAttributeValueWithDefinition('test_attr', '12.34', $intDefinition));
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '1.0', $intDefinition));
+        
+        $decimalDefinition = ['inputtype' => 'decimal'];
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '12.34', $decimalDefinition));
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '123', $decimalDefinition));
+        $this->assertTrue($this->validator->validateAttributeValueWithDefinition('test_attr', '-12.34', $decimalDefinition));
+    }
+
+    public function testValidationWithInvalidAttributes()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $attributeDefinitions = [
+            'min_answers' => ['inputtype' => 'integer'],
+            'random_order' => ['inputtype' => 'boolean']
+        ];
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn($attributeDefinitions);
+
+        $mockValidator->clearValidationErrors();
+        $result = $mockValidator->validateAttributeValue('T', 'invalid_attribute', 'some_value');
+        
+        $this->assertFalse($result);
+        $this->assertTrue($mockValidator->hasValidationErrors());
+        $errors = $mockValidator->getValidationErrors();
+        $this->assertArrayHasKey('invalid_attribute', $errors);
+        $this->assertContains("Attribute 'invalid_attribute' is not allowed for question type 'T'", $errors['invalid_attribute']);
+    }
+
+    private function getPrivateProperty($object, $propertyName)
+    {
+        $reflection = new \ReflectionClass($object);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+        return $property->getValue($object);
+    }
+
     private function validateAttributeValueWithMockedDefinition(string $attributeName, $value, array $attributeDefinition): bool
     {
         return $this->validator->validateAttributeValueWithDefinition($attributeName, $value, $attributeDefinition);

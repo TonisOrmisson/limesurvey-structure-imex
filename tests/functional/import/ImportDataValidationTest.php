@@ -6,6 +6,7 @@ use Survey;
 use Question;
 use QuestionGroup;
 use QuestionAttribute;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * Functional test for validating that imported survey data is correctly stored in the database

@@ -6,6 +6,7 @@ use Question;
 use QuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * COMPREHENSIVE TEST: All question types, all attributes, import AND export

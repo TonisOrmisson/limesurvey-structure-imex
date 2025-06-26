@@ -5,7 +5,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\export;
 use Question;
 use QuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
-
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 /**
  * Comprehensive test for ALL question types and ALL their attributes
  * Tests both global and language-specific attribute export functionality

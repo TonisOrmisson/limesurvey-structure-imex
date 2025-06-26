@@ -3,12 +3,10 @@
 namespace tonisormisson\ls\structureimex\tests\functional\import;
 
 use tonisormisson\ls\structureimex\import\ImportStructure;
-use tonisormisson\ls\structureimex\StructureImEx;
-use Survey;
 use Question;
-use QuestionGroup;
 use QuestionAttribute;
 use OpenSpout\Common\Entity\Row;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * Functional test for importing different question types and verifying

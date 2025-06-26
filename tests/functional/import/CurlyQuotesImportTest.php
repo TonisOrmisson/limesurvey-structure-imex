@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\import;
 
 use Question;
 use QuestionAttribute;
+use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
  * Test for handling curly quotes and other invalid JSON characters from spreadsheets
