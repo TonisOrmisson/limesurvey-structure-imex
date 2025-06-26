@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex\Tests\Functional;
+namespace tonisormisson\ls\structureimex\Tests\Functional\import;
 
 use Question;
 use QuestionAttribute;

@@ -73,8 +73,6 @@ class QuestionAttributeLanguageManager
         'show_grand_total',
         'repeat_headings',
         'use_dropdown',
-        'dropdown_prepostfix',
-        'dropdown_separators',
 
         // Statistics
         'public_statistics',
@@ -155,10 +153,6 @@ class QuestionAttributeLanguageManager
         'dropdown_prepostfix',
         'answer_width',
         'label_input_columns',
-        'show_comment',
-        'show_title',
-        'scale_export',
-        'category_separator',
     ];
 
     /**

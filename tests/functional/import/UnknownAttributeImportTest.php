@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex\Tests\Functional;
+namespace tonisormisson\ls\structureimex\tests\functional\import;
 
 /**
  * Test that unknown attributes (like other_replace_text3) can be imported

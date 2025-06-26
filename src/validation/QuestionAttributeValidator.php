@@ -98,6 +98,19 @@ class QuestionAttributeValidator extends CModel
         }
 
         $attributeDefinition = $allowedAttributes[$attributeName];
+        return $this->validateAttributeValueWithDefinition($attributeName, $value, $attributeDefinition);
+    }
+
+    /**
+     * Validate attribute value with a provided definition (useful for testing)
+     *
+     * @param string $attributeName The attribute name
+     * @param mixed $value The value to validate
+     * @param array $attributeDefinition The attribute definition
+     * @return bool True if valid, false otherwise
+     */
+    public function validateAttributeValueWithDefinition($attributeName, $value, $attributeDefinition)
+    {
         $isValid = true;
 
         // Validate based on input type
@@ -135,7 +148,7 @@ class QuestionAttributeValidator extends CModel
 
             case 'select':
             case 'buttongroup':
-                if (isset($attributeDefinition['options']) && is_array($attributeDefinition['options'])) {
+                if (isset($attributeDefinition['options']) && is_array($attributeDefinition['options']) && !empty($attributeDefinition['options'])) {
                     $validOptions = array_keys($attributeDefinition['options']);
                     if (!in_array($value, $validOptions)) {
                         $this->addValidationError($attributeName, "Attribute '{$attributeName}' must be one of: " . implode(', ', $validOptions));
@@ -240,7 +253,7 @@ class QuestionAttributeValidator extends CModel
     /**
      * Clear all validation errors
      */
-    private function clearValidationErrors()
+    public function clearValidationErrors()
     {
         $this->validationErrors = [];
     }

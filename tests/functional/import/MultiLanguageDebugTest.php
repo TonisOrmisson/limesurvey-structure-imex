@@ -1,6 +1,6 @@
 <?php
 
-namespace tonisormisson\ls\structureimex\Tests\Functional;
+namespace tonisormisson\ls\structureimex\tests\functional\import;
 
 /**
  * Debug test for multi-language attribute import
