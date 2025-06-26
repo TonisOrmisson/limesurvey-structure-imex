@@ -207,7 +207,7 @@ class ExportImportFunctionalTest extends DatabaseTestCase
         
         // Now call the constructor to trigger the export with correct path
         $constructor = $exportClass->getConstructor();
-        $constructor->invoke($exporter, $this->plugin);
+        $constructor->invoke($exporter, $survey);
         
         // Get the generated file path
         $exportPath = $exporter->getFullFileName();
