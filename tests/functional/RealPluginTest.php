@@ -62,7 +62,7 @@ class RealPluginTest extends DatabaseTestCase
     {
 
         // Test creating ExportQuestions
-        $exporter = new ExportQuestions($this->plugin);
+        $exporter = new ExportQuestions($this->plugin->getSurvey());
         $this->assertInstanceOf(ExportQuestions::class, $exporter, 'Should create ExportQuestions with real plugin');
         
         // Verify exporter has access to survey
