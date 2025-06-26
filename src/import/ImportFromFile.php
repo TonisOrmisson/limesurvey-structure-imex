@@ -33,6 +33,8 @@ abstract class ImportFromFile extends CModel
 
     public array $readerData = [];
 
+    /** @var ?string $customTempDir Custom temp directory for testing, bypasses Yii app dependency */
+    private ?string $customTempDir = null;
 
     protected string $type = "";
 
@@ -71,6 +73,14 @@ abstract class ImportFromFile extends CModel
     }
 
     /**
+     * Set custom temp directory for testing (bypasses Yii app dependency)
+     */
+    public function setCustomTempDir(string $tempDir): void
+    {
+        $this->customTempDir = $tempDir;
+    }
+
+    /**
      * @return bool
      */
     public function loadFile(CUploadedFile $file)
@@ -80,7 +90,7 @@ abstract class ImportFromFile extends CModel
         if ($this->hasErrors()) {
             return false;
         }
-        $sPath = $this->app()->getConfig('tempdir');
+        $sPath = $this->customTempDir ?? $this->app()->getConfig('tempdir');
         $sFileName = $sPath . '/' . $this->file->name;
         $this->fileName = $sFileName;
 

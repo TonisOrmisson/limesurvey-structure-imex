@@ -184,7 +184,6 @@ class ImportStructure extends ImportFromFile
      */
     private function saveGroups()
     {
-        $i = 1;
         $this->questionGroup = null;
         $this->setGroupsInitialOrder();
 
@@ -203,7 +202,7 @@ class ImportStructure extends ImportFromFile
         // relevance not in LS model rules!!
         $this->currentModel->grelevance = $this->rowAttributes[self::COLUMN_RELEVANCE];
 
-        // LS misses the validaion rule for 'sid' !!! so we must define this separately
+        // LS misses the validation rule for 'sid' !!! so we must define this separately
         $this->currentModel->sid = $this->survey->sid;
 
         $result = $this->currentModel->save();

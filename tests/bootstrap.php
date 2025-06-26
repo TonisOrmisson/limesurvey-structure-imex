@@ -68,7 +68,10 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
             Yii::import('application.models.*');
             Yii::import('application.models.Traits.*');
             Yii::import('application.models.Interfaces.*');
-            
+            Yii::import('application.helpers.*');
+            Yii::import('application.helpers.common_helper', true);
+
+
             echo "Loaded essential LimeSurvey classes for unit tests\n";
         }
     } else {
@@ -116,7 +119,10 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     Yii::import('application.models.*');
     Yii::import('application.models.Traits.*');
     Yii::import('application.models.Interfaces.*');
-    
+    Yii::import('application.helpers.*');
+    Yii::import('application.helpers.common_helper', true);
+
+
     // Load our plugin's autoloader from vendor LimeSurvey installation
     // Skip this for unit tests to avoid plugin initialization
     $isUnitTestRun = false;
@@ -176,11 +182,13 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
     Yii::setPathOfAlias('application', APPPATH);
     Yii::setPathOfAlias('webroot', LIMESURVEY_PATH);
     
-    // Import essential LimeSurvey classes (matching LimeSurvey's internal.php)
+    // Import essential LimeSurvey classes and load common helpers
     Yii::import('application.core.*');
     Yii::import('application.models.*');
     Yii::import('application.models.Traits.*');
     Yii::import('application.models.Interfaces.*');
+
+    Yii::import('application.helpers.common_helper', true);
 
 
 } else {

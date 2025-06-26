@@ -38,10 +38,10 @@ class ExportQuotasTest extends BaseExportTest
         $this->assertContains('active', $headers);
         $this->assertContains('autoload_url', $headers);
         
-        // Should contain language-specific columns (even if language code is empty in test)
-        $this->assertContains('message-', $headers);
-        $this->assertContains('url-', $headers);
-        $this->assertContains('url_description-', $headers);
+        // Should contain language-specific columns for 'en' language
+        $this->assertContains('message-en', $headers);
+        $this->assertContains('url-en', $headers);
+        $this->assertContains('url_description-en', $headers);
     }
 
     public function testWriteDataExecution()
