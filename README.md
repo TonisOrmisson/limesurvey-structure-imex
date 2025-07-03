@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue.svg)](https://php.net)
 
-A LimeSurvey plugin for importing and exporting survey structure and relevance logic via Excel files.
+A LimeSurvey plugin for importing and exporting survey structure, relevance logic, and quotas via Excel files.
 
 # Installation & set-up
 ## Install to plugins folder
@@ -29,6 +29,14 @@ Activate plugin from Plugin manager
 Find the plugin Import / Export buttons from survey tools menu.
 
 ![menu](images/menu.png)
+
+## Features
+
+- **Questions**: Export/import survey question structure with attributes
+- **Relevance Logic**: Export/import conditional logic and expressions  
+- **Quotas**: Export/import survey quotas and participation limits
+
+See [docs/](docs/) folder for detailed format specifications.
 
 # Updating
 
