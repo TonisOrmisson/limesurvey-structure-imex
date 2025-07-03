@@ -134,7 +134,7 @@ class StructureImEx extends PluginBase
 
 
         if ($this->app()->request->getIsPostRequest()) {
-            $import = new ImportRelevance($this->survey, $this->warningManager);
+            $import = new ImportRelevance($this->survey, $this->getWarningManager());
             $oFile = CUploadedFile::getInstanceByName("the_file");
             if (!$import->loadFile($oFile)) {
                 $this->app()->setFlashMessage($import->getError('file'), 'error');
@@ -181,7 +181,7 @@ class StructureImEx extends PluginBase
         if ($this->app()->request->getIsPostRequest()) {
             \Yii::log("actionQuotas: Processing file upload", 'info', 'plugin.tonisormisson.imex');
             
-            $import = new ImportQuotas($this->survey, $this->warningManager);
+            $import = new ImportQuotas($this->survey, $this->getWarningManager());
             $oFile = CUploadedFile::getInstanceByName("the_file");
             
             if (!$import->loadFile($oFile)) {
