@@ -195,8 +195,8 @@ class ImportStructure extends ImportFromFile
         }
 
         $this->currentModel->setAttributes([
-            'sid' => (int)$this->survey->sid,
-            'grelevance' => $this->rowAttributes[self::COLUMN_RELEVANCE],
+            'sid' => $this->survey->sid,
+            'grelevance' => strval($this->rowAttributes[self::COLUMN_RELEVANCE]),
             'group_order' => $this->groupOrder,
         ]);
         // relevance not in LS model rules!!
@@ -228,8 +228,8 @@ class ImportStructure extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'gid' => (int)$this->questionGroup->gid,
-                'group_name' => $this->rowAttributes[$languageValueKey],
-                'description' => $this->rowAttributes[$languageHelpKey] ?? '',
+                'group_name' => strval($this->rowAttributes[$languageValueKey]),
+                'description' => strval($this->rowAttributes[$languageHelpKey]) ?? '',
                 'language' => $language,
             ]);
 
@@ -328,9 +328,9 @@ class ImportStructure extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'qid' => $this->question->qid,
-                'question' => $this->rowAttributes[$languageValueKey],
-                'help' => $this->rowAttributes[$languageHelpKey],
-                'script' => $this->rowAttributes[$languageScriptKey] ?? '',
+                'question' => strval($this->rowAttributes[$languageValueKey]),
+                'help' => strval($this->rowAttributes[$languageHelpKey]),
+                'script' => strval($this->rowAttributes[$languageScriptKey]) ?? '',
                 'language' => $language,
             ]);
 
@@ -790,8 +790,8 @@ class ImportStructure extends ImportFromFile
 
             $this->currentModel->setAttributes([
                 'qid' => $this->subQuestion->qid,
-                'question' => $this->rowAttributes[$languageValueKey],
-                'help' => $this->rowAttributes[$languageHelpKey],
+                'question' => strval($this->rowAttributes[$languageValueKey]),
+                'help' => strval($this->rowAttributes[$languageHelpKey]),
                 'language' => $language,
             ]);
 
@@ -883,7 +883,7 @@ class ImportStructure extends ImportFromFile
     {
         $this->currentModel->setAttributes([
             'sid' => $this->survey->primaryKey,
-            'code' => $this->rowAttributes[self::COLUMN_CODE],
+            'code' => strval($this->rowAttributes[self::COLUMN_CODE]),
             'qid' => $this->question->qid,
             'sortorder' => $this->answerOrder,
         ]);
@@ -899,8 +899,9 @@ class ImportStructure extends ImportFromFile
     private function saveAnswerL10n(string $language): bool
     {
         $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+        $value = $this->rowAttributes[$languageValueKey] ?? '';
         $this->currentModel->setAttributes([
-            'answer' => $this->rowAttributes[$languageValueKey],
+            'answer' => strval($value),
         ]);
         return $this->currentModel->save();
     }
