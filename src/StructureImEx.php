@@ -236,7 +236,9 @@ class StructureImEx extends PluginBase
             if ($this->survey->getIsActive()) {
                 $this->app()->setFlashMessage("You cannot import survey structure on an activated survey!", 'error');
             } else {
+                $clearSurveyContents = (bool) $this->app()->request->getPost('clear_survey_contents', false);
                 $import = new ImportStructure($this->survey, $this->getWarningManager());
+                $import->setClearSurveyContents($clearSurveyContents);
                 $oFile = CUploadedFile::getInstanceByName("the_file");
                 if (!$import->loadFile($oFile)) {
                     $this->app()->setFlashMessage($import->getError('file'), 'error');

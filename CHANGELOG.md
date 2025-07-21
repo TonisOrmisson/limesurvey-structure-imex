@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- Clear survey contents checkbox for question imports - allows clearing all existing groups, questions, and quotas before importing
+
 ## [2.0.0] - 2025-06-19
 
 ### Added

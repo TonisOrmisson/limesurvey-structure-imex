@@ -17,6 +17,54 @@ class ImportStructureTest extends BaseExportTest
         $this->assertInstanceOf(ImportStructure::class, $import);
     }
 
+    public function testSetClearSurveyContents()
+    {
+        $import = new ImportStructure($this->mockSurvey, $this->warningManager);
+        
+        // Test default value (should be false)
+        $this->assertFalse($this->getClearSurveyContents($import));
+        
+        // Test setting to true
+        $import->setClearSurveyContents(true);
+        $this->assertTrue($this->getClearSurveyContents($import));
+        
+        // Test setting to false
+        $import->setClearSurveyContents(false);
+        $this->assertFalse($this->getClearSurveyContents($import));
+    }
+
+    public function testClearSurveyContentsWithActiveSurvey()
+    {
+        // Mock an active survey
+        $activeSurvey = $this->createMock(\Survey::class);
+        $activeSurvey->method('getIsActive')->willReturn(true);
+        $activeSurvey->sid = 123;
+        
+        $import = new ImportStructure($activeSurvey, $this->warningManager);
+        $import->setClearSurveyContents(true);
+        
+        // Should throw exception when trying to clear active survey
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("Cannot clear contents of an active survey");
+        
+        // Use reflection to call private method
+        $reflection = new \ReflectionClass($import);
+        $method = $reflection->getMethod('clearAllSurveyContents');
+        $method->setAccessible(true);
+        $method->invoke($import);
+    }
+
+    /**
+     * Helper method to get private clearSurveyContents property using reflection
+     */
+    private function getClearSurveyContents(ImportStructure $import): bool
+    {
+        $reflection = new \ReflectionClass($import);
+        $property = $reflection->getProperty('clearSurveyContents');
+        $property->setAccessible(true);
+        return $property->getValue($import);
+    }
+
     public function testAttributeNames()
     {
         $import = new ImportStructure($this->mockSurvey, $this->warningManager);

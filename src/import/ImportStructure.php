@@ -43,6 +43,10 @@ class ImportStructure extends ImportFromFile
 
     /** @var string[] */
     private array $languages = [];
+    
+    /** @var bool $clearSurveyContents Whether to clear all survey contents before import */
+    private bool $clearSurveyContents = false;
+    
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
     const COLUMN_CODE = 'code';
@@ -54,7 +58,55 @@ class ImportStructure extends ImportFromFile
     const COLUMN_SCRIPT = 'script';
     const COLUMN_MANDATORY = 'mandatory';
 
+    /**
+     * Set whether to clear all survey contents before import
+     */
+    public function setClearSurveyContents(bool $clearSurveyContents): void
+    {
+        $this->clearSurveyContents = $clearSurveyContents;
+    }
 
+    /**
+     * Clear all survey contents (groups, questions, quotas) using LimeSurvey internal methods
+     * @throws \Exception if survey is active
+     */
+    private function clearAllSurveyContents(): void
+    {
+        // Double check that survey is not active (should be prevented earlier too)
+        if ($this->survey->getIsActive()) {
+            throw new \Exception("Cannot clear contents of an active survey");
+        }
+        
+        // Clear quotas first (to avoid potential dependencies)
+        $this->clearQuotas();
+        
+        // Clear question groups (this will automatically clear all questions within them)
+        $this->clearQuestionGroups();
+        
+        \Yii::log("Cleared all survey contents for survey {$this->survey->sid}", 'info', 'plugin.andmemasin.imex');
+    }
+
+    /**
+     * Clear all quotas for the survey using LimeSurvey internal methods
+     */
+    private function clearQuotas(): void
+    {
+        $quotas = \Quota::model()->findAllByAttributes(['sid' => $this->survey->sid]);
+        foreach ($quotas as $quota) {
+            $quota->delete();
+        }
+    }
+
+    /**
+     * Clear all question groups (and their questions) using LimeSurvey internal methods
+     */
+    private function clearQuestionGroups(): void
+    {
+        $groups = QuestionGroup::model()->findAllByAttributes(['sid' => $this->survey->sid]);
+        foreach ($groups as $group) {
+            QuestionGroup::deleteWithDependency($group->gid, $this->survey->sid);
+        }
+    }
 
     /**
      * @inheritdoc
@@ -86,6 +138,9 @@ class ImportStructure extends ImportFromFile
 
     protected function beforeProcess(): void
     {
+        if ($this->clearSurveyContents) {
+            $this->clearAllSurveyContents();
+        }
         $this->validateStructure();
     }
 

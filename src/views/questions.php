@@ -75,10 +75,29 @@ use tonisormisson\ls\structureimex\StructureImEx;
                         </div>
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <?php echo CHtml::fileField('the_file','',['required'=>'required','accept'=>".xlsx, .xls, .ods"]); ?>
                                 </div>
-                                <div class="col-md-6">
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <?php echo CHtml::checkBox('clear_survey_contents', false, [
+                                                'id' => 'clear_survey_contents',
+                                                'data-toggle' => 'confirmation',
+                                                'data-popout' => 'true'
+                                            ]); ?>
+                                            Clear all survey contents before import (groups, questions, quotas)
+                                        </label>
+                                        <p class="help-block text-danger">
+                                            <small>⚠️ This will permanently delete ALL existing groups, questions, and quotas before importing. Use with caution!</small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
                                     <input type='submit' class = "btn btn-success pull-right" value='<?php eT("Import"); ?>' />
                                 </div>
                             </div>
