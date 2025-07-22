@@ -35,20 +35,29 @@ class ImportStructureTest extends BaseExportTest
 
     public function testClearSurveyContentsWithActiveSurvey()
     {
-        // Mock an active survey
+        // Create a mock survey with proper sid property 
         $activeSurvey = $this->createMock(\Survey::class);
         $activeSurvey->method('getIsActive')->willReturn(true);
-        $activeSurvey->sid = 123;
         
-        $import = new ImportStructure($activeSurvey, $this->warningManager);
+        // Use a stub to avoid ImportFromFile constructor validation
+        $import = $this->getMockBuilder(ImportStructure::class)
+            ->setConstructorArgs([$this->mockSurvey, $this->warningManager])
+            ->onlyMethods([])
+            ->getMock();
+            
         $import->setClearSurveyContents(true);
         
-        // Should throw exception when trying to clear active survey
+        // Should throw exception when trying to clear active survey  
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage("Cannot clear contents of an active survey");
         
-        // Use reflection to call private method
+        // Set the survey property using reflection to use our active mock
         $reflection = new \ReflectionClass($import);
+        $surveyProperty = $reflection->getProperty('survey');
+        $surveyProperty->setAccessible(true);
+        $surveyProperty->setValue($import, $activeSurvey);
+        
+        // Use reflection to call private method
         $method = $reflection->getMethod('clearAllSurveyContents');
         $method->setAccessible(true);
         $method->invoke($import);

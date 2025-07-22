@@ -164,7 +164,7 @@ class ExportQuestions extends AbstractExport
 
         // Add global attributes to the "options" column
         if (!empty($globalAttributes)) {
-            $row[] = json_encode($globalAttributes);
+            $row[] = json_encode($globalAttributes, JSON_UNESCAPED_UNICODE);
         } else {
             $row[] = '';
         }
@@ -172,7 +172,7 @@ class ExportQuestions extends AbstractExport
         // Add language-specific attributes to "options-{language}" columns
         foreach ($this->languages as $language) {
             if (!empty($languageSpecificAttributes[$language])) {
-                $row[] = json_encode($languageSpecificAttributes[$language]);
+                $row[] = json_encode($languageSpecificAttributes[$language], JSON_UNESCAPED_UNICODE);
             } else {
                 $row[] = '';
             }
@@ -210,11 +210,13 @@ class ExportQuestions extends AbstractExport
     {
         $this->addQuestion($question);
 
-
-        $answers = $this->answersInMainLanguage($question);
-        if (!empty($answers)) {
-            foreach ($answers as $answer) {
-                $this->processAnswer($answer);
+        // Skip answers for M (Multiple Choice) questions - they use subquestions instead
+        if ($question->type !== Question::QT_M_MULTIPLE_CHOICE) {
+            $answers = $this->answersInMainLanguage($question);
+            if (!empty($answers)) {
+                foreach ($answers as $answer) {
+                    $this->processAnswer($answer);
+                }
             }
         }
 
@@ -354,7 +356,10 @@ class ExportQuestions extends AbstractExport
             'dropdown_dates' => 'Use dropdown for date selection (0=calendar, 1=dropdown)',
             'max_filesize' => 'Maximum file size in kilobytes',
             'allowed_filetypes' => 'Comma-separated list of allowed file extensions',
-            'other_replace_text' => 'Custom text for "Other" option (language-specific)'
+            'other_replace_text' => 'Custom text for "Other" option (language-specific)',
+            'array_filter' => 'Reference question to filter available subquestions',
+            'array_filter_style' => 'Array filter style (0=disabled, 1=hidden)',
+            'array_filter_exclude' => 'Exclude subquestions from filtering'
         ];
         
         return $descriptions[$attributeName] ?? 'Attribute specific to question type';
@@ -421,8 +426,8 @@ class ExportQuestions extends AbstractExport
             // === MULTIPLE CHOICE TYPES ===
             'M' => [
                 'name' => 'Multiple Choice',
-                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, answer_order',
-                'description' => 'Checkboxes allowing multiple selections with validation'
+                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, answer_order, array_filter, array_filter_style, array_filter_exclude',
+                'description' => 'Checkboxes allowing multiple selections with validation and array filtering'
             ],
             'P' => [
                 'name' => 'Multiple Choice with Comments',

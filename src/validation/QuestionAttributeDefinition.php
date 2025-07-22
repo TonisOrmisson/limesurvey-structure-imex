@@ -475,6 +475,22 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'text',
                 'category' => 'Logic'
+            ],
+            'array_filter' => [
+                'default' => '',
+                'type' => 'text',
+                'category' => 'Logic'
+            ],
+            'array_filter_style' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1'],
+                'category' => 'Logic'
+            ],
+            'array_filter_exclude' => [
+                'default' => '',
+                'type' => 'text',
+                'category' => 'Logic'
             ]
         ],
         
