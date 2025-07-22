@@ -230,8 +230,8 @@ class ExportImportFunctionalTest extends DatabaseTestCase
                     if (count($cells) > 0 && $cells[2]->getValue() === $question->title) {
                         // This should be the question row
                         // Check if the options column contains attributes
-                        // The global options are in column 9 (0-indexed)
-                        $optionsValue = isset($cells[9]) ? $cells[9]->getValue() : '';
+                        // The global options are in column 10 (0-indexed) - after same_script column was added
+                        $optionsValue = isset($cells[10]) ? $cells[10]->getValue() : '';
                         
                         $this->assertNotNull($optionsValue, 'Question should have attributes exported');
                         $this->assertNotEmpty($optionsValue, 'Attributes should not be empty');
