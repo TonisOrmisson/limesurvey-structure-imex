@@ -157,10 +157,10 @@ For each attribute:
 ### S Attributes (18 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| samechoiceheight | ❌ not_reviewed | | |
-| samelistheight | ❌ not_reviewed | | |
-| save_as_default | ❌ not_reviewed | | |
-| scale_export | ❌ not_reviewed | | |
+| samechoiceheight | ✅ tested | R (Ranking) | switch 0/1, same height for answer options |
+| samelistheight | ✅ tested | R (Ranking) | switch 0/1, same height for choice/rank lists |
+| save_as_default | 🔍 researched | N/A | Not found in LimeSurvey core as question attribute |
+| scale_export | ✅ tested | N, Many types | singleselect 0-3, SPSS export scale type |
 | show_progress | ❌ not_reviewed | | |
 | show_search | ❌ not_reviewed | | |
 | show_tick | ❌ not_reviewed | | |
@@ -170,15 +170,15 @@ For each attribute:
 | slider_default | ❌ not_reviewed | | |
 | slider_default_set | ❌ not_reviewed | | |
 | slider_handle | ❌ not_reviewed | | |
-| slider_layout | ❌ not_reviewed | | |
-| slider_max | ❌ not_reviewed | | |
-| slider_middlestart | ❌ not_reviewed | | |
-| slider_min | ❌ not_reviewed | | |
-| slider_orientation | ❌ not_reviewed | | |
+| slider_layout | ✅ tested | K (Multiple numeric) | switch 0/1, use slider layout |
+| slider_max | ✅ tested | K (Multiple numeric) | text, slider maximum value |
+| slider_middlestart | 🔍 researched | K (Multiple numeric) | switch 0/1, start at middle position |
+| slider_min | ✅ tested | K (Multiple numeric) | text, slider minimum value |
+| slider_orientation | ✅ tested | K (Multiple numeric) | singleselect 0/1, horizontal/vertical |
 | slider_reset | ❌ not_reviewed | | |
 | slider_reversed | ❌ not_reviewed | | |
 | slider_separator | ❌ not_reviewed | | |
-| slider_showminmax | ❌ not_reviewed | | |
+| slider_showminmax | ✅ tested | K (Multiple numeric) | switch 0/1, display min/max values |
 | statistics_graphtype | ❌ not_reviewed | | |
 | statistics_showgraph | ❌ not_reviewed | | |
 | statistics_showmap | ❌ not_reviewed | | |
@@ -216,14 +216,14 @@ For each attribute:
 
 ## Progress Summary
 - **Total Attributes**: 119
-- **Not Reviewed**: 55 (46%)  
-- **Researched**: 21 (18%) - Legacy attributes not in current LimeSurvey core
+- **Not Reviewed**: 49 (41%)  
+- **Researched**: 22 (18%) - Legacy attributes not in current LimeSurvey core
 - **Implemented**: 0 (0%)
-- **Tested**: 60 (50%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + P attributes (6) + Q-R attributes (5) + repeat_headings (1) + existing (6) - 1 duplicate
+- **Tested**: 68 (57%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + P attributes (6) + Q-R attributes (5) + S attributes (8) + repeat_headings (1) + existing (6) - 1 duplicate
 
 ## Current Focus
-**Phase 6 Complete**: Q-R attributes (6 total) implemented and tested
-**Next Phase**: Research and implement S attributes (18 total)
+**Phase 7 Complete**: S attributes (8 total) implemented and tested - including slider attributes for Multiple numeric and display attributes for Ranking
+**Next Phase**: Research and implement T attributes (22 total)
 
 Priority order:
 1. Common display attributes (cssclass, hidden, hide_tip)
