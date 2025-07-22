@@ -134,15 +134,15 @@ For each attribute:
 | other_position_code | ✅ tested | L, !, M, O, P | text, code for 'After specific answer' |
 | other_replace_text | ✅ tested | L, !, M, O, P | text, custom 'Other' option label |
 
-### P Attributes (7 total)
+### P Attributes (6 total) 
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| page_break | ❌ not_reviewed | | |
-| parent_order | ❌ not_reviewed | | |
-| placeholder | ❌ not_reviewed | | |
-| prefix | ❌ not_reviewed | | |
-| printable_help | ❌ not_reviewed | | |
-| public_statistics | ❌ not_reviewed | | |
+| page_break | ✅ tested | Most types (28) | switch 0/1, printable view page break ✅ already implemented |
+| parent_order | ✅ tested | : (Array Numbers) | text, get subquestion order from previous question |
+| placeholder | ✅ tested | N, ; | text, placeholder answer field text |
+| prefix | ✅ tested | S, Q, N, K, !, 1 | text, add prefix to answer field |
+| printable_help | ✅ tested | 21 types | text, condition help for printable survey |
+| public_statistics | ✅ tested | 20 types | switch 0/1, show in public statistics page |
 
 ### Q-R Attributes (6 total)
 | Attribute | Status | Question Types | Notes |
@@ -216,14 +216,14 @@ For each attribute:
 
 ## Progress Summary
 - **Total Attributes**: 119
-- **Not Reviewed**: 67 (56%)  
+- **Not Reviewed**: 61 (51%)  
 - **Researched**: 20 (17%) - Legacy attributes not in current LimeSurvey core
 - **Implemented**: 0 (0%)
-- **Tested**: 50 (42%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + repeat_headings (1) + existing (6)
+- **Tested**: 56 (47%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + P attributes (6) + repeat_headings (1) + existing (6)
 
 ## Current Focus
-**Phase 4 Complete**: N-O attributes (7 total) implemented and tested
-**Next Phase**: Research and implement P attributes (6 total)
+**Phase 5 Complete**: P attributes (6 total) implemented and tested
+**Next Phase**: Research and implement Q-R attributes (6 total)
 
 Priority order:
 1. Common display attributes (cssclass, hidden, hide_tip)
