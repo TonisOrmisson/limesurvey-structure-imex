@@ -147,12 +147,12 @@ For each attribute:
 ### Q-R Attributes (6 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| question_template | ❌ not_reviewed | | |
-| random_group | ❌ not_reviewed | | |
-| random_order | ❌ not_reviewed | | |
-| rank_title | ❌ not_reviewed | | |
-| repeat_headings | ✅ tested | F, :, 1, ; | Recently implemented |
-| reverse | ❌ not_reviewed | | |
+| question_template | 🔍 researched | N/A | Not found in LimeSurvey core as question attribute |
+| random_group | ✅ tested | 19+ types | text, randomization group name ✅ already implemented |
+| random_order | ✅ tested | 13+ arrays/multi | switch 0/1, random subquestion order ✅ already implemented |
+| rank_title | ✅ tested | R (Ranking) | text, custom rank header |
+| repeat_headings | ✅ tested | F, :, 1, ; | integer, repeat headers every N rows ✅ already implemented |
+| reverse | ✅ tested | D (Date) | switch 0/1, reverse answer options |
 
 ### S Attributes (18 total)
 | Attribute | Status | Question Types | Notes |
@@ -216,14 +216,14 @@ For each attribute:
 
 ## Progress Summary
 - **Total Attributes**: 119
-- **Not Reviewed**: 61 (51%)  
-- **Researched**: 20 (17%) - Legacy attributes not in current LimeSurvey core
+- **Not Reviewed**: 55 (46%)  
+- **Researched**: 21 (18%) - Legacy attributes not in current LimeSurvey core
 - **Implemented**: 0 (0%)
-- **Tested**: 56 (47%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + P attributes (6) + repeat_headings (1) + existing (6)
+- **Tested**: 60 (50%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + P attributes (6) + Q-R attributes (5) + repeat_headings (1) + existing (6) - 1 duplicate
 
 ## Current Focus
-**Phase 5 Complete**: P attributes (6 total) implemented and tested
-**Next Phase**: Research and implement Q-R attributes (6 total)
+**Phase 6 Complete**: Q-R attributes (6 total) implemented and tested
+**Next Phase**: Research and implement S attributes (18 total)
 
 Priority order:
 1. Common display attributes (cssclass, hidden, hide_tip)

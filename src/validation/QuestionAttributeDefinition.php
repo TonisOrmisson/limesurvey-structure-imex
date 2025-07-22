@@ -826,6 +826,7 @@ class QuestionAttributeDefinition
             'dropdown_dates' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'dropdown_dates_minute_step' => ['default' => '1', 'type' => 'integer', 'category' => 'Display'],
             'dropdown_dates_month_style' => ['default' => '0', 'type' => 'singleselect', 'options' => ['0', '1', '2'], 'category' => 'Display'],
+            'reverse' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -930,6 +931,7 @@ class QuestionAttributeDefinition
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_subquestions' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
+            'rank_title' => ['default' => '', 'type' => 'text', 'category' => 'Other'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
