@@ -134,8 +134,8 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
                 $code = $cells[2]->getValue();
                 
                 if ($type === 'Q' && $code === 'TestQ1') {
-                    if (count($cells) >= 13) {
-                        $exportedOptions = $cells[12]->getValue(); // global options column (column 12 for 2-language survey)
+                    if (count($cells) >= 14) {
+                        $exportedOptions = $cells[13]->getValue(); // global options column (column 13 for 2-language survey, after same_script addition)
                     }
                     $found = true;
                     break;
@@ -164,9 +164,9 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
             $primaryLanguage = $survey->language;
             
             // Find the language-specific options column for the primary language
-            // For 2-language survey: column 13 should be options-{primaryLanguage}
-            if (count($cells) >= 14) {
-                $languageOptions = $cells[13]->getValue(); // First language-specific options column
+            // For 2-language survey: column 14 should be options-{primaryLanguage} (after same_script addition)
+            if (count($cells) >= 15) {
+                $languageOptions = $cells[14]->getValue(); // First language-specific options column
                 $this->assertNotEmpty($languageOptions, "Language-specific options should not be empty for attribute $attributeName");
                 
                 $languageArray = json_decode($languageOptions, true);

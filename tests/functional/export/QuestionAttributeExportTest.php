@@ -88,19 +88,29 @@ class QuestionAttributeExportTest extends DatabaseTestCase
                 $code = $cells[2]->getValue();
                 
                 if ($type === 'Q' && $code === 'TestQ1') {
-                    // Find the options columns
-                    $columnIndex = 0;
-                    foreach ($cells as $cell) {
-                        $columnIndex++;
-                        // Skip to the options columns (after relevance, mandatory, theme)
-                        if ($columnIndex >= 10) {
-                            if ($columnIndex == 10) {
-                                // This should be the global 'options' column
-                                $exportedGlobalOptions = $cell->getValue();
-                            } else {
-                                // These should be language-specific 'options-{lang}' columns
-                                $exportedLanguageOptions[] = $cell->getValue();
-                            }
+                    // Debug: count total columns
+                    $totalColumns = count($cells);
+                    
+                    // For single-language survey: options should be at 0-based index 10
+                    // For multi-language survey: options should be at 0-based index 13  
+                    // Detect which by column count - single language has fewer columns
+                    if ($totalColumns <= 12) {
+                        // Single language survey
+                        if ($totalColumns > 10) {
+                            $exportedGlobalOptions = $cells[10]->getValue();
+                        }
+                        // Language-specific options start at index 11
+                        for ($i = 11; $i < $totalColumns; $i++) {
+                            $exportedLanguageOptions[] = $cells[$i]->getValue();
+                        }
+                    } else {
+                        // Multi-language survey  
+                        if ($totalColumns > 13) {
+                            $exportedGlobalOptions = $cells[13]->getValue();
+                        }
+                        // Language-specific options start at index 14, 15, etc
+                        for ($i = 14; $i < $totalColumns; $i++) {
+                            $exportedLanguageOptions[] = $cells[$i]->getValue();
                         }
                     }
                     $found = true;
