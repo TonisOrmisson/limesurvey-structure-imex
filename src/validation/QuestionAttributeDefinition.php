@@ -596,6 +596,7 @@ class QuestionAttributeDefinition
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'array_filter_style' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -648,6 +649,7 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -787,6 +789,7 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -796,6 +799,7 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
