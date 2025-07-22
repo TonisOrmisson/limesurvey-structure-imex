@@ -73,6 +73,7 @@ class ExportQuestions extends AbstractExport
 
         $row[] = $group->grelevance ?? '';
         $row[] = ''; // no mandatory
+        $row[] = ''; // no same_script for groups
         $row[] = ''; // no theme
         $row[] = ''; // no options
         
@@ -100,11 +101,29 @@ class ExportQuestions extends AbstractExport
             $l10n = $question->questionl10ns[$language] ?? null;
             $row[] = $l10n->question ?? '';
             $row[] = $l10n->help ?? '';
-            $row[] = $l10n->script ?? '';
+            
+            // Handle script field with "Use for all languages" functionality
+            if ($question->same_script == 1) {
+                // If same_script=1, export script only for base language, empty for others
+                if ($language === $this->survey->language) {
+                    $row[] = $l10n->script ?? '';
+                } else {
+                    $row[] = '';
+                }
+            } else {
+                // Normal per-language script
+                $row[] = $l10n->script ?? '';
+            }
         }
 
         $row[] = $question->relevance ?? '';
         $row[] = $question->mandatory ?? '';
+        
+        if ($this->type !== self::TYPE_SUB_QUESTION) {
+            $row[] = $question->same_script ?? 0;
+        } else {
+            $row[] = '';
+        }
 
         if ($this->type !== self::TYPE_SUB_QUESTION) {
             $questionTheme = $question->question_theme_name;
@@ -256,9 +275,10 @@ class ExportQuestions extends AbstractExport
             $row[] = ''; // no script for answers
         }
 
-        // Add the missing columns for answers (relevance, mandatory, theme, options)
+        // Add the missing columns for answers (relevance, mandatory, same_script, theme, options)
         $row[] = ''; // no relevance for answers
-        $row[] = ''; // no mandatory for answers  
+        $row[] = ''; // no mandatory for answers
+        $row[] = ''; // no same_script for answers  
         $row[] = ''; // no theme for answers
         $row[] = ''; // no options for answers
         
@@ -272,9 +292,54 @@ class ExportQuestions extends AbstractExport
 
     }
 
+    private function writeMainTableColumnHelp()
+    {
+        $data = [];
+        
+        // Title
+        $data[] = Row::fromValues(['MAIN TABLE COLUMNS REFERENCE', '', '', '', ''], $this->sectionHeaderStyle);
+        $data[] = Row::fromValues(['', '', '', '', '']); // Empty row
+        
+        // Column descriptions header
+        $data[] = Row::fromValues(['Column Name', 'Description', 'Valid Values', 'Notes', ''], $this->headerStyle);
+        $data[] = Row::fromValues(['', '', '', '', '']); // Empty row
+        
+        // Column descriptions
+        $columnDescriptions = [
+            ['type', 'Row type identifier', 'G (Group), Q (Question), sq (Subquestion), a (Answer)', 'Determines what this row represents'],
+            ['subtype', 'Question type code', 'T, L, M, N, etc.', 'Only for Q rows. LimeSurvey question type'],
+            ['code', 'Unique identifier', 'Group ID, Question code, Answer code', 'Alphanumeric identifier for the item'],
+            ['value-{lang}', 'Main content by language', 'Text content', 'Question text, group name, or answer text'],
+            ['help-{lang}', 'Help text by language', 'Text content', 'Help/description text (questions and groups only)'],
+            ['script-{lang}', 'JavaScript code by language', 'JavaScript code', 'Custom JavaScript (questions only)'],
+            ['relevance', 'Relevance condition', 'Expression syntax', 'When to show this item (LimeSurvey expression)'],
+            ['mandatory', 'Required answer', 'Y, N', 'Whether question requires an answer (questions only)'],
+            ['same_script', 'Use script for all languages', '0, 1', 'If 1, script from base language used for all (questions only)'],
+            ['theme', 'Question theme', 'Theme name', 'Custom question theme (questions only)'],
+            ['options', 'Global question attributes', 'JSON object', 'Non-language-specific question attributes'],
+            ['options-{lang}', 'Language-specific attributes', 'JSON object', 'Language-specific question attributes'],
+        ];
+        
+        foreach ($columnDescriptions as $desc) {
+            $data[] = Row::fromValues($desc);
+        }
+        
+        // Add separator before attribute help
+        $data[] = Row::fromValues(['', '', '', '', '']); // Empty row
+        $data[] = Row::fromValues(['', '', '', '', '']); // Empty row
+        $data[] = Row::fromValues(['QUESTION TYPE ATTRIBUTES REFERENCE', '', '', '', ''], $this->sectionHeaderStyle);
+        $data[] = Row::fromValues(['', '', '', '', '']); // Empty row
+        
+        $this->writer->addRows($data);
+    }
+
     private function writeHelpSheet()
     {
         $this->setSheet('helpSheet');
+        
+        // Add main table column descriptions at the top
+        $this->writeMainTableColumnHelp();
+        
         $header = ['Question Type', 'Attribute Name', 'Default Value', 'Description', 'Value Validation'];
 
         $row = Row::fromValues($header, $this->headerStyle);
@@ -603,6 +668,7 @@ class ExportQuestions extends AbstractExport
 
         $this->header[] = ImportStructure::COLUMN_RELEVANCE;
         $this->header[] = ImportStructure::COLUMN_MANDATORY;
+        $this->header[] = ImportStructure::COLUMN_SAME_SCRIPT;
         $this->header[] = ImportStructure::COLUMN_THEME;
         $this->header[] = ImportStructure::COLUMN_OPTIONS;
         

@@ -57,6 +57,7 @@ class ImportStructure extends ImportFromFile
     const COLUMN_HELP = 'help';
     const COLUMN_SCRIPT = 'script';
     const COLUMN_MANDATORY = 'mandatory';
+    const COLUMN_SAME_SCRIPT = 'same_script';
 
     /**
      * Set whether to clear all survey contents before import
@@ -331,6 +332,11 @@ class ImportStructure extends ImportFromFile
             $mandatory = strtoupper($this->rowAttributes[self::COLUMN_MANDATORY]);
         }
 
+        $sameScript = 0;
+        if (isset($this->rowAttributes[self::COLUMN_SAME_SCRIPT]) && in_array($this->rowAttributes[self::COLUMN_SAME_SCRIPT], [0, 1, '0', '1'])) {
+            $sameScript = (int) $this->rowAttributes[self::COLUMN_SAME_SCRIPT];
+        }
+
         // Set Survey ID before other attributes so that validation works
         $this->currentModel->sid = $this->survey->sid;
 
@@ -345,6 +351,7 @@ class ImportStructure extends ImportFromFile
             'relevance' => $relevance,
             'question_order' => $this->questionOrder,
             'mandatory' => $mandatory,
+            'same_script' => $sameScript,
         ];
 
         $questionTheme = "";
@@ -381,11 +388,36 @@ class ImportStructure extends ImportFromFile
                 $this->currentModel = new QuestionL10n();
             }
 
+            // Handle script field with "Use for all languages" functionality
+            $scriptValue = '';
+            if ($sameScript == 1) {
+                // If same_script=1, only import script for base language
+                if ($language === $this->survey->language) {
+                    $scriptValue = strval($this->rowAttributes[$languageScriptKey]) ?? '';
+                } else {
+                    // Check if user mistakenly put script content in non-base language
+                    $nonBaseScriptContent = strval($this->rowAttributes[$languageScriptKey]) ?? '';
+                    if (!empty($nonBaseScriptContent)) {
+                        $questionTitle = $this->rowAttributes[self::COLUMN_CODE];
+                        $this->warningManager->addWarning(
+                            "Script content ignored for question '{$questionTitle}' in language '{$language}'. " .
+                            "When 'Use for all languages' is enabled (same_script=1), script content should only be " .
+                            "provided in the base language column ('{$this->survey->language}').",
+                            'script_wrong_language'
+                        );
+                    }
+                }
+                // For non-base languages, script remains empty when same_script=1
+            } else {
+                // Normal per-language script
+                $scriptValue = strval($this->rowAttributes[$languageScriptKey]) ?? '';
+            }
+
             $this->currentModel->setAttributes([
                 'qid' => $this->question->qid,
                 'question' => strval($this->rowAttributes[$languageValueKey]),
                 'help' => strval($this->rowAttributes[$languageHelpKey]),
-                'script' => strval($this->rowAttributes[$languageScriptKey]) ?? '',
+                'script' => $scriptValue,
                 'language' => $language,
             ]);
 

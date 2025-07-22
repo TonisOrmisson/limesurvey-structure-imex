@@ -30,6 +30,9 @@ abstract class AbstractExport extends CModel
 
     /** @var Style */
     public $headerStyle;
+    
+    /** @var Style */
+    public $sectionHeaderStyle;
 
 
     /** @var array Currently processed columns */
@@ -104,6 +107,11 @@ abstract class AbstractExport extends CModel
         $this->headerStyle->setFontBold();
         $this->headerStyle->setFontColor(Color::BLUE);
 
+        $this->sectionHeaderStyle = new Style();
+        $this->sectionHeaderStyle->setFontBold();
+        $this->sectionHeaderStyle->setFontColor(Color::WHITE);
+        $this->sectionHeaderStyle->setBackgroundColor(Color::DARK_BLUE);
+        $this->sectionHeaderStyle->setFontSize(14);
 
         $this->groupStyle = new Style();
         $this->groupStyle->setFontColor(Color::WHITE);

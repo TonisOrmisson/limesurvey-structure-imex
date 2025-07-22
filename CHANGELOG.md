@@ -9,6 +9,8 @@
 - M (Multiple Choice) questions no longer export duplicate answer options - only exports subquestions as intended
 - Cyrillic characters in question attributes now export properly without Unicode escaping
 - Added missing array filter attributes (array_filter, array_filter_style, array_filter_exclude) for M questions
+- Added support for script field "Use for all languages" functionality (same_script field)
+- Added comprehensive main table columns reference to help sheet with proper formatting
 
 ## [2.0.0] - 2025-06-19
 
