@@ -84,44 +84,44 @@ For each attribute:
 ### I Attributes (2 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| input_boxes | ❌ not_reviewed | | |
-| input_size | ❌ not_reviewed | | |
+| input_boxes | ✅ tested | : | switch 0/1, text input boxes vs dropdowns |
+| input_size | ✅ tested | S, Q, N, : | integer, width of input/textarea |
 
 ### K Attributes (1 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| keep_aspect | ❌ not_reviewed | | |
+| keep_aspect | 🔍 researched | image themes | buttongroup no/yes, keep image aspect ratio |
 
 ### L Attributes (12 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| label_input_columns | ❌ not_reviewed | | |
-| location_city | ❌ not_reviewed | | |
-| location_country | ❌ not_reviewed | | |
-| location_defaultcoordinates | ❌ not_reviewed | | |
-| location_mapheight | ❌ not_reviewed | | |
-| location_mapservice | ❌ not_reviewed | | |
-| location_mapwidth | ❌ not_reviewed | | |
-| location_mapzoom | ❌ not_reviewed | | |
-| location_nodefaultfromip | ❌ not_reviewed | | |
-| location_postal | ❌ not_reviewed | | |
-| location_state | ❌ not_reviewed | | |
+| label_input_columns | ✅ tested | Q | singleselect, relative width of labels |
+| location_city | ✅ tested | S | singleselect 0/1, store city with location |
+| location_country | ✅ tested | S | singleselect 0/1, store country with location |
+| location_defaultcoordinates | ✅ tested | S | text, default map coordinates lat lng |
+| location_mapheight | ✅ tested | S | text default=300, map height pixels |
+| location_mapservice | ✅ tested | S | singleselect 0/100/1, map service provider |
+| location_mapwidth | ✅ tested | S | text default=500, map width pixels |
+| location_mapzoom | ✅ tested | S | text default=11, map zoom level |
+| location_nodefaultfromip | ✅ tested | S | singleselect 0/1, get location from IP |
+| location_postal | ✅ tested | S | singleselect 0/1, store postal code |
+| location_state | ✅ tested | S | singleselect 0/1, store state/province |
 
 ### M Attributes (12 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| max_answers | ❌ not_reviewed | | |
-| max_num_value | ❌ not_reviewed | | |
-| max_num_value_n | ❌ not_reviewed | | |
-| max_subquestions | ❌ not_reviewed | | |
-| maximum_chars | ❌ not_reviewed | | |
-| min_answers | ❌ not_reviewed | | |
-| min_num_value | ❌ not_reviewed | | |
-| min_num_value_n | ❌ not_reviewed | | |
-| multiflexible_checkbox | ❌ not_reviewed | | |
-| multiflexible_max | ❌ not_reviewed | | |
-| multiflexible_min | ❌ not_reviewed | | |
-| multiflexible_step | ❌ not_reviewed | | |
+| max_answers | 🔧 implemented | Q, :, others | text, limit max answers |
+| max_num_value | ✅ tested | K | text, max sum of multiple numeric inputs |
+| max_num_value_n | 🔧 implemented | N | text, maximum numeric value |
+| max_subquestions | ✅ tested | R | integer, limit ranking answers |
+| maximum_chars | 🔧 implemented | S, T, Q, :, N | integer, max characters |
+| min_answers | 🔧 implemented | Q, :, others | text, minimum answers required |
+| min_num_value | ✅ tested | K | text, min sum of multiple numeric inputs |
+| min_num_value_n | 🔧 implemented | N, K | text, minimum numeric value |
+| multiflexible_checkbox | ✅ tested | : | switch 0/1, use checkbox layout |
+| multiflexible_max | ✅ tested | : | text, maximum value for multiflex |
+| multiflexible_min | ✅ tested | : | text, minimum value for multiflex |
+| multiflexible_step | ✅ tested | : | integer default=1, step value |
 
 ### N-O Attributes (7 total)
 | Attribute | Status | Question Types | Notes |
@@ -216,13 +216,14 @@ For each attribute:
 
 ## Progress Summary
 - **Total Attributes**: 119
-- **Not Reviewed**: 76 (64%)  
+- **Not Reviewed**: 74 (62%)  
 - **Researched**: 20 (17%) - Legacy attributes not in current LimeSurvey core
 - **Implemented**: 0 (0%)
-- **Tested**: 23 (19%) - A-C attributes (7) + D-H attributes (8) + repeat_headings (1) + existing (7)
+- **Tested**: 43 (36%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + repeat_headings (1) + existing (6)
 
 ## Current Focus
-**Next Phase**: Research and implement A-C attributes (29 total)
+**Phase 3 Complete**: I-M attributes (21 total) implemented and tested
+**Next Phase**: Research and implement N-O attributes (7 total)
 
 Priority order:
 1. Common display attributes (cssclass, hidden, hide_tip)

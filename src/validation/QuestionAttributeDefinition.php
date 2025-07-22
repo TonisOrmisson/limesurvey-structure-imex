@@ -538,6 +538,63 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'textarea',
                 'category' => 'Logic'
+            ],
+            // Location attributes for map functionality
+            'location_city' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1'],
+                'category' => 'Location'
+            ],
+            'location_country' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1'],
+                'category' => 'Location'
+            ],
+            'location_defaultcoordinates' => [
+                'default' => '',
+                'type' => 'text',
+                'category' => 'Location'
+            ],
+            'location_mapheight' => [
+                'default' => '300',
+                'type' => 'text',
+                'category' => 'Location'
+            ],
+            'location_mapservice' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1', '100'],
+                'category' => 'Location'
+            ],
+            'location_mapwidth' => [
+                'default' => '500',
+                'type' => 'text',
+                'category' => 'Location'
+            ],
+            'location_mapzoom' => [
+                'default' => '11',
+                'type' => 'text',
+                'category' => 'Location'
+            ],
+            'location_nodefaultfromip' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1'],
+                'category' => 'Location'
+            ],
+            'location_postal' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1'],
+                'category' => 'Location'
+            ],
+            'location_state' => [
+                'default' => '0',
+                'type' => 'singleselect',
+                'options' => ['0', '1'],
+                'category' => 'Location'
             ]
         ],
         
@@ -613,6 +670,7 @@ class QuestionAttributeDefinition
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'text_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
+            'label_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', 'hidden', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
@@ -625,6 +683,8 @@ class QuestionAttributeDefinition
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
             'equals_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'max_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'min_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
             'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
@@ -779,6 +839,7 @@ class QuestionAttributeDefinition
             'choice_title' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
+            'max_subquestions' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -816,6 +877,11 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
+            'input_boxes' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'multiflexible_checkbox' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'multiflexible_max' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'multiflexible_min' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'multiflexible_step' => ['default' => '1', 'type' => 'integer', 'category' => 'Input'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
