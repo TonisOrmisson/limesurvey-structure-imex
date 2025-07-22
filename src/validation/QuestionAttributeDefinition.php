@@ -344,11 +344,6 @@ class QuestionAttributeDefinition
                 'options' => ['normal', 'random', 'alphabetical'],
                 'category' => 'Display'
             ],
-            'other_replace_text' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Display'
-            ],
             'display_columns' => [
                 'default' => '',
                 'type' => 'columns',
@@ -689,11 +684,6 @@ class QuestionAttributeDefinition
                 'default' => 'normal',
                 'type' => 'singleselect',
                 'options' => ['normal', 'random', 'alphabetical'],
-                'category' => 'Display'
-            ],
-            'other_replace_text' => [
-                'default' => '',
-                'type' => 'textarea',
                 'category' => 'Display'
             ],
             'em_validation_q_tip' => [
