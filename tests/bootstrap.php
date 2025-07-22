@@ -40,8 +40,9 @@ $isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
 $isUnitTestOnly = getenv('UNIT_TEST_ONLY') === 'true';
 
 // For unit tests - load minimal LimeSurvey without plugin system
-if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
-    echo "Unit test mode: Loading minimal LimeSurvey\n";
+// If we're inside a LimeSurvey installation, use that even for unit tests
+if (($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) && !$isInsideLimeSurvey) {
+    echo "Unit test mode: Loading minimal LimeSurvey from vendor\n";
     
     if ($hasVendorLimeSurvey) {
         $vendorLimeSurveyPath = __DIR__ . '/../vendor/limesurvey/limesurvey';
@@ -154,9 +155,10 @@ if ($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) {
         echo "Skipping plugin autoloader for unit tests\n";
     }
     
-} elseif ($isInsideLimeSurvey && !$isVendorEnvironment) {
+} elseif ($isInsideLimeSurvey && (!$isVendorEnvironment || $isUnitTestRun)) {
 
     // Development environment - use parent LimeSurvey installation
+    // Also used for unit tests in development environment
     echo "Development environment: Using parent LimeSurvey installation\n";
     
     // Set up LimeSurvey path constants pointing to parent installation
