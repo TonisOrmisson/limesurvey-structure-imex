@@ -126,13 +126,13 @@ For each attribute:
 ### N-O Attributes (7 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| num_value_int_only | ❌ not_reviewed | | |
-| numbers_only | ❌ not_reviewed | | |
-| other_comment_mandatory | ❌ not_reviewed | | |
-| other_numbers_only | ❌ not_reviewed | | |
-| other_position | ❌ not_reviewed | | |
-| other_position_code | ❌ not_reviewed | | |
-| other_replace_text | ❌ not_reviewed | | |
+| num_value_int_only | ✅ tested | N, K | switch 0/1, restrict input to integer values |
+| numbers_only | ✅ tested | S, T, Q, ;, * | switch 0/1, allow only numerical input |
+| other_comment_mandatory | ✅ tested | L, !, M, O, P | switch 0/1, make 'Other' comment mandatory |
+| other_numbers_only | ✅ tested | L, !, M, O, P | switch 0/1, restrict 'Other' comment to numbers |
+| other_position | ✅ tested | L, !, M, O, P | singleselect, position of 'Other' option |
+| other_position_code | ✅ tested | L, !, M, O, P | text, code for 'After specific answer' |
+| other_replace_text | ✅ tested | L, !, M, O, P | text, custom 'Other' option label |
 
 ### P Attributes (7 total)
 | Attribute | Status | Question Types | Notes |
@@ -216,14 +216,14 @@ For each attribute:
 
 ## Progress Summary
 - **Total Attributes**: 119
-- **Not Reviewed**: 74 (62%)  
+- **Not Reviewed**: 67 (56%)  
 - **Researched**: 20 (17%) - Legacy attributes not in current LimeSurvey core
 - **Implemented**: 0 (0%)
-- **Tested**: 43 (36%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + repeat_headings (1) + existing (6)
+- **Tested**: 50 (42%) - A-C attributes (7) + D-H attributes (8) + I-M attributes (21) + N-O attributes (7) + repeat_headings (1) + existing (6)
 
 ## Current Focus
-**Phase 3 Complete**: I-M attributes (21 total) implemented and tested
-**Next Phase**: Research and implement N-O attributes (7 total)
+**Phase 4 Complete**: N-O attributes (7 total) implemented and tested
+**Next Phase**: Research and implement P attributes (6 total)
 
 Priority order:
 1. Common display attributes (cssclass, hidden, hide_tip)
