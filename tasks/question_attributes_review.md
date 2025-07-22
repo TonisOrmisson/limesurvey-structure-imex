@@ -46,40 +46,40 @@ For each attribute:
 | crop_or_resize | 🔍 researched | \| | Legacy file upload, image processing |
 | cssclass | 🔍 researched | Universal | text, additional CSS classes |
 
-### D Attributes (8 total)
+### D Attributes (10 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| date_format | ❌ not_reviewed | | |
-| date_max | ❌ not_reviewed | | |
-| date_min | ❌ not_reviewed | | |
-| display_columns | ❌ not_reviewed | | |
-| display_rows | ❌ not_reviewed | | |
-| dropdown_dates | ❌ not_reviewed | | |
-| dropdown_dates_minute_step | ❌ not_reviewed | | |
-| dropdown_dates_month_style | ❌ not_reviewed | | |
-| dropdown_prefix | ❌ not_reviewed | | |
-| dropdown_size | ❌ not_reviewed | | |
+| date_format | 🔧 implemented | D | text, custom date format d/dd m/mm yy/yyyy H/HH M/MM |
+| date_max | ✅ tested | D | text, max date YYYY-MM-DD or textual description |
+| date_min | ✅ tested | D | text, min date YYYY-MM-DD or textual description |
+| display_columns | 🔧 implemented | M, F | columns, distribute options across columns |
+| display_rows | 🔧 implemented | Q | integer, number of rows to display |
+| dropdown_dates | ✅ tested | D | switch 0/1, use dropdown boxes instead of calendar |
+| dropdown_dates_minute_step | ✅ tested | D | integer default=1, minute step interval |
+| dropdown_dates_month_style | ✅ tested | D | singleselect 0/1/2, short/full/numbers |
+| dropdown_prefix | 🔧 implemented | ! | buttongroup 0/1, accelerator keys |
+| dropdown_size | 🔧 implemented | ! | text, dropdown height rows |
 
-### E Attributes (10 total)
+### E Attributes (8 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| em_validation_q | ❌ not_reviewed | | |
-| em_validation_q_tip | ❌ not_reviewed | | |
-| em_validation_sq | ❌ not_reviewed | | |
-| em_validation_sq_tip | ❌ not_reviewed | | |
-| equals_num_value | ❌ not_reviewed | | |
-| equation | ❌ not_reviewed | | |
-| exclude_all_others | ❌ not_reviewed | | |
-| exclude_all_others_auto | ❌ not_reviewed | | |
+| em_validation_q | 🔧 implemented | All | textarea, boolean equation to validate question |
+| em_validation_q_tip | 🔧 implemented | All | textarea, hint text for validation |
+| em_validation_sq | ✅ tested | Q, K, N | textarea, boolean equation for subquestions |
+| em_validation_sq_tip | ✅ tested | Q, K, N | textarea, tip for subquestion validation |
+| equals_num_value | ✅ tested | K | text, sum must equal this value |
+| equation | 🔧 implemented | * | textarea, final equation for database |
+| exclude_all_others | 🔧 implemented | M, K | text, exclude codes separated by semicolon |
+| exclude_all_others_auto | 🔧 implemented | M | switch 0/1, auto-check exclusive option |
 
-### F-H Attributes (9 total)
+### F-H Attributes (5 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| fix_height | ❌ not_reviewed | | |
-| fix_width | ❌ not_reviewed | | |
-| hidden | ❌ not_reviewed | | |
-| hide_tip | ❌ not_reviewed | | |
-| horizontal_scroll | ❌ not_reviewed | | |
+| fix_height | 🔍 researched | - | Legacy, removed from LimeSurvey v6 |
+| fix_width | 🔍 researched | - | Legacy, removed from LimeSurvey v6 |
+| hidden | 🔧 implemented | All | switch 0/1, hide question for prefilling |
+| hide_tip | 🔧 implemented | All | switch 0/1, hide question tip |
+| horizontal_scroll | 🔍 researched | - | Legacy, removed from LimeSurvey v6 |
 
 ### I Attributes (2 total)
 | Attribute | Status | Question Types | Notes |
@@ -216,10 +216,10 @@ For each attribute:
 
 ## Progress Summary
 - **Total Attributes**: 119
-- **Not Reviewed**: 99 (83%)  
-- **Researched**: 13 (11%)
+- **Not Reviewed**: 76 (64%)  
+- **Researched**: 20 (17%) - Legacy attributes not in current LimeSurvey core
 - **Implemented**: 0 (0%)
-- **Tested**: 7 (6%) - repeat_headings, answer_width, answer_width_bycolumn, category_separator, choice_input_columns, choice_title, commented_checkbox variants
+- **Tested**: 23 (19%) - A-C attributes (7) + D-H attributes (8) + repeat_headings (1) + existing (7)
 
 ## Current Focus
 **Next Phase**: Research and implement A-C attributes (29 total)

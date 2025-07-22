@@ -613,6 +613,8 @@ class QuestionAttributeDefinition
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'text_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
+            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -622,6 +624,9 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
+            'equals_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -674,6 +679,11 @@ class QuestionAttributeDefinition
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'date_format' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'date_max' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'date_min' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'dropdown_dates' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'dropdown_dates_minute_step' => ['default' => '1', 'type' => 'integer', 'category' => 'Display'],
+            'dropdown_dates_month_style' => ['default' => '0', 'type' => 'singleselect', 'options' => ['0', '1', '2'], 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -834,6 +844,8 @@ class QuestionAttributeDefinition
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
+            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
