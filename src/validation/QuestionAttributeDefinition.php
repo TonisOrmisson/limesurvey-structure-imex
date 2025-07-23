@@ -543,6 +543,18 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'text',
                 'category' => 'Display'
+            ],
+            // Exclusive option attributes
+            'exclude_all_others' => [
+                'default' => '',
+                'type' => 'text',
+                'category' => 'Logic'
+            ],
+            'exclude_all_others_auto' => [
+                'default' => '0',
+                'type' => 'switch',
+                'options' => ['0', '1'],
+                'category' => 'Logic'
             ]
         ],
         
