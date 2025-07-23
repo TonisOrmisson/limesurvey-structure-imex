@@ -250,15 +250,17 @@ For each attribute:
 ### U-V-W Attributes (3 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| use_dropdown | ❌ not_reviewed | | |
-| value_range_allows_missing | ❌ not_reviewed | | |
-| width_entry | ❌ not_reviewed | | |
+| use_dropdown | 🔧 implemented | F, 1, O | switch 0/1, dropdown vs radio buttons |
+| value_range_allows_missing | 🔧 implemented | K | switch 1/0, missing allowed with sum validation |
+| width_entry | 🔧 implemented | ! (theme) | buttongroup, dropdown width behavior |
+| whole_only | 🚫 not_exists | - | Attribute does not exist in current LimeSurvey |
 
 ## Progress Summary (CORRECTED)
 - **Total Attributes**: 119
-- **Not Reviewed**: 27 (23%)
+- **Not Reviewed**: 25 (21%) - reduced by implementing 2 U-V-W attributes  
+- **Not Exists**: 1 (whole_only)
 - **Researched**: 19 (16%) - Legacy/non-existent attributes documented
-- **Implemented**: 73 (61%) - Added to QuestionAttributeDefinition.php
+- **Implemented**: 75 (63%) - increased by implementing use_dropdown and value_range_allows_missing
 - **Tested**: 0 (0%) - No systematic testing completed yet
 
 **Breakdown by Status:**
@@ -270,14 +272,14 @@ For each attribute:
 - Q-R: 5 implemented, 1 researched
 - S: 9 implemented, 2 researched, 7 not reviewed
 - T: 19 implemented, 0 researched, 3 not reviewed
-- U-V-W: 0 implemented, 0 researched, 3 not reviewed
+- U-V-W: 3 implemented, 0 researched, 1 non-existent (whole_only)
 
 ## Current Status
 **CORRECTED**: All previously marked 'tested' attributes moved to 'implemented' status
 **Next Phase**: Systematic testing of implemented attributes to move them to 'tested' status
-**After Testing**: Research and implement remaining U-V-W attributes (3 total)
+**U-V-W Completed**: 2 of 3 U-V-W attributes implemented (whole_only does not exist in current LimeSurvey)
 
 Priority order:
-1. Remaining U-V-W attributes (3 total)
-2. Add missing clear_default universal attribute
-3. Final review and testing of all implementations
+1. Add missing clear_default universal attribute
+2. Final review and testing of all implementations
+3. Complete remaining attribute coverage analysis

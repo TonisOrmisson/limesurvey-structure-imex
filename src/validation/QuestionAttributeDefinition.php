@@ -728,23 +728,20 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'text',
                 'category' => 'Display'
-            ]
+            ],
+            // U-V-W attributes
+            'width_entry' => ['default' => 'false', 'type' => 'buttongroup', 'category' => 'Display']
         ],
         
-        // Add basic definitions for all other question types
-        // These cover the most common attributes tested
-        \Question::QT_F_ARRAY => [
+        \Question::QT_X_TEXT_DISPLAY => [
             'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
-            'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'array_filter_style' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
-            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
+            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
+        
         \Question::QT_Q_MULTIPLE_SHORT_TEXT => [
             'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
@@ -759,33 +756,7 @@ class QuestionAttributeDefinition
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
-        \Question::QT_K_MULTIPLE_NUMERICAL => [
-            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'equals_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
-            'max_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
-            'min_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
-            'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
-            'slider_layout' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Slider'],
-            'slider_max' => ['default' => '', 'type' => 'text', 'category' => 'Slider'],
-            'slider_min' => ['default' => '', 'type' => 'text', 'category' => 'Slider'],
-            'slider_orientation' => ['default' => '0', 'type' => 'singleselect', 'options' => ['0', '1'], 'category' => 'Slider'],
-            'slider_showminmax' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Slider'],
-            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
-            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
-        ],
-        \Question::QT_X_TEXT_DISPLAY => [
-            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
-            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
-        ],
+        
         \Question::QT_Y_YES_NO_RADIO => [
             'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
@@ -798,17 +769,6 @@ class QuestionAttributeDefinition
             'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
-            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
-        ],
-        \Question::QT_1_ARRAY_DUAL => [
-            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
-            'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -894,20 +854,6 @@ class QuestionAttributeDefinition
             'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
-            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
-        ],
-        \Question::QT_O_LIST_WITH_COMMENT => [
-            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
-            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random'], 'category' => 'Display'],
-            'other_comment_mandatory' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
-            'other_numbers_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
-            'other_position' => ['default' => 'default', 'type' => 'singleselect', 'options' => ['beginning', 'default', 'end', 'specific'], 'category' => 'Display'],
-            'other_position_code' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'other_replace_text' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
@@ -1024,8 +970,79 @@ class QuestionAttributeDefinition
             'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            // U-V-W attributes
+            'use_dropdown' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display']
         ],
+        
+        \Question::QT_F_ARRAY => [
+            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
+            'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
+            'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'array_filter_style' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
+            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            // U-V-W attributes
+            'use_dropdown' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display']
+        ],
+        
+        \Question::QT_1_ARRAY_DUAL => [
+            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
+            'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
+            'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
+            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
+            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            // U-V-W attributes
+            'use_dropdown' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display']
+        ],
+        
+        \Question::QT_O_LIST_WITH_COMMENT => [
+            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
+            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random'], 'category' => 'Display'],
+            'other_comment_mandatory' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
+            'other_numbers_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
+            'other_position' => ['default' => 'default', 'type' => 'singleselect', 'options' => ['beginning', 'default', 'end', 'specific'], 'category' => 'Display'],
+            'other_position_code' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
+            'other_replace_text' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
+            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
+            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            // U-V-W attributes
+            'use_dropdown' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display']
+        ],
+        
+        \Question::QT_K_MULTIPLE_NUMERICAL => [
+            'hidden' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'hide_tip' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'cssclass' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
+            'equals_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'max_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'min_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
+            'slider_layout' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Slider'],
+            'slider_max' => ['default' => '', 'type' => 'text', 'category' => 'Slider'],
+            'slider_min' => ['default' => '', 'type' => 'text', 'category' => 'Slider'],
+            'slider_orientation' => ['default' => '0', 'type' => 'singleselect', 'options' => ['0', '1'], 'category' => 'Slider'],
+            'slider_showminmax' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Slider'],
+            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'random_group' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
+            'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            // U-V-W attributes
+            'value_range_allows_missing' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input']
+        ],
+        
         
     ];
 
