@@ -307,6 +307,10 @@ class QuestionAttributeDefinition
                 'options' => ['0', '1'],
                 'category' => 'Statistics'
             ],
+            'location_mapheight' => ['default' => '300', 'type' => 'text', 'category' => 'Location'],
+            'location_mapwidth' => ['default' => '500', 'type' => 'text', 'category' => 'Location'],
+            'location_mapzoom' => ['default' => '11', 'type' => 'text', 'category' => 'Location'],
+            'statistics_showmap' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'text_input_width' => [
                 'default' => '',
                 'type' => 'singleselect',
@@ -665,6 +669,12 @@ class QuestionAttributeDefinition
                 'options' => ['0', '1'],
                 'category' => 'Location'
             ],
+            'statistics_showmap' => [
+                'default' => '0',
+                'type' => 'switch',
+                'options' => ['0', '1'],
+                'category' => 'Statistics'
+            ],
             'location_state' => [
                 'default' => '0',
                 'type' => 'singleselect',
@@ -703,6 +713,10 @@ class QuestionAttributeDefinition
         \Question::QT_X_TEXT_DISPLAY => [
             'assessment_value' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
+            'location_mapheight' => ['default' => '300', 'type' => 'text', 'category' => 'Location'],
+            'location_mapwidth' => ['default' => '500', 'type' => 'text', 'category' => 'Location'],
+            'location_mapzoom' => ['default' => '11', 'type' => 'text', 'category' => 'Location'],
+            'statistics_showmap' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
