@@ -76,6 +76,48 @@ class QuestionAttributeDefinition
             'default' => '',
             'type' => 'textarea',
             'category' => 'Logic'
+        ],
+        'public_statistics' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Statistics'
+        ],
+        'scale_export' => [
+            'default' => '0',
+            'type' => 'singleselect',
+            'options' => ['0', '1', '2', '3'],
+            'category' => 'Other'
+        ],
+        'array_filter_style' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Logic'
+        ],
+        'time_limit_action' => [
+            'default' => '1',
+            'type' => 'singleselect',
+            'options' => ['1', '2', '3'],
+            'category' => 'Timer'
+        ],
+        'time_limit_disable_next' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Timer'
+        ],
+        'time_limit_disable_prev' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Timer'
+        ],
+        'clear_default' => [
+            'default' => 'N',
+            'type' => 'switch',
+            'options' => ['N', 'Y'],
+            'category' => 'Logic'
         ]
     ];
 
@@ -263,24 +305,6 @@ class QuestionAttributeDefinition
                 'type' => 'integer',
                 'category' => 'Timer'
             ],
-            'time_limit_action' => [
-                'default' => '1',
-                'type' => 'singleselect',
-                'options' => ['1', '2', '3'],
-                'category' => 'Timer'
-            ],
-            'time_limit_disable_next' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Timer'
-            ],
-            'time_limit_disable_prev' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Timer'
-            ],
             'time_limit_countdown_message' => [
                 'default' => '',
                 'type' => 'textarea',
@@ -405,24 +429,6 @@ class QuestionAttributeDefinition
             'time_limit' => [
                 'default' => '',
                 'type' => 'integer',
-                'category' => 'Timer'
-            ],
-            'time_limit_action' => [
-                'default' => '1',
-                'type' => 'singleselect',
-                'options' => ['1', '2', '3'],
-                'category' => 'Timer'
-            ],
-            'time_limit_disable_next' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Timer'
-            ],
-            'time_limit_disable_prev' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
                 'category' => 'Timer'
             ],
             // General attributes (always available)
