@@ -46,7 +46,7 @@ class ExportQuestions extends AbstractExport
     protected function writeData()
     {
 
-        foreach ($this->groupsInMainLanguage() as $group) {
+        foreach ($this->survey->groups as $group) {
             $this->processGroup($group);
         }
 
@@ -215,7 +215,7 @@ class ExportQuestions extends AbstractExport
         $this->type = self::TYPE_GROUP;
         $this->addGroup($group);
 
-        foreach ($this->questionsInMainLanguage($group) as $question) {
+        foreach ($group->questions as $question) {
             $this->type = self::TYPE_QUESTION;
             $this->processQuestion($question);
         }
@@ -231,11 +231,8 @@ class ExportQuestions extends AbstractExport
 
         // Skip answers for M (Multiple Choice) questions - they use subquestions instead
         if ($question->type !== Question::QT_M_MULTIPLE_CHOICE) {
-            $answers = $this->answersInMainLanguage($question);
-            if (!empty($answers)) {
-                foreach ($answers as $answer) {
-                    $this->processAnswer($answer);
-                }
+            foreach ($question->answers as $answer) {
+                $this->processAnswer($answer);
             }
         }
 
@@ -243,12 +240,9 @@ class ExportQuestions extends AbstractExport
             return;
         }
 
-        $subQuestions = $this->subQuestionsInMainLanguage($question);
-        if (!empty($subQuestions)) {
-            foreach ($subQuestions as $subQuestion) {
-                $this->type = self::TYPE_SUB_QUESTION;
-                $this->addQuestion($subQuestion);
-            }
+        foreach ($question->subquestions as $subQuestion) {
+            $this->type = self::TYPE_SUB_QUESTION;
+            $this->addQuestion($subQuestion);
         }
 
 
@@ -593,63 +587,8 @@ class ExportQuestions extends AbstractExport
         ];
     }
 
-    /**
-     * @return QuestionGroup[]
-     */
-    private function groupsInMainLanguage()
-    {
-        $criteria = new CDbCriteria;
-        $criteria->addCondition('sid=' . $this->survey->primaryKey);
-        $criteria->order = 'group_order ASC';
-        return QuestionGroup::model()->findAll($criteria);
-    }
-
-    /**
-     * @param QuestionGroup $group
-     * @return Question[]
-     */
-    private function questionsInMainLanguage($group)
-    {
-        $criteria = new CDbCriteria;
-        $criteria->addCondition('sid=' . $this->survey->primaryKey);
-        $criteria->addCondition('gid=:gid');
-        $criteria->addCondition('parent_qid=0 or parent_qid IS NULL');
-        $criteria->params[':gid'] = $group->gid;
-
-        $criteria->order = 'question_order ASC';
-
-        return Question::model()->findAll($criteria);
-    }
 
 
-
-    /**
-     * @param Question $question
-     * @return Question[]
-     */
-    private function subQuestionsInMainLanguage($question)
-    {
-        $criteria = new CDbCriteria;
-        $criteria->addCondition('sid=:sid');
-        $criteria->addCondition('parent_qid=:qid');
-        $criteria->params[':qid'] = $question->qid;
-        $criteria->params[':sid'] = $this->survey->primaryKey;
-        return Question::model()->findAll($criteria);
-    }
-
-    /**
-     * @param Question $question
-     * @return Answer[]
-     */
-    private function answersInMainLanguage($question)
-    {
-        $criteria = new CDbCriteria;
-        $criteria->addCondition('qid=:qid');
-        $criteria->order = 'sortorder ASC';
-        $criteria->params[':qid'] = $question->qid;
-
-        return Answer::model()->findAll($criteria);
-    }
 
 
     protected function loadHeader()

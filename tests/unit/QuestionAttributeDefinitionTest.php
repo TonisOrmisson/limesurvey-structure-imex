@@ -199,7 +199,7 @@ class QuestionAttributeDefinitionTest extends TestCase
                 $this->assertIsString($definition['default'], "Default value for '{$attributeName}' in type '{$questionType}' must be a string");
                 
                 // Validate that 'type' is a known type
-                $validTypes = ['switch', 'integer', 'singleselect', 'text', 'textarea', 'columns'];
+                $validTypes = ['switch', 'integer', 'singleselect', 'text', 'textarea', 'columns', 'buttongroup'];
                 $this->assertContains($definition['type'], $validTypes, "Type '{$definition['type']}' for attribute '{$attributeName}' in type '{$questionType}' must be valid");
                 
                 // If type is switch or singleselect, must have options

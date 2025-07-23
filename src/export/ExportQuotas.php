@@ -32,7 +32,7 @@ class ExportQuotas extends AbstractExport
     protected function getData(): array
     {
         $survey = $this->getSurvey();
-        $quotas = $this->getQuotasFromSurvey($survey);
+        $quotas = $survey->quotas;
         
         if (empty($quotas)) {
             return [];
@@ -44,7 +44,7 @@ class ExportQuotas extends AbstractExport
             $exportData[] = $this->buildQuotaRow($quota, $survey);
             
             // Add quota member rows (QM)
-            $members = $this->getQuotaMembers($quota);
+            $members = $quota->quotaMembers;
             foreach ($members as $member) {
                 $exportData[] = $this->buildQuotaMemberRow($member, $survey);
             }
@@ -62,22 +62,6 @@ class ExportQuotas extends AbstractExport
         return $this->survey;
     }
 
-    /**
-     * Get all quotas for the survey
-     * @param Survey $survey
-     * @return Quota[]
-     */
-    private function getQuotasFromSurvey(Survey $survey): array
-    {
-        $criteria = new \CDbCriteria();
-        $criteria->condition = 'sid = :sid';
-        $criteria->params = [':sid' => $survey->sid];
-        $criteria->order = 'name ASC';
-
-        /** @var Quota[] $quotas */
-        $quotas = Quota::model()->findAll($criteria);
-        return $quotas;
-    }
 
     /**
      * Build quota row (type = "Q")
@@ -88,8 +72,8 @@ class ExportQuotas extends AbstractExport
     private function buildQuotaRow(Quota $quota, Survey $survey): array
     {
         $row = [];
-        $surveyLanguages = $this->getSurveyLanguages($survey);
-        $languageSettings = $this->getQuotaLanguageSettings($quota);
+        $surveyLanguages = $survey->getAllLanguages();
+        $languageSettings = $quota->languagesettings;
 
         // Fixed columns
         $row['type'] = 'Q';
@@ -118,7 +102,7 @@ class ExportQuotas extends AbstractExport
     private function buildQuotaMemberRow(QuotaMember $member, Survey $survey): array
     {
         $row = [];
-        $surveyLanguages = $this->getSurveyLanguages($survey);
+        $surveyLanguages = $survey->getAllLanguages();
         $memberInfo = $this->getMemberInfo($member);
 
         // Fixed columns
@@ -138,58 +122,8 @@ class ExportQuotas extends AbstractExport
         return $row;
     }
 
-    /**
-     * Get quota members for a quota
-     * @param Quota $quota
-     * @return QuotaMember[]
-     */
-    private function getQuotaMembers(Quota $quota): array
-    {
-        $criteria = new \CDbCriteria();
-        $criteria->condition = 'quota_id = :quota_id';
-        $criteria->params = [':quota_id' => $quota->id];
-        $criteria->order = 'qid ASC, code ASC';
 
-        return QuotaMember::model()->findAll($criteria);
-    }
 
-    /**
-     * Get quota language settings for a quota
-     * @param Quota $quota
-     * @return array Indexed by language code
-     */
-    private function getQuotaLanguageSettings(Quota $quota): array
-    {
-        $criteria = new \CDbCriteria();
-        $criteria->condition = 'quotals_quota_id = :quota_id';
-        $criteria->params = [':quota_id' => $quota->id];
-
-        $settings = QuotaLanguageSetting::model()->findAll($criteria);
-        
-        $indexed = [];
-        foreach ($settings as $setting) {
-            $indexed[$setting->quotals_language] = $setting;
-        }
-
-        return $indexed;
-    }
-
-    /**
-     * Get all languages for the survey
-     * @param Survey $survey
-     * @return array Array of language codes
-     */
-    private function getSurveyLanguages(Survey $survey): array
-    {
-        $languages = [$survey->language]; // Base language first
-        
-        if (!empty($survey->additional_languages)) {
-            $additionalLangs = explode(' ', trim($survey->additional_languages));
-            $languages = array_merge($languages, $additionalLangs);
-        }
-
-        return array_unique($languages);
-    }
 
 
     /**
@@ -220,7 +154,7 @@ class ExportQuotas extends AbstractExport
     protected function getHeaders(): array
     {
         $survey = $this->getSurvey();
-        $languages = $this->getSurveyLanguages($survey);
+        $languages = $survey->getAllLanguages();
 
         $headers = [
             'type',
@@ -321,7 +255,7 @@ class ExportQuotas extends AbstractExport
         ]);
         
         $survey = $this->getSurvey();
-        $languages = $this->getSurveyLanguages($survey);
+        $languages = $survey->getAllLanguages();
         
         foreach ($languages as $language) {
             $data[] = \OpenSpout\Common\Entity\Row::fromValues([
