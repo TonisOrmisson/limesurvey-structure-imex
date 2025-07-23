@@ -36,9 +36,10 @@ This file tracks attribute implementation based on real-world usage data from li
   - T (Long Free Text): 1,553 uses, 139 surveys ✅ DONE
   - X (Text Display): 151 uses, 55 surveys ✅ DONE
 
-### Priority #2: statistics_showgraph
+### Priority #2: statistics_showgraph ⚠️ MOSTLY DEFAULTS
 - **Total Usage**: 11,992 uses across 18 question types, 258 surveys  
-- **Status**: ❌ TODO
+- **Status**: ❌ SKIP - All sample values are "1" which matches LimeSurvey default
+- **Note**: This attribute has default="1" in LimeSurvey core, so all database entries are likely defaults
 - **Question Types to Implement**:
   - ! (List Dropdown): 120 uses, 26 surveys ❌ TODO
   - * (Equation): 362 uses, 151 surveys ❌ TODO
