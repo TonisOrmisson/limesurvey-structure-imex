@@ -20,10 +20,10 @@ class ExportQuestionsDefinitionTest extends TestCase
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('L', 'answer_order'));
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('N', 'min_num_value_n'));
         
-        // Test invalid attributes
-        $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
+        // Test invalid attributes (answer_order is now universal)
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('L', 'min_num_value_n'));
-        $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('N', 'answer_order'));
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('N', 'answer_order'));
         
         // Test unknown question type
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('UNKNOWN', 'hide_tip'));
@@ -61,7 +61,7 @@ class ExportQuestionsDefinitionTest extends TestCase
             // Valid attribute with non-default value - SHOULD export
             ['name' => 'cssclass', 'value' => 'custom-class'],
             // Invalid attribute for this type - should NOT export
-            ['name' => 'answer_order', 'value' => 'random'],
+            ['name' => 'min_num_value_n', 'value' => '5'],
             // Unknown attribute - should NOT export
             ['name' => 'unknown_attr', 'value' => 'some_value']
         ];
@@ -100,8 +100,8 @@ class ExportQuestionsDefinitionTest extends TestCase
         $this->assertEquals('custom-class', $exportedAttributes['cssclass']);
         
         // These should NOT be exported
-        $this->assertArrayNotHasKey('answer_order', $exportedAttributes);
         $this->assertArrayNotHasKey('unknown_attr', $exportedAttributes);
+        $this->assertArrayNotHasKey('min_num_value_n', $exportedAttributes);
         
         // Should have exactly 2 exported attributes
         $this->assertCount(2, $exportedAttributes);
@@ -123,8 +123,8 @@ class ExportQuestionsDefinitionTest extends TestCase
         $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('N', 'min_num_value_n', '1'));
         $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('N', 'min_num_value_n', ''));
         
-        // Test cross-contamination doesn't occur
-        $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
+        // Test cross-contamination doesn't occur (answer_order is now universal)
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'min_num_value_n'));
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('L', 'min_num_value_n'));
     }

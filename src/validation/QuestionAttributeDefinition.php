@@ -702,6 +702,7 @@ class QuestionAttributeDefinition
         
         \Question::QT_X_TEXT_DISPLAY => [
             'assessment_value' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
+            'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
@@ -846,6 +847,7 @@ class QuestionAttributeDefinition
         
         // N - Numerical input
         \Question::QT_N_NUMERICAL => [
+            'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'min_num_value_n' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_num_value_n' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
@@ -900,6 +902,7 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_K_MULTIPLE_NUMERICAL => [
+            'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'equals_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
             'max_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
             'min_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
