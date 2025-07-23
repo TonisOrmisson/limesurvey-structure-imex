@@ -529,6 +529,11 @@ class QuestionAttributeDefinition
         
         // M - Multiple Choice
         \Question::QT_M_MULTIPLE_CHOICE => [
+            'display_columns' => [
+                'default' => '',
+                'type' => 'columns',
+                'category' => 'Display'
+            ],
             'min_answers' => [
                 'default' => '',
                 'type' => 'integer',
