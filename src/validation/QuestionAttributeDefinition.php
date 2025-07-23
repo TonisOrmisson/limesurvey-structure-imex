@@ -442,6 +442,11 @@ class QuestionAttributeDefinition
                 'type' => 'columns',
                 'category' => 'Display'
             ],
+            'exclude_all_others' => [
+                'default' => '',
+                'type' => 'text',
+                'category' => 'Logic'
+            ],
             'page_break' => [
                 'default' => '0',
                 'type' => 'switch',
@@ -757,6 +762,7 @@ class QuestionAttributeDefinition
         ],
         \Question::QT_P_MULTIPLE_CHOICE_WITH_COMMENTS => [
             'choice_input_columns' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
+            'exclude_all_others' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'commented_checkbox' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'commented_checkbox_auto' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'other_comment_mandatory' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
