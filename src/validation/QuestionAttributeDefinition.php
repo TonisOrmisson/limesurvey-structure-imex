@@ -118,6 +118,47 @@ class QuestionAttributeDefinition
             'type' => 'switch',
             'options' => ['N', 'Y'],
             'category' => 'Logic'
+        ],
+        'random_order' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Display'
+        ],
+        'other_numbers_only' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Logic'
+        ],
+        'other_position' => [
+            'default' => 'default',
+            'type' => 'singleselect',
+            'options' => ['beginning', 'default', 'end', 'specific'],
+            'category' => 'Display'
+        ],
+        'numbers_only' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Other'
+        ],
+        'answer_order' => [
+            'default' => 'normal',
+            'type' => 'singleselect',
+            'options' => ['normal', 'random', 'alphabetical'],
+            'category' => 'Display'
+        ],
+        'other_comment_mandatory' => [
+            'default' => '0',
+            'type' => 'switch',
+            'options' => ['0', '1'],
+            'category' => 'Logic'
+        ],
+        'suffix' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Display'
         ]
     ];
 
@@ -396,12 +437,6 @@ class QuestionAttributeDefinition
         
         // L - List (Radio)
         \Question::QT_L_LIST => [
-            'answer_order' => [
-                'default' => 'normal',
-                'type' => 'singleselect',
-                'options' => ['normal', 'random', 'alphabetical'],
-                'category' => 'Display'
-            ],
             'display_columns' => [
                 'default' => '',
                 'type' => 'columns',
@@ -459,24 +494,6 @@ class QuestionAttributeDefinition
                 'options' => ['0', '1'],
                 'category' => 'Statistics'
             ],
-            'other_comment_mandatory' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'other_numbers_only' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'other_position' => [
-                'default' => 'default',
-                'type' => 'singleselect',
-                'options' => ['beginning', 'default', 'end', 'specific'],
-                'category' => 'Display'
-            ],
             'other_position_code' => [
                 'default' => '',
                 'type' => 'text',
@@ -501,12 +518,6 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'integer',
                 'category' => 'Input'
-            ],
-            'answer_order' => [
-                'default' => 'normal',
-                'type' => 'singleselect',
-                'options' => ['normal', 'random', 'alphabetical'],
-                'category' => 'Display'
             ],
             'other_replace_text' => [
                 'default' => '',
@@ -543,24 +554,6 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'text',
                 'category' => 'Logic'
-            ],
-            'other_comment_mandatory' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'other_numbers_only' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'other_position' => [
-                'default' => 'default',
-                'type' => 'singleselect',
-                'options' => ['beginning', 'default', 'end', 'specific'],
-                'category' => 'Display'
             ],
             'other_position_code' => [
                 'default' => '',
@@ -669,30 +662,6 @@ class QuestionAttributeDefinition
             'category_separator' => [
                 'default' => '',
                 'type' => 'text',
-                'category' => 'Display'
-            ],
-            'answer_order' => [
-                'default' => 'normal',
-                'type' => 'singleselect',
-                'options' => ['normal', 'random', 'alphabetical'],
-                'category' => 'Display'
-            ],
-            'other_comment_mandatory' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'other_numbers_only' => [
-                'default' => '0',
-                'type' => 'switch',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'other_position' => [
-                'default' => 'default',
-                'type' => 'singleselect',
-                'options' => ['beginning', 'default', 'end', 'specific'],
                 'category' => 'Display'
             ],
             'other_position_code' => [

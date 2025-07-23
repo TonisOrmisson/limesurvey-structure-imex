@@ -95,9 +95,9 @@ class QuestionAttributeDefinitionTest extends TestCase
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'unknown_attribute'));
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('INVALID', 'hide_tip'));
         
-        // Test attributes that exist for one type but not another
+        // Test universal attributes are valid for all types
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('L', 'answer_order'));
-        $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
     }
 
     /**
