@@ -443,6 +443,11 @@ class QuestionAttributeDefinition
         
         // L - List (Radio)
         \Question::QT_L_LIST => [
+            'answer_width' => [
+                'default' => '',
+                'type' => 'integer',
+                'category' => 'Display'
+            ],
             'display_columns' => [
                 'default' => '',
                 'type' => 'columns',
