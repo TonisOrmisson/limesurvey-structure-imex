@@ -301,6 +301,12 @@ class QuestionAttributeDefinition
     private static $definitions = [
         // T - Long free text
         \Question::QT_T_LONG_FREE_TEXT => [
+            'assessment_value' => [
+                'default' => '0',
+                'type' => 'switch',
+                'options' => ['0', '1'],
+                'category' => 'Statistics'
+            ],
             'text_input_width' => [
                 'default' => '',
                 'type' => 'singleselect',
@@ -581,6 +587,12 @@ class QuestionAttributeDefinition
         
         // S - Short Free Text
         \Question::QT_S_SHORT_FREE_TEXT => [
+            'assessment_value' => [
+                'default' => '0',
+                'type' => 'switch',
+                'options' => ['0', '1'],
+                'category' => 'Statistics'
+            ],
             'text_input_width' => [
                 'default' => '',
                 'type' => 'singleselect',
@@ -684,6 +696,7 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_X_TEXT_DISPLAY => [
+            'assessment_value' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
@@ -847,6 +860,7 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_F_ARRAY => [
+            'assessment_value' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'array_filter_style' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
