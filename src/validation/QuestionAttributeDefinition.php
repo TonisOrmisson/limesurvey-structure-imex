@@ -169,6 +169,26 @@ class QuestionAttributeDefinition
             'default' => '',
             'type' => 'text',
             'category' => 'Display'
+        ],
+        'printable_help' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Display'
+        ],
+        'array_filter' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Logic'
+        ],
+        'array_filter_exclude' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Logic'
+        ],
+        'input_size' => [
+            'default' => '',
+            'type' => 'integer',
+            'category' => 'Display'
         ]
     ];
 
@@ -325,11 +345,6 @@ class QuestionAttributeDefinition
                 'default' => '',
                 'type' => 'singleselect',
                 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-                'category' => 'Display'
-            ],
-            'input_size' => [
-                'default' => '',
-                'type' => 'integer',
                 'category' => 'Display'
             ],
             'display_rows' => [
@@ -575,22 +590,6 @@ class QuestionAttributeDefinition
                 'category' => 'Logic'
             ],
             'random_group' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Logic'
-            ],
-            'array_filter' => [
-                'default' => '',
-                'type' => 'text',
-                'category' => 'Logic'
-            ],
-            'array_filter_style' => [
-                'default' => '0',
-                'type' => 'singleselect',
-                'options' => ['0', '1'],
-                'category' => 'Logic'
-            ],
-            'array_filter_exclude' => [
                 'default' => '',
                 'type' => 'text',
                 'category' => 'Logic'
@@ -899,7 +898,6 @@ class QuestionAttributeDefinition
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
-            'printable_help' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'public_statistics' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'scale_export' => ['default' => '0', 'type' => 'singleselect', 'options' => ['0', '1', '2', '3'], 'category' => 'Other'],
             'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
