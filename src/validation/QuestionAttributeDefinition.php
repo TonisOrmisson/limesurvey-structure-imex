@@ -715,6 +715,17 @@ class QuestionAttributeDefinition
                 'type' => 'text',
                 'category' => 'Display'
             ],
+            'dropdown_prefix' => [
+                'default' => '0',
+                'type' => 'buttongroup',
+                'options' => ['0', '1'],
+                'category' => 'Display'
+            ],
+            'dropdown_size' => [
+                'default' => '',
+                'type' => 'text',
+                'category' => 'Display'
+            ],
             'show_search' => [
                 'default' => 'false',
                 'type' => 'buttongroup',
@@ -764,10 +775,12 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_Y_YES_NO_RADIO => [
+            'display_type' => ['default' => '0', 'type' => 'buttongroup', 'options' => ['0', '1'], 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_G_GENDER => [
+            'display_type' => ['default' => '0', 'type' => 'buttongroup', 'options' => ['0', '1'], 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
@@ -792,24 +805,28 @@ class QuestionAttributeDefinition
         \Question::QT_A_ARRAY_5_POINT => [
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_B_ARRAY_10_CHOICE_QUESTIONS => [
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_C_ARRAY_YES_UNCERTAIN_NO => [
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_E_ARRAY_INC_SAME_DEC => [
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
@@ -860,6 +877,11 @@ class QuestionAttributeDefinition
         \Question::QT_VERTICAL_FILE_UPLOAD => [
             'max_filesize' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'allowed_filetypes' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
+            'min_num_of_files' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
+            'max_num_of_files' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
+            'show_title' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'show_comment' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'show_filename' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
