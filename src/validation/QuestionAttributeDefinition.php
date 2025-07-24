@@ -457,6 +457,11 @@ class QuestionAttributeDefinition
                 'type' => 'columns',
                 'category' => 'Display'
             ],
+            'fix_height' => [
+                'default' => '200',
+                'type' => 'integer',
+                'category' => 'Display'
+            ],
             'exclude_all_others' => [
                 'default' => '',
                 'type' => 'text',
