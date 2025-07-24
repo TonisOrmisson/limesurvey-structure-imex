@@ -1,0 +1,3384 @@
+{
+    "attributes": {
+        "allowed_filetypes": {
+            "name": "allowed_filetypes",
+            "type": "advanced",
+            "question_types": [
+                "|"
+            ],
+            "definition": {
+                "name": "allowed_filetypes",
+                "default": "png, gif, doc, odt, jpg, jpeg, pdf, png, heic",
+                "inputtype": "text",
+                "category": "Other",
+                "help": "Allowed file types in comma separated format. e.g. pdf,doc,odt",
+                "caption": "Allowed file types",
+                "sortorder": "134",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "answer_order": {
+            "name": "answer_order",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "O",
+                "R"
+            ],
+            "definition": {
+                "name": "answer_order",
+                "default": "normal",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Present answer options in normal, random or alphabetical order",
+                "caption": "Answer options order",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "normal": "Normal",
+                    "random": "Random",
+                    "alphabetical": "Alphabetical"
+                }
+            }
+        },
+        "array_filter": {
+            "name": "array_filter",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "L",
+                "M",
+                "P",
+                "Q",
+                "R"
+            ],
+            "definition": {
+                "name": "array_filter",
+                "default": "",
+                "inputtype": "text",
+                "category": "Logic",
+                "help": "Enter the code(s) of Multiple choice question(s) (separated by semicolons) to only show the matching answer options in this question.",
+                "caption": "Array filter",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "array_filter_exclude": {
+            "name": "array_filter_exclude",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "L",
+                "M",
+                "P",
+                "Q",
+                "R"
+            ],
+            "definition": {
+                "name": "array_filter_exclude",
+                "default": "",
+                "inputtype": "text",
+                "category": "Logic",
+                "help": "Enter the code(s) of Multiple choice question(s) (separated by semicolons) to exclude the matching answer options in this question.",
+                "caption": "Array filter exclusion",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "array_filter_style": {
+            "name": "array_filter_style",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "L",
+                "M",
+                "P",
+                "Q",
+                "R"
+            ],
+            "definition": {
+                "name": "array_filter_style",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Logic",
+                "help": "Specify how array-filtered subquestions should be displayed",
+                "caption": "Array filter style",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Hidden",
+                    "Disabled"
+                ]
+            }
+        },
+        "assessment_value": {
+            "name": "assessment_value",
+            "type": "advanced",
+            "question_types": [
+                "M",
+                "P"
+            ],
+            "definition": {
+                "name": "assessment_value",
+                "default": "1",
+                "inputtype": "integer",
+                "category": "Logic",
+                "help": "If one of the subquestions is marked then for each marked subquestion this value is added as assessment.",
+                "caption": "Assessment value",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "category_separator": {
+            "name": "category_separator",
+            "type": "advanced",
+            "question_types": [
+                "!"
+            ],
+            "definition": {
+                "name": "category_separator",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Category separator",
+                "caption": "Category separator",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "choice_input_columns": {
+            "name": "choice_input_columns",
+            "type": "advanced",
+            "question_types": [
+                "P"
+            ],
+            "definition": {
+                "name": "choice_input_columns",
+                "default": "",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Relative width of checkbox wrapper element",
+                "caption": "Choice column width",
+                "sortorder": "90",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "": "Default",
+                    "1": "8%",
+                    "2": "17%",
+                    "3": "25%",
+                    "4": "33%",
+                    "5": "41%",
+                    "6": "50%",
+                    "7": "58%",
+                    "8": "67%",
+                    "9": "75%",
+                    "10": "83%",
+                    "11": "92%",
+                    "12": "100%"
+                }
+            }
+        },
+        "choice_title": {
+            "name": "choice_title",
+            "type": "advanced",
+            "question_types": [
+                "R"
+            ],
+            "definition": {
+                "name": "choice_title",
+                "default": "",
+                "inputtype": "text",
+                "category": "Other",
+                "help": "Replace choice header (default: &quot;Available items&quot;)",
+                "caption": "Choice header",
+                "sortorder": "200",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "clear_default": {
+            "name": "clear_default",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "commented_checkbox": {
+            "name": "commented_checkbox",
+            "type": "advanced",
+            "question_types": [
+                "P"
+            ],
+            "definition": {
+                "name": "commented_checkbox",
+                "default": "checked",
+                "inputtype": "singleselect",
+                "category": "Logic",
+                "help": "Choose when user can add a comment",
+                "caption": "Comment only when",
+                "sortorder": "110",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "allways": "No control on checkbox",
+                    "checked": "Checkbox is checked",
+                    "unchecked": "Checkbox is unchecked"
+                }
+            }
+        },
+        "commented_checkbox_auto": {
+            "name": "commented_checkbox_auto",
+            "type": "advanced",
+            "question_types": [
+                "P"
+            ],
+            "definition": {
+                "name": "commented_checkbox_auto",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Logic",
+                "help": "Use javascript function to remove text and uncheck checkbox (or use ExpressionScript Engine only).",
+                "caption": "Remove text or uncheck checkbox automatically",
+                "sortorder": "111",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "cssclass": {
+            "name": "cssclass",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "cssclass",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Add additional CSS class(es) for this question. Use a space between multiple CSS class names. You may use expressions - remember this part is static.",
+                "caption": "CSS class(es)",
+                "sortorder": "102",
+                "expression": "1",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "date_format": {
+            "name": "date_format",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "date_format",
+                "default": "",
+                "inputtype": "text",
+                "category": "Input",
+                "help": "Specify a custom date\/time format (the &lt;i&gt;d\/dd m\/mm yy\/yyyy H\/HH M\/MM&lt;\/i&gt;\n                formats and &quot;-.\/: &quot; characters are allowed for day\/month\/year\/hour\/minutes without or\n                with leading zero respectively. Defaults to survey's date format\n            ",
+                "caption": "Date\/Time format",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "date_max": {
+            "name": "date_max",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "date_max",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Maximum date, valide date in any English textual datetime description (YYYY-MM-DD for example). Expression Managed can be used (only with YYYY-MM-DD format) value. For dropdown : only the year is restricted if date use variable not in same page.",
+                "caption": "Maximum date",
+                "sortorder": "111",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "date_min": {
+            "name": "date_min",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "date_min",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Minimum date, valide date in YYYY-MM-DD format or any English textual datetime description. Expression Managed can be used (only with YYYY-MM-DD format). For dropdown : only the year is restricted if date use variable not in same page.",
+                "caption": "Minimum date",
+                "sortorder": "110",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "display_columns": {
+            "name": "display_columns",
+            "type": "advanced",
+            "question_types": [
+                "L",
+                "M"
+            ],
+            "definition": {
+                "name": "display_columns",
+                "default": "",
+                "inputtype": "columns",
+                "category": "Display",
+                "help": "The answer options will be distributed across the number of columns set here",
+                "caption": "Display columns",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "display_rows": {
+            "name": "display_rows",
+            "type": "advanced",
+            "question_types": [
+                "Q",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "name": "display_rows",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Display",
+                "help": "How many rows to display",
+                "caption": "Display rows",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "display_type": {
+            "name": "display_type",
+            "type": "advanced",
+            "question_types": [
+                "G",
+                "Y"
+            ],
+            "definition": {
+                "name": "display_type",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Display",
+                "help": "Use button group or radio list",
+                "caption": "Display type",
+                "sortorder": "90",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Button group",
+                    "Radio list"
+                ]
+            }
+        },
+        "dropdown_dates": {
+            "name": "dropdown_dates",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "dropdown_dates",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Use accessible dropdown boxes instead of calendar popup",
+                "caption": "Display dropdown boxes",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "dropdown_dates_minute_step": {
+            "name": "dropdown_dates_minute_step",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "dropdown_dates_minute_step",
+                "default": "1",
+                "inputtype": "integer",
+                "category": "Input",
+                "help": "Minute step interval when using select boxes",
+                "caption": "Minute step interval",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "dropdown_dates_month_style": {
+            "name": "dropdown_dates_month_style",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "dropdown_dates_month_style",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Display",
+                "help": "Change the display style of the month when using select boxes",
+                "caption": "Month display style",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Short names",
+                    "Full names",
+                    "Numbers"
+                ]
+            }
+        },
+        "dropdown_prefix": {
+            "name": "dropdown_prefix",
+            "type": "advanced",
+            "question_types": [
+                "!"
+            ],
+            "definition": {
+                "name": "dropdown_prefix",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Display",
+                "help": "Accelerator keys for list items",
+                "caption": "Prefix for list items",
+                "sortorder": "201",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "None",
+                    "Order - like 3)"
+                ]
+            }
+        },
+        "dropdown_size": {
+            "name": "dropdown_size",
+            "type": "advanced",
+            "question_types": [
+                "!"
+            ],
+            "definition": {
+                "name": "dropdown_size",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "For list dropdown boxes, show up to this many rows",
+                "caption": "Height of dropdown",
+                "sortorder": "200",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "em_validation_q": {
+            "name": "em_validation_q",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "5",
+                "D",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "name": "em_validation_q",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Logic",
+                "help": "Enter a boolean equation to validate the whole question.",
+                "caption": "Question validation equation",
+                "sortorder": "200",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "0"
+            }
+        },
+        "em_validation_q_tip": {
+            "name": "em_validation_q_tip",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "5",
+                "D",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "name": "em_validation_q_tip",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Logic",
+                "help": "This is a hint text that will be shown to the participant describing the question validation equation.",
+                "caption": "Question validation tip",
+                "sortorder": "210",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "em_validation_sq": {
+            "name": "em_validation_sq",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "Q"
+            ],
+            "definition": {
+                "name": "em_validation_sq",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Logic",
+                "help": "Enter a boolean equation to validate each subquestion.",
+                "caption": "Subquestion validation equation",
+                "sortorder": "220",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "0"
+            }
+        },
+        "em_validation_sq_tip": {
+            "name": "em_validation_sq_tip",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "Q"
+            ],
+            "definition": {
+                "name": "em_validation_sq_tip",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Logic",
+                "help": "This is a tip shown to the participant describing the subquestion validation equation.",
+                "caption": "Subquestion validation tip",
+                "sortorder": "230",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "encrypted": {
+            "name": "encrypted",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "equals_num_value": {
+            "name": "equals_num_value",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "equals_num_value",
+                "default": "",
+                "inputtype": "text",
+                "category": "Input",
+                "help": "Multiple numeric inputs sum must equal this value",
+                "caption": "Equals sum value",
+                "sortorder": "100",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "equation": {
+            "name": "equation",
+            "type": "advanced",
+            "question_types": [
+                "*"
+            ],
+            "definition": {
+                "name": "equation",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Logic",
+                "help": "Final equation to set in database, defaults to question text.",
+                "caption": "Equation",
+                "sortorder": "100",
+                "expression": "1",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "exclude_all_others": {
+            "name": "exclude_all_others",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "M",
+                "P",
+                "Q"
+            ],
+            "definition": {
+                "name": "exclude_all_others",
+                "default": "",
+                "inputtype": "text",
+                "category": "Logic",
+                "help": "Excludes all other options if a certain answer is selected - just enter the answer code(s) separated with a semicolon.",
+                "caption": "Exclusive option",
+                "sortorder": "130",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "exclude_all_others_auto": {
+            "name": "exclude_all_others_auto",
+            "type": "advanced",
+            "question_types": [
+                "M",
+                "P"
+            ],
+            "definition": {
+                "name": "exclude_all_others_auto",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Logic",
+                "help": "If the participant marks all options, uncheck all and check the option set in the &quot;Exclusive option&quot; setting",
+                "caption": "Auto-check exclusive option if all others are checked",
+                "sortorder": "131",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "gid": {
+            "name": "gid",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "hidden": {
+            "name": "hidden",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "hidden",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Hide this question at any time. This is useful for including data using answer prefilling.",
+                "caption": "Always hide this question",
+                "sortorder": "101",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "hide_tip": {
+            "name": "hide_tip",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "hide_tip",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Hide the tip that is normally shown with a question",
+                "caption": "Hide tip",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "input_size": {
+            "name": "input_size",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "Q",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "name": "input_size",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Display",
+                "help": "Set the size of the input or textarea. The input will be displayed approximately this size in width.",
+                "caption": "Text input box size",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "label_input_columns": {
+            "name": "label_input_columns",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "Q"
+            ],
+            "definition": {
+                "name": "label_input_columns",
+                "default": "",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Relative width of the labels",
+                "caption": "Label wrapper width",
+                "sortorder": "91",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "": "Default",
+                    "hidden": "Hidden",
+                    "1": "8%",
+                    "2": "17%",
+                    "3": "25%",
+                    "4": "33%",
+                    "5": "41%",
+                    "6": "50%",
+                    "7": "58%",
+                    "8": "67%",
+                    "9": "75%",
+                    "10": "83%",
+                    "11": "92%",
+                    "12": "100%"
+                }
+            }
+        },
+        "location_city": {
+            "name": "location_city",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_city",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Location",
+                "help": "Store the city?",
+                "caption": "Save city",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "1",
+                "xssfilter": "",
+                "options": {
+                    "1": "Yes",
+                    "0": "No"
+                }
+            }
+        },
+        "location_country": {
+            "name": "location_country",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_country",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Location",
+                "help": "Store the country?",
+                "caption": "Save country",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "1",
+                "xssfilter": "",
+                "options": {
+                    "1": "Yes",
+                    "0": "No"
+                }
+            }
+        },
+        "location_defaultcoordinates": {
+            "name": "location_defaultcoordinates",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_defaultcoordinates",
+                "default": "",
+                "inputtype": "text",
+                "category": "Location",
+                "help": "Default coordinates of the map when the page first loads. Format: latitude [space] longtitude",
+                "caption": "Default position",
+                "sortorder": "101",
+                "expression": "1",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "location_mapheight": {
+            "name": "location_mapheight",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_mapheight",
+                "default": "300",
+                "inputtype": "text",
+                "category": "Location",
+                "help": "Map height in pixel",
+                "caption": "Map height",
+                "sortorder": "103",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "location_mapservice": {
+            "name": "location_mapservice",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_mapservice",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Location",
+                "help": "Activate this to show a map above the input field where the user can select a location",
+                "caption": "Use mapping service",
+                "sortorder": "90",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "0": "Off",
+                    "100": "OpenStreetMap via MapQuest",
+                    "1": "Google Maps"
+                }
+            }
+        },
+        "location_mapwidth": {
+            "name": "location_mapwidth",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_mapwidth",
+                "default": "500",
+                "inputtype": "text",
+                "category": "Location",
+                "help": "Map width in pixel",
+                "caption": "Map width",
+                "sortorder": "102",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "location_mapzoom": {
+            "name": "location_mapzoom",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_mapzoom",
+                "default": "11",
+                "inputtype": "text",
+                "category": "Location",
+                "help": "Map zoom level",
+                "caption": "Zoom level",
+                "sortorder": "101",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "location_nodefaultfromip": {
+            "name": "location_nodefaultfromip",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_nodefaultfromip",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Location",
+                "help": "Get the default location using the user's IP address?",
+                "caption": "IP as default location",
+                "sortorder": "91",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            }
+        },
+        "location_postal": {
+            "name": "location_postal",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_postal",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Location",
+                "help": "Store the postal code?",
+                "caption": "Save postal code",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "1",
+                "xssfilter": "",
+                "options": {
+                    "1": "Yes",
+                    "0": "No"
+                }
+            }
+        },
+        "location_state": {
+            "name": "location_state",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "location_state",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Location",
+                "help": "Store the state?",
+                "caption": "Save state",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "1",
+                "xssfilter": "",
+                "options": {
+                    "1": "Yes",
+                    "0": "No"
+                }
+            }
+        },
+        "mandatory": {
+            "name": "mandatory",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "max_answers": {
+            "name": "max_answers",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "M",
+                "P",
+                "Q",
+                "R"
+            ],
+            "definition": {
+                "name": "max_answers",
+                "default": "",
+                "inputtype": "text",
+                "category": "Logic",
+                "help": "Limit the number of possible answers",
+                "caption": "Maximum answers",
+                "sortorder": "11",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "max_filesize": {
+            "name": "max_filesize",
+            "type": "advanced",
+            "question_types": [
+                "|"
+            ],
+            "definition": {
+                "name": "max_filesize",
+                "default": "10240",
+                "inputtype": "integer",
+                "category": "Other",
+                "help": "The participant cannot upload a single file larger than this size",
+                "caption": "Maximum file size allowed (in KB)",
+                "sortorder": "128",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "max_num_of_files": {
+            "name": "max_num_of_files",
+            "type": "advanced",
+            "question_types": [
+                "|"
+            ],
+            "definition": {
+                "name": "max_num_of_files",
+                "default": "1",
+                "inputtype": "integer",
+                "category": "Other",
+                "help": "Maximum number of files that the participant can upload for this question",
+                "caption": "Max number of files",
+                "sortorder": "130",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "max_num_value": {
+            "name": "max_num_value",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "max_num_value",
+                "default": "",
+                "inputtype": "text",
+                "category": "Input",
+                "help": "Maximum sum value of multiple numeric input",
+                "caption": "Maximum sum value",
+                "sortorder": "100",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "max_num_value_n": {
+            "name": "max_num_value_n",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N"
+            ],
+            "definition": {
+                "name": "max_num_value_n",
+                "default": "",
+                "inputtype": "text",
+                "category": "Input",
+                "help": "Maximum value of the numeric input",
+                "caption": "Maximum value",
+                "sortorder": "110",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "max_subquestions": {
+            "name": "max_subquestions",
+            "type": "advanced",
+            "question_types": [
+                "R"
+            ],
+            "definition": {
+                "name": "max_subquestions",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Logic",
+                "help": "Limit the number of possible answers fixed by number of columns in database",
+                "caption": "Maximum columns for answers",
+                "sortorder": "12",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "1",
+                "xssfilter": ""
+            }
+        },
+        "maximum_chars": {
+            "name": "maximum_chars",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "Q",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "name": "maximum_chars",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Input",
+                "help": "Maximum characters allowed",
+                "caption": "Maximum characters",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "min_answers": {
+            "name": "min_answers",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "M",
+                "P",
+                "Q",
+                "R"
+            ],
+            "definition": {
+                "name": "min_answers",
+                "default": "",
+                "inputtype": "text",
+                "category": "Logic",
+                "help": "Ensure a minimum number of possible answers (0=No limit)",
+                "caption": "Minimum answers",
+                "sortorder": "10",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "min_num_of_files": {
+            "name": "min_num_of_files",
+            "type": "advanced",
+            "question_types": [
+                "|"
+            ],
+            "definition": {
+                "name": "min_num_of_files",
+                "default": "0",
+                "inputtype": "integer",
+                "category": "Other",
+                "help": "Minimum number of files that the participant must upload for this question",
+                "caption": "Min number of files",
+                "sortorder": "132",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "min_num_value": {
+            "name": "min_num_value",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "min_num_value",
+                "default": "",
+                "inputtype": "text",
+                "category": "Input",
+                "help": "The sum of the multiple numeric inputs must be greater than this value",
+                "caption": "Minimum sum value",
+                "sortorder": "100",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "min_num_value_n": {
+            "name": "min_num_value_n",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N"
+            ],
+            "definition": {
+                "name": "min_num_value_n",
+                "default": "",
+                "inputtype": "text",
+                "category": "Input",
+                "help": "Minimum value of the numeric input",
+                "caption": "Minimum value",
+                "sortorder": "100",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "num_value_int_only": {
+            "name": "num_value_int_only",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N"
+            ],
+            "definition": {
+                "name": "num_value_int_only",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Input",
+                "help": "Restrict input to integer values",
+                "caption": "Integer only",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "numbers_only": {
+            "name": "numbers_only",
+            "type": "advanced",
+            "question_types": [
+                "*",
+                "Q",
+                "S"
+            ],
+            "definition": {
+                "name": "numbers_only",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Other",
+                "help": "Allow only numerical input",
+                "caption": "Numbers only",
+                "sortorder": "150",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "other": {
+            "name": "other",
+            "type": "general",
+            "question_types": [
+                "!",
+                "L",
+                "M",
+                "P"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "other_comment_mandatory": {
+            "name": "other_comment_mandatory",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "P"
+            ],
+            "definition": {
+                "name": "other_comment_mandatory",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Logic",
+                "help": "Make the 'Other:' comment field mandatory when the 'Other:'\n                option is active\n            ",
+                "caption": "'Other:' comment mandatory",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "other_numbers_only": {
+            "name": "other_numbers_only",
+            "type": "advanced",
+            "question_types": [
+                "L",
+                "M",
+                "P"
+            ],
+            "definition": {
+                "name": "other_numbers_only",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Logic",
+                "help": "Allow only numerical input for 'Other' text",
+                "caption": "Numbers only for 'Other'",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "other_position": {
+            "name": "other_position",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "M",
+                "P"
+            ],
+            "definition": {
+                "name": "other_position",
+                "default": "default",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Indicates where the 'Other' option should be placed",
+                "caption": "Position for 'Other:' option",
+                "sortorder": "150",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "beginning": "At beginning",
+                    "default": "Before 'No Answer'",
+                    "end": "At end",
+                    "specific": "After specific answer option"
+                }
+            }
+        },
+        "other_position_code": {
+            "name": "other_position_code",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "M",
+                "P"
+            ],
+            "definition": {
+                "name": "other_position_code",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "The code of the answer option after which the 'Other:' option will be placed if the position is set to 'After specific answer option'",
+                "caption": "Answer code for 'After specific answer option'",
+                "sortorder": "151",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "other_replace_text": {
+            "name": "other_replace_text",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "M",
+                "P"
+            ],
+            "definition": {
+                "name": "other_replace_text",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Replaces the label of the 'Other:' answer option with a custom text",
+                "caption": "Label for 'Other:' option",
+                "sortorder": "100",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "page_break": {
+            "name": "page_break",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "page_break",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Other",
+                "help": "Insert a page break before this question in printable view.",
+                "caption": "Insert page break in printable view",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "placeholder": {
+            "name": "placeholder",
+            "type": "advanced",
+            "question_types": [
+                "N"
+            ],
+            "definition": {
+                "name": "placeholder",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "A placeholder answer to a question. This will appear in the answer field and disappear when real answer text is entered.",
+                "caption": "Placeholder answer",
+                "sortorder": "12",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "prefix": {
+            "name": "prefix",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "Q",
+                "S"
+            ],
+            "definition": {
+                "name": "prefix",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Add a prefix to the answer field",
+                "caption": "Answer prefix",
+                "sortorder": "10",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "preg": {
+            "name": "preg",
+            "type": "general",
+            "question_types": [
+                "K",
+                "N",
+                "Q",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "printable_help": {
+            "name": "printable_help",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "R",
+                "Y"
+            ],
+            "definition": {
+                "name": "printable_help",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "In the printable version the condition is being replaced with this explanation text.",
+                "caption": "Condition help for printable survey",
+                "sortorder": "201",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "public_statistics": {
+            "name": "public_statistics",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "G",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "R",
+                "Y"
+            ],
+            "definition": {
+                "name": "public_statistics",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Statistics",
+                "help": "Show statistics of this question in the public statistics page",
+                "caption": "Show in public statistics",
+                "sortorder": "80",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "question_template": {
+            "name": "question_template",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "random_group": {
+            "name": "random_group",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "random_group",
+                "default": "",
+                "inputtype": "text",
+                "category": "Logic",
+                "help": "Place questions into a specified randomization group, all questions included in the specified group will appear in a random order",
+                "caption": "Randomization group name",
+                "sortorder": "180",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "random_order": {
+            "name": "random_order",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "M",
+                "P",
+                "Q"
+            ],
+            "definition": {
+                "name": "random_order",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Present subquestions\/answer options in random order",
+                "caption": "Random order",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "rank_title": {
+            "name": "rank_title",
+            "type": "advanced",
+            "question_types": [
+                "R"
+            ],
+            "definition": {
+                "name": "rank_title",
+                "default": "",
+                "inputtype": "text",
+                "category": "Other",
+                "help": "Replace rank header (default: &quot;Your ranking&quot;)",
+                "caption": "Rank header",
+                "sortorder": "201",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "relevance": {
+            "name": "relevance",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "reverse": {
+            "name": "reverse",
+            "type": "advanced",
+            "question_types": [
+                "D"
+            ],
+            "definition": {
+                "name": "reverse",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Present answer options in reverse order",
+                "caption": "Reverse answer order",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "samechoiceheight": {
+            "name": "samechoiceheight",
+            "type": "advanced",
+            "question_types": [
+                "R"
+            ],
+            "definition": {
+                "name": "samechoiceheight",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Force each answer option to have the same height",
+                "caption": "Same height for all answer options",
+                "sortorder": "120",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "samelistheight": {
+            "name": "samelistheight",
+            "type": "advanced",
+            "question_types": [
+                "R"
+            ],
+            "definition": {
+                "name": "samelistheight",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Force the choice list and the rank list to have the same height",
+                "caption": "Same height for lists",
+                "sortorder": "121",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "save_as_default": {
+            "name": "save_as_default",
+            "type": "general",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "default": "",
+                "inputtype": "general",
+                "category": "General"
+            }
+        },
+        "scale_export": {
+            "name": "scale_export",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "G",
+                "L",
+                "M",
+                "O",
+                "P",
+                "Y"
+            ],
+            "definition": {
+                "name": "scale_export",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Other",
+                "help": "Set a specific SPSS export scale type for this question",
+                "caption": "SPSS export scale type",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Default",
+                    "Nominal",
+                    "Ordinal",
+                    "Scale"
+                ]
+            }
+        },
+        "show_comment": {
+            "name": "show_comment",
+            "type": "advanced",
+            "question_types": [
+                "|"
+            ],
+            "definition": {
+                "name": "show_comment",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "File metadata",
+                "help": "Is the participant required to give a comment to the uploaded file?",
+                "caption": "Show comment",
+                "sortorder": "126",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "show_title": {
+            "name": "show_title",
+            "type": "advanced",
+            "question_types": [
+                "|"
+            ],
+            "definition": {
+                "name": "show_title",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "File metadata",
+                "help": "Is the participant required to give a title to the uploaded file?",
+                "caption": "Show title",
+                "sortorder": "124",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "showpopups": {
+            "name": "showpopups",
+            "type": "advanced",
+            "question_types": [
+                "R"
+            ],
+            "definition": {
+                "name": "showpopups",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Show an alert if answers exceeds the number of max answers",
+                "caption": "Show javascript alert",
+                "sortorder": "110",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "slider_accuracy": {
+            "name": "slider_accuracy",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_accuracy",
+                "default": "",
+                "inputtype": "text",
+                "category": "Slider",
+                "help": "You can use Expression manager, but this must be a number before showing the page else set to 1.",
+                "caption": "Slider accuracy",
+                "sortorder": "30",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "slider_custom_handle": {
+            "name": "slider_custom_handle",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_custom_handle",
+                "default": "f1ae",
+                "inputtype": "text",
+                "category": "Slider",
+                "help": "Accepts Font Awesome Unicode characters.",
+                "caption": "Custom handle Unicode code",
+                "sortorder": "4",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "slider_default": {
+            "name": "slider_default",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_default",
+                "default": "",
+                "inputtype": "text",
+                "category": "Slider",
+                "help": "Slider start as this value. You can use Expression manager, but this must be a number before showing the page.",
+                "caption": "Slider initial value",
+                "sortorder": "50",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "slider_default_set": {
+            "name": "slider_default_set",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_default_set",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Slider",
+                "help": "When using slider initial value set this value at survey start.",
+                "caption": "Slider initial value set at start",
+                "sortorder": "51",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "slider_handle": {
+            "name": "slider_handle",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_handle",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Slider",
+                "help": "Set the handle shape. 'Custom' is defined in CSS using the Font Awesome font.",
+                "caption": "Handle shape",
+                "sortorder": "3",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Circle",
+                    "Square",
+                    "Triangle",
+                    "Custom"
+                ]
+            }
+        },
+        "slider_layout": {
+            "name": "slider_layout",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_layout",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Slider",
+                "help": "Use slider layout",
+                "caption": "Use slider layout",
+                "sortorder": "1",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "slider_max": {
+            "name": "slider_max",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_max",
+                "default": "",
+                "inputtype": "text",
+                "category": "Slider",
+                "help": "You can use Expression manager, but this must be a number before showing the page else set to 100. If maximum value is not set, this value is used.",
+                "caption": "Slider maximum value",
+                "sortorder": "11",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "slider_middlestart": {
+            "name": "slider_middlestart",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_middlestart",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Slider",
+                "help": "The handle is displayed at the middle of the slider except if Slider initial value is set (this will not set the initial value).",
+                "caption": "Slider starts at the middle position",
+                "sortorder": "40",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "slider_min": {
+            "name": "slider_min",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_min",
+                "default": "",
+                "inputtype": "text",
+                "category": "Slider",
+                "help": "You can use Expression manager, but this must be a number before showing the page else set to 0. If minimum value is not set, this value is used.",
+                "caption": "Slider minimum value",
+                "sortorder": "10",
+                "expression": "2",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "slider_orientation": {
+            "name": "slider_orientation",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_orientation",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Slider",
+                "help": "Set the orientation.",
+                "caption": "Orientation",
+                "sortorder": "2",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Horizontal",
+                    "Vertical"
+                ]
+            }
+        },
+        "slider_rating": {
+            "name": "slider_rating",
+            "type": "advanced",
+            "question_types": [
+                "5"
+            ],
+            "definition": {
+                "name": "slider_rating",
+                "default": "0",
+                "inputtype": "buttongroup",
+                "category": "Display",
+                "help": "Use slider layout",
+                "caption": "Use slider layout",
+                "sortorder": "90",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Off",
+                    "Stars",
+                    "Slider with emoticon"
+                ]
+            }
+        },
+        "slider_reset": {
+            "name": "slider_reset",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_reset",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Slider",
+                "help": "Add a button to reset the slider. If you choose an start value, it reset at start value, else empty the answer.",
+                "caption": "Allow slider reset",
+                "sortorder": "50",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "slider_reversed": {
+            "name": "slider_reversed",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_reversed",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Slider",
+                "help": "Reverses the slider direction and repositions the min\/max text accordingly.",
+                "caption": "Reverse the slider direction",
+                "sortorder": "50",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "slider_separator": {
+            "name": "slider_separator",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_separator",
+                "default": "|",
+                "inputtype": "text",
+                "category": "Slider",
+                "help": "Answer|Left-slider-text|Right-slider-text separator character",
+                "caption": "Slider left\/right text separator",
+                "sortorder": "110",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "slider_showminmax": {
+            "name": "slider_showminmax",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "slider_showminmax",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Slider",
+                "help": "Display min and max value under the slider",
+                "caption": "Display slider min and max value",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "statistics_graphtype": {
+            "name": "statistics_graphtype",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "statistics_graphtype",
+                "default": "0",
+                "inputtype": "singleselect",
+                "category": "Statistics",
+                "help": "Select the type of chart to be displayed",
+                "caption": "Chart type",
+                "sortorder": "102",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "Bar chart",
+                    "Pie chart",
+                    "Radar",
+                    "Line",
+                    "PolarArea",
+                    "Doughnut"
+                ]
+            }
+        },
+        "statistics_showgraph": {
+            "name": "statistics_showgraph",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "*",
+                "5",
+                "D",
+                "G",
+                "I",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "X",
+                "Y",
+                "|"
+            ],
+            "definition": {
+                "name": "statistics_showgraph",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Statistics",
+                "help": "Display a chart in the statistics?",
+                "caption": "Display chart",
+                "sortorder": "101",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "statistics_showmap": {
+            "name": "statistics_showmap",
+            "type": "advanced",
+            "question_types": [
+                "S"
+            ],
+            "definition": {
+                "name": "statistics_showmap",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Statistics",
+                "help": "Show a map in the statistics?",
+                "caption": "Display map",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "suffix": {
+            "name": "suffix",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "Q",
+                "S"
+            ],
+            "definition": {
+                "name": "suffix",
+                "default": "",
+                "inputtype": "text",
+                "category": "Display",
+                "help": "Add a suffix to the answer field",
+                "caption": "Answer suffix",
+                "sortorder": "11",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "text_input_columns": {
+            "name": "text_input_columns",
+            "type": "advanced",
+            "question_types": [
+                "P",
+                "Q"
+            ],
+            "definition": {
+                "name": "text_input_columns",
+                "default": "",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Relative width of the text input wrapper element",
+                "caption": "Text input box width",
+                "sortorder": "90",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "": "Default",
+                    "1": "8%",
+                    "2": "17%",
+                    "3": "25%",
+                    "4": "33%",
+                    "5": "41%",
+                    "6": "50%",
+                    "7": "58%",
+                    "8": "67%",
+                    "9": "75%",
+                    "10": "83%",
+                    "11": "92%",
+                    "12": "100%"
+                }
+            }
+        },
+        "text_input_width": {
+            "name": "text_input_width",
+            "type": "advanced",
+            "question_types": [
+                "K",
+                "N",
+                "S",
+                "T",
+                "U"
+            ],
+            "definition": {
+                "name": "text_input_width",
+                "default": "",
+                "inputtype": "singleselect",
+                "category": "Display",
+                "help": "Relative width of the text input wrapper element",
+                "caption": "Text input box width",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "": "Default",
+                    "1": "8%",
+                    "2": "17%",
+                    "3": "25%",
+                    "4": "33%",
+                    "5": "41%",
+                    "6": "50%",
+                    "7": "58%",
+                    "8": "67%",
+                    "9": "75%",
+                    "10": "83%",
+                    "11": "92%",
+                    "12": "100%"
+                }
+            }
+        },
+        "time_limit": {
+            "name": "time_limit",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Timer",
+                "help": "Limit time to answer question (in seconds)",
+                "caption": "Time limit",
+                "sortorder": "90",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_action": {
+            "name": "time_limit_action",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_action",
+                "default": "1",
+                "inputtype": "singleselect",
+                "category": "Timer",
+                "help": "Action to perform when time limit is up",
+                "caption": "Time limit action",
+                "sortorder": "92",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": {
+                    "1": "Warn and move on",
+                    "2": "Move on without warning",
+                    "3": "Disable only"
+                }
+            }
+        },
+        "time_limit_countdown_message": {
+            "name": "time_limit_countdown_message",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_countdown_message",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "The text message that displays in the countdown timer during the countdown",
+                "caption": "Time limit countdown message",
+                "sortorder": "98",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_disable_next": {
+            "name": "time_limit_disable_next",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_disable_next",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Timer",
+                "help": "Disable the next button until time limit expires",
+                "caption": "Time limit disable next",
+                "sortorder": "94",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "time_limit_disable_prev": {
+            "name": "time_limit_disable_prev",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_disable_prev",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Timer",
+                "help": "Disable the prev button until the time limit expires",
+                "caption": "Time limit disable prev",
+                "sortorder": "96",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "time_limit_message": {
+            "name": "time_limit_message",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_message",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "The message to display when the time limit has expired (a default message will display if this setting is left blank)",
+                "caption": "Time limit expiry message",
+                "sortorder": "104",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_message_delay": {
+            "name": "time_limit_message_delay",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_message_delay",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Timer",
+                "help": "Display the 'time limit expiry message' for this many seconds before performing the 'time limit action' (defaults to 1 second if left blank)",
+                "caption": "Time limit expiry message display time",
+                "sortorder": "102",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_message_style": {
+            "name": "time_limit_message_style",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_message_style",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "CSS style for the 'time limit expiry message'",
+                "caption": "Time limit message CSS style",
+                "sortorder": "106",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_timer_style": {
+            "name": "time_limit_timer_style",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_timer_style",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "CSS Style for the message that displays in the countdown timer during the countdown",
+                "caption": "Time limit timer CSS style",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning": {
+            "name": "time_limit_warning",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Timer",
+                "help": "Display a 'time limit warning' when there are this many seconds remaining in the countdown (warning will not display if left blank)",
+                "caption": "1st time limit warning message timer",
+                "sortorder": "108",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_2": {
+            "name": "time_limit_warning_2",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_2",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Timer",
+                "help": "Display the 2nd 'time limit warning' when there are this many seconds remaining in the countdown (warning will not display if left blank)",
+                "caption": "2nd time limit warning message timer",
+                "sortorder": "116",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_2_display_time": {
+            "name": "time_limit_warning_2_display_time",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_2_display_time",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Timer",
+                "help": "The 2nd 'time limit warning' will stay visible for this many seconds (will not turn off if this setting is left blank)",
+                "caption": "2nd time limit warning message display time",
+                "sortorder": "118",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_2_message": {
+            "name": "time_limit_warning_2_message",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_2_message",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "The 2nd message to display as a 'time limit warning' (a default warning will display if this is left blank)",
+                "caption": "2nd time limit warning message",
+                "sortorder": "120",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_2_style": {
+            "name": "time_limit_warning_2_style",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_2_style",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "CSS style used when the 2nd 'time limit warning' message is displayed",
+                "caption": "2nd time limit warning CSS style",
+                "sortorder": "122",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_display_time": {
+            "name": "time_limit_warning_display_time",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_display_time",
+                "default": "",
+                "inputtype": "integer",
+                "category": "Timer",
+                "help": "The 'time limit warning' will stay visible for this many seconds (will not turn off if this setting is left blank)",
+                "caption": "1st time limit warning message display time",
+                "sortorder": "110",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_message": {
+            "name": "time_limit_warning_message",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_message",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "The message to display as a 'time limit warning' (a default warning will display if this is left blank)",
+                "caption": "1st time limit warning message",
+                "sortorder": "112",
+                "expression": "1",
+                "i18n": "1",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "time_limit_warning_style": {
+            "name": "time_limit_warning_style",
+            "type": "advanced",
+            "question_types": [
+                "!",
+                "L",
+                "S",
+                "T",
+                "U",
+                "X"
+            ],
+            "definition": {
+                "name": "time_limit_warning_style",
+                "default": "",
+                "inputtype": "textarea",
+                "category": "Timer",
+                "help": "CSS style used when the 'time limit warning' message is displayed",
+                "caption": "1st time limit warning CSS style",
+                "sortorder": "114",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": ""
+            }
+        },
+        "use_dropdown": {
+            "name": "use_dropdown",
+            "type": "advanced",
+            "question_types": [
+                "O"
+            ],
+            "definition": {
+                "name": "use_dropdown",
+                "default": "0",
+                "inputtype": "switch",
+                "category": "Display",
+                "help": "Present dropdown control(s) instead of list of radio buttons",
+                "caption": "Use dropdown presentation",
+                "sortorder": "112",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        },
+        "value_range_allows_missing": {
+            "name": "value_range_allows_missing",
+            "type": "advanced",
+            "question_types": [
+                "K"
+            ],
+            "definition": {
+                "name": "value_range_allows_missing",
+                "default": "1",
+                "inputtype": "switch",
+                "category": "Input",
+                "help": "Is no answer (missing) allowed when either 'Equals sum value' or 'Minimum sum value' are set?",
+                "caption": "Value range allows missing",
+                "sortorder": "100",
+                "expression": "",
+                "i18n": "",
+                "readonly": "",
+                "readonly_when_active": "",
+                "xssfilter": "",
+                "options": [
+                    "No",
+                    "Yes"
+                ]
+            }
+        }
+    },
+    "question_types": {
+        "5": "5pointchoice",
+        "X": "boilerplate",
+        "D": "date",
+        "*": "equation",
+        "|": "file_upload",
+        "G": "gender",
+        "U": "hugefreetext",
+        "I": "language",
+        "!": "list_dropdown",
+        "O": "list_with_comment",
+        "L": "listradio",
+        "T": "longfreetext",
+        "M": "multiplechoice",
+        "P": "multiplechoice_with_comments",
+        "K": "multiplenumeric",
+        "Q": "multipleshorttext",
+        "N": "numerical",
+        "R": "ranking",
+        "S": "shortfreetext",
+        "Y": "yesno"
+    },
+    "statistics": {
+        "total_attributes": 127,
+        "total_question_types": 20,
+        "extraction_date": "2025-07-24 10:41:50"
+    }
+}

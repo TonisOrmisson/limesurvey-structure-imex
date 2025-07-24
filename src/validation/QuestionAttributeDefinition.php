@@ -159,6 +159,16 @@ class QuestionAttributeDefinition
             'default' => '',
             'type' => 'text',
             'category' => 'Display'
+        ],
+        'prefix' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Display'
+        ],
+        'placeholder' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Display'
         ]
     ];
 
@@ -877,7 +887,6 @@ class QuestionAttributeDefinition
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'numbers_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Other'],
-            'placeholder' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
@@ -890,8 +899,6 @@ class QuestionAttributeDefinition
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'num_value_int_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Input'],
-            'placeholder' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
-            'prefix' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'printable_help' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'public_statistics' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Statistics'],
             'scale_export' => ['default' => '0', 'type' => 'singleselect', 'options' => ['0', '1', '2', '3'], 'category' => 'Other'],
