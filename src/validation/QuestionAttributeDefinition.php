@@ -701,6 +701,18 @@ class QuestionAttributeDefinition
                 'type' => 'text',
                 'category' => 'Display'
             ],
+            'show_search' => [
+                'default' => 'false',
+                'type' => 'buttongroup',
+                'options' => ['false', 'true'],
+                'category' => 'Display'
+            ],
+            'show_tick' => [
+                'default' => 'false',
+                'type' => 'buttongroup',
+                'options' => ['false', 'true'],
+                'category' => 'Display'
+            ],
             'other_position_code' => [
                 'default' => '',
                 'type' => 'text',
