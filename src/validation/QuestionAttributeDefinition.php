@@ -497,6 +497,11 @@ class QuestionAttributeDefinition
                 'type' => 'text',
                 'category' => 'Logic'
             ],
+            'question_template' => [
+                'default' => 'core',
+                'type' => 'text',
+                'category' => 'Display'
+            ],
             'page_break' => [
                 'default' => '0',
                 'type' => 'switch',
@@ -564,6 +569,12 @@ class QuestionAttributeDefinition
         
         // M - Multiple Choice
         \Question::QT_M_MULTIPLE_CHOICE => [
+            'assessment_value' => [
+                'default' => '0',
+                'type' => 'switch',
+                'options' => ['0', '1'],
+                'category' => 'Statistics'
+            ],
             'display_columns' => [
                 'default' => '',
                 'type' => 'columns',
@@ -847,6 +858,12 @@ class QuestionAttributeDefinition
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_P_MULTIPLE_CHOICE_WITH_COMMENTS => [
+            'assessment_value' => [
+                'default' => '0',
+                'type' => 'switch',
+                'options' => ['0', '1'],
+                'category' => 'Statistics'
+            ],
             'choice_input_columns' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'exclude_all_others' => ['default' => '', 'type' => 'text', 'category' => 'Logic'],
             'commented_checkbox' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
