@@ -185,6 +185,11 @@ class QuestionAttributeDefinition
             'type' => 'text',
             'category' => 'Logic'
         ],
+        'exclude_all_others' => [
+            'default' => '',
+            'type' => 'text',
+            'category' => 'Logic'
+        ],
         'input_size' => [
             'default' => '',
             'type' => 'integer',
@@ -864,6 +869,7 @@ class QuestionAttributeDefinition
             'rank_title' => ['default' => '', 'type' => 'text', 'category' => 'Other'],
             'samechoiceheight' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'samelistheight' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
+            'showpopups' => ['default' => '1', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
@@ -886,6 +892,7 @@ class QuestionAttributeDefinition
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_ASTERISK_EQUATION => [
+            'equation' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'numbers_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Other'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']

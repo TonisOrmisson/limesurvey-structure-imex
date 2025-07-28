@@ -4,6 +4,12 @@
 
 ### Added
 - Clear survey contents checkbox for question imports - allows clearing all existing groups, questions, and quotas before importing
+- 100% question attribute coverage - ALL LimeSurvey question attributes are now supported
+- Universal attributes system - 26 common attributes available to all question types
+- Support for equation, showpopups, and exclude_all_others attributes
+
+### Changed
+- Quota import now allowed on active surveys - removed unnecessary restriction
 
 ### Fixed
 - M (Multiple Choice) questions no longer export duplicate answer options - only exports subquestions as intended

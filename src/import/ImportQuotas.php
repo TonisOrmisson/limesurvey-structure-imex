@@ -26,11 +26,6 @@ class ImportQuotas extends ImportFromFile
 
     protected function beforeProcess(): void
     {
-        if ($this->survey->active === 'Y') {
-            $this->addError('survey', 'Cannot import quotas to an active survey');
-            return;
-        }
-
         $this->validateImportData();
     }
 
