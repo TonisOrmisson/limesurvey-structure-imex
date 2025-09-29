@@ -31,7 +31,8 @@ class QuestionAttributeImportTest extends DatabaseTestCase
             [\Question::QT_L_LIST, 'hidden', '0', '1'],
             [\Question::QT_L_LIST, 'hide_tip', '0', '1'], 
             [\Question::QT_T_LONG_FREE_TEXT, 'maximum_chars', '', '500'],
-            
+            [\Question::QT_A_ARRAY_5_POINT, 'answer_width', '', '35'],
+
             // Language-specific attributes  
             [\Question::QT_L_LIST, 'em_validation_q_tip', '', 'Validation tip text'],
             [\Question::QT_L_LIST, 'other_replace_text', '', 'Other option'],

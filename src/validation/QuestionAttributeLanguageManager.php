@@ -26,6 +26,7 @@ class QuestionAttributeLanguageManager
         'hidden',
         'cssclass',
         'display_columns',
+        'answer_width',
         'text_input_width',
         'text_input_columns',
         'input_size',
@@ -151,7 +152,6 @@ class QuestionAttributeLanguageManager
         'slider_min_text',
         'slider_max_text',
         'dropdown_prepostfix',
-        'answer_width',
         'label_input_columns',
     ];
 
