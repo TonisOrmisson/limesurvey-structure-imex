@@ -37,7 +37,7 @@ class ImportQuotas extends ImportFromFile
         
         try {
             if ($type === 'Q') {
-                $this->currentQuotaName = $attributes['name'] ?? '';
+                $this->currentQuotaName = isset($attributes['name']) ? trim((string)$attributes['name']) : '';
                 $this->importQuota($attributes);
             } elseif ($type === 'QM') {
                 $this->importQuotaMember($attributes);
@@ -52,8 +52,8 @@ class ImportQuotas extends ImportFromFile
 
     private function importQuota(array $attributes): void
     {
-        $quotaName = $attributes['name'] ?? '';
-        if (empty($quotaName)) {
+        $quotaName = isset($attributes['name']) ? trim((string)$attributes['name']) : '';
+        if ($quotaName === '') {
             throw new ImexException('Quota name is required');
         }
 
@@ -81,11 +81,11 @@ class ImportQuotas extends ImportFromFile
 
     private function importQuotaMember(array $attributes): void
     {
-        $quotaName = $this->currentQuotaName;
-        $questionCode = $attributes['name'] ?? '';
-        $answerCode = $attributes['value'] ?? '';
+        $quotaName = trim((string)$this->currentQuotaName);
+        $questionCode = isset($attributes['name']) ? trim((string)$attributes['name']) : '';
+        $answerCode = isset($attributes['value']) ? trim((string)$attributes['value']) : '';
 
-        if (empty($quotaName) || empty($questionCode) || empty($answerCode)) {
+        if ($quotaName === '' || $questionCode === '' || $answerCode === '') {
             throw new ImexException('Missing required quota member data');
         }
 
@@ -273,18 +273,18 @@ class ImportQuotas extends ImportFromFile
             $type = $row['type'] ?? '';
             
             if ($type === 'Q') {
-                $currentQuotaName = $row['name'] ?? '';
+                $currentQuotaName = isset($row['name']) ? trim((string)$row['name']) : '';
                 $quotaQuestions[$currentQuotaName] = []; // Reset for new quota
             } elseif ($type === 'QM') {
-                $questionCode = $row['name'] ?? '';
-                $answerCode = $row['value'] ?? '';
+                $questionCode = isset($row['name']) ? trim((string)$row['name']) : '';
+                $answerCode = isset($row['value']) ? trim((string)$row['value']) : '';
                 
-                if (empty($questionCode)) {
+                if ($questionCode === '') {
                     $this->addError('validation', "Quota member in quota '$currentQuotaName' has empty question code");
                     continue;
                 }
                 
-                if (empty($answerCode)) {
+                if ($answerCode === '') {
                     $this->addError('validation', "Quota member in quota '$currentQuotaName' has empty answer code");
                     continue;
                 }

@@ -114,6 +114,44 @@ class QuotaImportTest extends DatabaseTestCase
         }
     }
 
+    public function testImportQuotaMemberAllowsZeroAnswerCode()
+    {
+        $question = $this->createQuotaTestQuestion('binary', 'Binary Question');
+
+        $importData = [
+            ['type' => 'Q', 'name' => 'Zero Quota', 'value' => '10', 'active' => '1', 'autoload_url' => '0'],
+            ['type' => 'QM', 'name' => 'binary', 'value' => '0', 'active' => '', 'autoload_url' => ''],
+        ];
+
+        $fileName = $this->createExcelFileFromData($importData);
+        $import = $this->createImport();
+
+        $import->fileName = $fileName;
+        $this->assertTrue($import->prepare());
+        $import->process();
+
+        $this->assertEmpty($import->getErrors(), 'Import should accept zero-valued answer codes: ' . print_r($import->getErrors(), true));
+
+        $quota = Quota::model()->find('sid = :sid AND name = :name', [
+            ':sid' => $this->testSurveyId,
+            ':name' => 'Zero Quota'
+        ]);
+
+        $this->assertNotNull($quota, 'Quota should be created');
+
+        $member = QuotaMember::model()->find('quota_id = :quota_id AND qid = :qid', [
+            ':quota_id' => $quota->id,
+            ':qid' => $question->qid
+        ]);
+
+        $this->assertNotNull($member, 'Quota member should exist');
+        $this->assertSame('0', $member->code, 'Quota member should persist zero-valued answer code');
+
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
+    }
+
     public function testImportDuplicateQuestionInSameQuotaFails()
     {
         $question = $this->createQuotaTestQuestion('gender', 'Gender Question');
