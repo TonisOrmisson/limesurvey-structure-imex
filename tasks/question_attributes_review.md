@@ -79,7 +79,7 @@ For each attribute:
 | category_separator | 🔧 implemented | ! | text, separator for dropdown categories |
 | choice_input_columns | 🔧 implemented | P | integer, columns for choice input |
 | choice_title | 🔧 implemented | R | text, replace "Available items" header |
-| clear_default | 🔍 researched | Universal | general attribute, clears default values |
+| clear_default | 🔧 implemented | Universal | switch 0/1, clears default answers between respondents |
 | commented_checkbox | 🔧 implemented | P | checkbox behavior in commented multiple choice |
 | commented_checkbox_auto | 🔧 implemented | P | auto checkbox behavior in commented choice |
 | crop_or_resize | 🔍 researched | \| | Legacy file upload, image processing |
@@ -96,8 +96,8 @@ For each attribute:
 | dropdown_dates | 🔧 implemented | D | switch 0/1, use dropdown boxes instead of calendar |
 | dropdown_dates_minute_step | 🔧 implemented | D | integer default=1, minute step interval |
 | dropdown_dates_month_style | 🔧 implemented | D | singleselect 0/1/2, short/full/numbers |
-| dropdown_prefix | 🔍 researched | ! | buttongroup 0/1, accelerator keys - NOT IN CODE |
-| dropdown_size | 🔍 researched | ! | text, dropdown height rows - NOT IN CODE |
+| dropdown_prefix | 🔧 implemented | ! | buttongroup 0/1, add prefix indicator to dropdown options |
+| dropdown_size | 🔧 implemented | ! | text, number of visible rows for dropdown |
 
 ### E Attributes (8 total)
 | Attribute | Status | Question Types | Notes |
@@ -109,12 +109,12 @@ For each attribute:
 | equals_num_value | 🔧 implemented | K | text, sum must equal this value |
 | equation | 🔧 implemented | * | textarea, final equation for database ✅ ADDED |
 | exclude_all_others | 🔧 implemented | M, K, Arrays | text, exclude codes separated by semicolon ✅ ADDED |
-| exclude_all_others_auto | 🔍 researched | M | switch 0/1, auto-check exclusive option - NOT IN CODE |
+| exclude_all_others_auto | 🔧 implemented | M | switch 0/1, auto-select exclusive option when triggered |
 
 ### F-H Attributes (5 total)
 | Attribute | Status | Question Types | Notes |
 |-----------|--------|----------------|-------|
-| fix_height | 🔍 researched | - | Legacy, removed from LimeSurvey v6 |
+| fix_height | 🔧 implemented | L | integer, fixed pixel height for radio list container |
 | fix_width | 🔍 researched | - | Legacy, removed from LimeSurvey v6 |
 | hidden | 🔧 implemented | All types | switch 0/1, hide question for prefilling |
 | hide_tip | 🔧 implemented | All types | switch 0/1, hide question tip |
@@ -198,16 +198,16 @@ For each attribute:
 |-----------|--------|----------------|-------|
 | samechoiceheight | 🔧 implemented | R | switch 0/1, same height for answer options |
 | samelistheight | 🔧 implemented | R | switch 0/1, same height for choice/rank lists |
-| save_as_default | 🔍 researched | N/A | Not found in LimeSurvey core as question attribute |
+| save_as_default | 🔧 implemented | Universal | switch N/Y, persist question settings as defaults |
 | scale_export | 🔧 implemented | L, N | singleselect 0-3, SPSS export scale type |
 | show_progress | ❌ not_reviewed | | |
-| show_search | ❌ not_reviewed | | |
-| show_tick | ❌ not_reviewed | | |
+| show_search | 🔧 implemented | ! | buttongroup false/true, show search box in dropdown |
+| show_tick | 🔧 implemented | ! | buttongroup false/true, show selected tick in dropdown |
 | showpopups | 🔧 implemented | R | switch 0/1, show JavaScript alerts for ranking ✅ ADDED |
 | slider_accuracy | ❌ not_reviewed | | |
-| slider_custom_handle | ❌ not_reviewed | | |
+| slider_custom_handle | 🔧 implemented | K | text, FontAwesome icon for slider handle |
 | slider_default | ❌ not_reviewed | | |
-| slider_default_set | ❌ not_reviewed | | |
+| slider_default_set | 🔧 implemented | K | switch 0/1, prefill slider with default value |
 | slider_handle | ❌ not_reviewed | | |
 | slider_layout | 🔧 implemented | K | switch 0/1, use slider layout |
 | slider_max | 🔧 implemented | K | text, slider maximum value |
@@ -217,12 +217,12 @@ For each attribute:
 | slider_rating | 🔧 implemented | 5 | singleselect 0/1/2, slider rating display |
 | slider_reset | ❌ not_reviewed | | |
 | slider_reversed | ❌ not_reviewed | | |
-| slider_separator | ❌ not_reviewed | | |
+| slider_separator | 🔧 implemented | K | text, separator for slider min/max labels |
 | slider_showminmax | 🔧 implemented | K | switch 0/1, display min/max values |
 | statistics_graphtype | 🔧 implemented | T, L, 5 | singleselect 0-5, chart type for statistics |
 | statistics_showgraph | 🔧 implemented | T, L, 5 | switch 0/1, show statistics graph |
-| statistics_showmap | ❌ not_reviewed | | |
-| suffix | ❌ not_reviewed | | |
+| statistics_showmap | 🔧 implemented | T, S, X | switch 0/1, include response map in statistics output |
+| suffix | 🔧 implemented | Universal | text, append suffix after rendered answer |
 
 ### T Attributes (22 total)
 | Attribute | Status | Question Types | Notes |
@@ -255,49 +255,26 @@ For each attribute:
 | width_entry | 🔧 implemented | ! (theme) | buttongroup, dropdown width behavior |
 | whole_only | 🚫 not_exists | - | Attribute does not exist in current LimeSurvey |
 
-## Progress Summary (100% COVERAGE ACHIEVED! 🎉)
-- **Total Attributes**: 119
-- **Not Reviewed**: 22 (18%) - Legacy/unused attributes  
-- **Not Exists**: 1 (0.8%) - whole_only does not exist
-- **Researched**: 16 (13%) - Legacy/plugin-specific attributes documented
-- **Implemented**: 80 (67%) - **ALL ACTIVE ATTRIBUTES IMPLEMENTED!**
-- **Tested**: 0 (0%) - Ready for systematic testing phase
+## Progress Summary (as of 2025-10-02)
+- **Total attributes tracked**: 138
+- **Implemented**: 121 (88%) — all attributes currently coded in `QuestionAttributeDefinition.php`
+- **Researched**: 10 (7%) — legacy/theme-specific items documented but not slated for implementation
+- **Not reviewed**: 6 (4%) — remaining slider convenience toggles still to triage
+- **Does not exist**: 1 (0.7%) — `whole_only` is no longer present in LimeSurvey core
+- **Tested**: 0 — dedicated verification pass still outstanding
 
-**MILESTONE ACHIEVED**: All currently used LimeSurvey question attributes are now supported!
+**Highlights**
+- Dropdown-specific options (`dropdown_prefix`, `dropdown_size`, `show_search`, `show_tick`) and slider controls (`slider_custom_handle`, `slider_default_set`, `slider_separator`) are now marked implemented to mirror the current codebase.
+- Universal toggles such as `clear_default`, `save_as_default`, and `suffix` are tracked as implemented so the documentation stays aligned with the plugin.
+- Production telemetry remains the driver: high-frequency attributes are covered first, while legacy hooks stay in the researched bucket until confirmed useful.
 
-**REAL-WORLD VERIFICATION COMPLETE**: Implementation matches production LimeSurvey usage patterns with all high-frequency attributes covered.
+## Current Status
+- Implementation covers every attribute shipped with the plugin today; the open backlog is limited to optional slider UX flags (`slider_accuracy`, `slider_default`, `slider_handle`, `slider_reset`, `slider_reversed`) plus a few legacy theme hooks (`addlineicon`, `auto_submit`, etc.).
+- A formal testing sweep is still required before any attribute can be promoted to the ✅ `tested` state.
 
-**Breakdown by Status:**
-- A-C: 7 implemented, 5 researched
-- D-H: 7 implemented, 3 researched  
-- I-M: 14 implemented, 0 researched
-- N-O: 7 implemented, 0 researched
-- P: 6 implemented, 0 researched
-- Q-R: 5 implemented, 1 researched
-- S: 9 implemented, 2 researched, 7 not reviewed
-- T: 19 implemented, 0 researched, 3 not reviewed
-- U-V-W: 3 implemented, 0 researched, 1 non-existent (whole_only)
+**Next Phase Options**
+1. **Systematic Testing** — promote implemented attributes to `tested` with PHPUnit + manual export/import checks.
+2. **Legacy Evaluation** — decide whether the remaining slider toggles exist in modern LimeSurvey themes or should be documented as deprecated.
+3. **Documentation Refresh** — generate an attribute usage guide from `QuestionAttributeDefinition.php` so future diffs remain synchronized.
+4. **Performance Review** — profile attribute lookups during bulk import/export to ensure the expanded mappings don’t add overhead.
 
-## Current Status - 100% COVERAGE ACHIEVED! 🎉
-
-**✅ COMPLETED**: All active LimeSurvey question attributes are now implemented in StructureImEx!
-
-**Final Implementation Summary:**
-- **equation** attribute added to * (Equation) question type
-- **showpopups** attribute added to R (Ranking) question type  
-- **exclude_all_others** attribute added to universal attributes for array types
-- **question_template** attribute added to L (List) question type
-
-**Real-World Verification:**
-- ✅ **Verified against production data**: All 23 question types from real LimeSurvey installation covered
-- ✅ **High-usage attributes confirmed**: All attributes with 100+ uses in production are implemented
-- ✅ **Universal attributes optimized**: 26 common attributes available across all question types
-- ✅ **Type-specific coverage complete**: Specialized attributes for each question type
-
-**Next Phase Options:**
-1. **Systematic Testing**: Move all 80 implemented attributes from 'implemented' to 'tested' status
-2. **Documentation**: Create comprehensive attribute usage guide
-3. **Performance Optimization**: Review and optimize attribute validation performance
-4. **Legacy Cleanup**: Archive unused/legacy attributes for historical reference
-
-**Achievement**: The StructureImEx plugin now supports **EVERY** question attribute used in active LimeSurvey installations across all question types with verified production compatibility!
