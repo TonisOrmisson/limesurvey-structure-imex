@@ -33,6 +33,15 @@ jobs:
         extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
         coverage: xdebug
 
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer-ci.json') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
     - name: Install dependencies (with LimeSurvey)
       run: COMPOSER=composer-ci.json composer install --prefer-dist --no-progress
 
@@ -250,7 +259,7 @@ jobs:
         LIMESURVEY_VENDOR_PATH: vendor/limesurvey/limesurvey
       run: |
         echo "Running tests on PHP ${{ matrix.php-versions }}..."
-        vendor/bin/phpunit --verbose
+        vendor/bin/phpunit
 
     - name: Run PHPStan code analysis
       run: vendor/bin/phpstan analyse src --level=5
