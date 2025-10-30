@@ -23,8 +23,8 @@
     },
     "require-dev": {
         "limesurvey/limesurvey": "^6",
-        "phpstan/phpstan": "^1.8",
-        "phpunit/phpunit": "^8.5"
+        "phpstan/phpstan": "^1|^2",
+        "phpunit/phpunit": "^9|^10|^11|^12"
     },
     "config": {
         "platform": {
