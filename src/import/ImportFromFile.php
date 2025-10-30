@@ -67,7 +67,9 @@ abstract class ImportFromFile extends CModel
     )
     {
         $this->language = $this->survey->language ?? 'en';
-        if ($this->survey->sid === null) {
+        /** @var int|string|null $surveyId */
+        $surveyId = $this->survey->sid;
+        if ($surveyId === null) {
             throw new ImexException("survey sid is null");
         }
     }
@@ -172,21 +174,20 @@ abstract class ImportFromFile extends CModel
         $this->setWorksheet();
         $rowIndex = 0;
         foreach ($this->sheet->getRowIterator() as $row) {
-            if ($row instanceof Row) {
-                $rowData = [];
-                $cells = $row->getCells();
-                $cellIndex = 0;
-                foreach ($cells as $cell) {
-                    $cellValue = $cell->getValue();
-                    $rowData[] = $cellValue;
-                    $cellIndex++;
-                }
-                // skip empty rows
-                if (empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])) {
-                    continue;
-                }
-                $this->readerData[] = $rowData;
+            /** @var Row $row */
+            $rowData = [];
+            $cells = $row->getCells();
+            $cellIndex = 0;
+            foreach ($cells as $cell) {
+                $cellValue = $cell->getValue();
+                $rowData[] = $cellValue;
+                $cellIndex++;
             }
+            // skip empty rows
+            if (empty($rowData[0]) && empty($rowData[1]) && empty($rowData[2])) {
+                continue;
+            }
+            $this->readerData[] = $rowData;
             $rowIndex++;
         }
     }
@@ -215,28 +216,34 @@ abstract class ImportFromFile extends CModel
      */
     public static function indexByRow(array $array, int $i = 0): array
     {
-        $keys = $array[$i];
-        if (is_array($array) && !empty($array)) {
-            $newArray = [];
-            foreach ($array as $key => $row) {
-                // don't add the indexing element into output
-                if ($key != $i) {
-                    $newRow = [];
-                    $j = 0;
-                    foreach ($row as $cell) {
-                        // Only map if we have a corresponding key for this position
-                        if (isset($keys[$j])) {
-                            $newRow[$keys[$j]] = $cell;
-                        }
-                        $j++;
-                    }
-                    $newArray[] = $newRow;
-                }
-            }
-
-            return $newArray;
+        if (empty($array)) {
+            throw new ImexException('Empty array provided to ' . __CLASS__ . '::' . __FUNCTION__);
         }
-        throw new ImexException(gettype($array) . ' used as array in ' . __CLASS__ . '::' . __FUNCTION__);
+
+        if (!isset($array[$i]) || !is_array($array[$i])) {
+            throw new ImexException("Index $i not found in dataset for " . __CLASS__ . '::' . __FUNCTION__);
+        }
+
+        $keys = $array[$i];
+
+        $newArray = [];
+        foreach ($array as $key => $row) {
+            // don't add the indexing element into output
+            if ($key != $i) {
+                $newRow = [];
+                $j = 0;
+                foreach ($row as $cell) {
+                    // Only map if we have a corresponding key for this position
+                    if (isset($keys[$j])) {
+                        $newRow[$keys[$j]] = $cell;
+                    }
+                    $j++;
+                }
+                $newArray[] = $newRow;
+            }
+        }
+
+        return $newArray;
     }
 
     /**

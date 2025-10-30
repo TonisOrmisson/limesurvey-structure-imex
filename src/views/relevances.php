@@ -5,7 +5,7 @@ use tonisormisson\ls\structureimex\import\ImportRelevance;
 /** @var Survey $survey */
 /** @var AdminController $this */
 /** @var string $exportUrl */
-/** @var ImportRelevance $import */
+/** @var ImportRelevance|null $import */
 /** @var array $navUrls */
 /** @var StructureImEx $exportPlugin */
 

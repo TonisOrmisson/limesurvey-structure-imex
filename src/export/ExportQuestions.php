@@ -116,11 +116,11 @@ class ExportQuestions extends AbstractExport
             }
         }
 
-        $row[] = $question->relevance ?? '';
-        $row[] = $question->mandatory ?? '';
-        
+        $row[] = (string) $question->relevance;
+        $row[] = (string) $question->mandatory;
+
         if ($this->type !== self::TYPE_SUB_QUESTION) {
-            $row[] = $question->same_script ?? 0;
+            $row[] = (int) $question->same_script;
         } else {
             $row[] = '';
         }
@@ -183,6 +183,7 @@ class ExportQuestions extends AbstractExport
 
         // Add global attributes to the "options" column
         if (!empty($globalAttributes)) {
+            // @phpstan-ignore-next-line phpstan sees kcfinder polyfill with a different signature
             $row[] = json_encode($globalAttributes, JSON_UNESCAPED_UNICODE);
         } else {
             $row[] = '';
@@ -191,6 +192,7 @@ class ExportQuestions extends AbstractExport
         // Add language-specific attributes to "options-{language}" columns
         foreach ($this->languages as $language) {
             if (!empty($languageSpecificAttributes[$language])) {
+                // @phpstan-ignore-next-line phpstan sees kcfinder polyfill with a different signature
                 $row[] = json_encode($languageSpecificAttributes[$language], JSON_UNESCAPED_UNICODE);
             } else {
                 $row[] = '';

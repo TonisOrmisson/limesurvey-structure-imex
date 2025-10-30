@@ -16,7 +16,7 @@ class ImportRelevance extends ImportFromFile
 {
     use AppTrait;
 
-    public ?Question $currentModel = null;
+    public Question|QuestionGroup|null $currentModel = null;
 
 
     /**
@@ -38,8 +38,18 @@ class ImportRelevance extends ImportFromFile
         $this->currentModel->{$this->relevanceAttribute} = $attributes['relevance'];
 
         if ($this->type === ExportQuestions::TYPE_GROUP) {
+            if (!$this->currentModel instanceof QuestionGroup) {
+                $this->addError('currentModel', 'Current model is not a QuestionGroup as expected for group update.');
+                $this->failedModelsCount++;
+                return;
+            }
             $result = $this->updateGroup($this->currentModel);
         } else {
+            if (!$this->currentModel instanceof Question) {
+                $this->addError('currentModel', 'Current model is not a Question as expected for question update.');
+                $this->failedModelsCount++;
+                return;
+            }
             $result = $this->updateQuestion($this->currentModel);
         }
 

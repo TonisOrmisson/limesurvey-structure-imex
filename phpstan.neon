@@ -7,5 +7,5 @@ parameters:
     scanDirectories:
         - vendor
     excludePaths:
-        - vendor/yiisoft/yii/framework/yiilite.php
+        - vendor/yiisoft/yii/framework/yiilite.php (?)
         - src/import/ImportStructure.php
