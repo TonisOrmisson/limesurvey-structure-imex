@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\export;
 
 use Question;
 use QuestionAttribute;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 /**
@@ -25,7 +26,7 @@ class ComprehensiveAttributeExportTest extends DatabaseTestCase
     /**
      * Data provider: All question types with their specific attributes to test export
      */
-    public function questionTypeAttributeProvider()
+    public static function questionTypeAttributeProvider()
     {
         return [
             // === LIST RADIO (L) ===
@@ -278,6 +279,7 @@ class ComprehensiveAttributeExportTest extends DatabaseTestCase
     /**
      * @dataProvider questionTypeAttributeProvider
      */
+    #[DataProvider('questionTypeAttributeProvider')]
     public function testQuestionTypeAttributeExport($questionType, $attributeName, $defaultValue, $changedValue)
     {
         // Create a question group

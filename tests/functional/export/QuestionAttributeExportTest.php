@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\export;
 
 use Question;
 use QuestionAttribute;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
@@ -24,7 +25,7 @@ class QuestionAttributeExportTest extends DatabaseTestCase
     /**
      * Data provider: Question types with attributes to test export
      */
-    public function questionTypeAttributeProvider()
+    public static function questionTypeAttributeProvider()
     {
         return [
             // Global attributes (should go to 'options' column)
@@ -41,6 +42,7 @@ class QuestionAttributeExportTest extends DatabaseTestCase
     /**
      * @dataProvider questionTypeAttributeProvider
      */
+    #[DataProvider('questionTypeAttributeProvider')]
     public function testAttributeExport($questionType, $attributeName, $defaultValue, $changedValue)
     {
         // Create question with the changed attribute value

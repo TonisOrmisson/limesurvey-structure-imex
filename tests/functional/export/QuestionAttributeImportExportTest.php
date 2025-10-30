@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\export;
 
 use Question;
 use QuestionAttribute;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
@@ -39,7 +40,7 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
      * [2] = Default/initial value for the attribute (what it starts as)
      * [3] = Changed value for the attribute (what we import to test if it changes)
      */
-    public function questionTypeAttributeProvider()
+    public static function questionTypeAttributeProvider()
     {
         return [
             // L type (List Radio) - Test em_validation_q_tip specifically as requested
@@ -97,6 +98,7 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
     /**
      * @dataProvider questionTypeAttributeProvider
      */
+    #[DataProvider('questionTypeAttributeProvider')]
     public function testAttributeExport($questionType, $attributeName, $defaultValue, $changedValue)
     {
         // Create question with the changed attribute value
@@ -182,6 +184,7 @@ class QuestionAttributeImportExportTest extends DatabaseTestCase
     /**
      * @dataProvider questionTypeAttributeProvider
      */
+    #[DataProvider('questionTypeAttributeProvider')]
     public function testAttributeImport($questionType, $attributeName, $defaultValue, $changedValue)
     {
 

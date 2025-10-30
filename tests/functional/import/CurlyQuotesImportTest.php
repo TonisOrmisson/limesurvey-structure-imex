@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\import;
 
 use Question;
 use QuestionAttribute;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
 /**
@@ -30,7 +31,7 @@ class CurlyQuotesImportTest extends DatabaseTestCase
     /**
      * Test data provider with various invalid quote scenarios from spreadsheets
      */
-    public function invalidQuotesProvider()
+    public static function invalidQuotesProvider()
     {
         // Generate strings with actual UTF-8 curly quotes - these are the exact bytes that cause problems
         $leftQuote = "\xE2\x80\x9C";  // UTF-8 left double quote
@@ -81,6 +82,7 @@ class CurlyQuotesImportTest extends DatabaseTestCase
     /**
      * @dataProvider invalidQuotesProvider
      */
+    #[DataProvider('invalidQuotesProvider')]
     public function testInvalidQuotesImport($description, $invalidJson, $expectedAttributes)
     {
         // Create question with default values

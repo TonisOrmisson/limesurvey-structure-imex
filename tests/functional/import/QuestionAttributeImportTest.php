@@ -4,6 +4,7 @@ namespace tonisormisson\ls\structureimex\tests\functional\import;
 
 use Question;
 use QuestionAttribute;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 use tonisormisson\ls\structureimex\Tests\Functional\DatabaseTestCase;
 
@@ -24,7 +25,7 @@ class QuestionAttributeImportTest extends DatabaseTestCase
     /**
      * Data provider: Question types with attributes to test import
      */
-    public function questionTypeAttributeProvider()
+    public static function questionTypeAttributeProvider()
     {
         return [
             // Global attributes
@@ -42,6 +43,7 @@ class QuestionAttributeImportTest extends DatabaseTestCase
     /**
      * @dataProvider questionTypeAttributeProvider
      */
+    #[DataProvider('questionTypeAttributeProvider')]
     public function testAttributeImport($questionType, $attributeName, $defaultValue, $changedValue)
     {
         // Create question with default attribute value
