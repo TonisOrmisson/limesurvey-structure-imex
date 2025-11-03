@@ -15,8 +15,13 @@ class ExportRelevances extends AbstractExport
     {
         $oSurvey = $this->survey;
         foreach ($oSurvey->groups as $group) {
-            // only base language - skip non-primary language groups
-            if ($group->language != $oSurvey->language) {
+            // only base language - skip non-primary language groups. Some LS builds leave language empty
+            $groupLanguage = $group->language ?? null;
+            if ($groupLanguage === null || $groupLanguage === '') {
+                $groupLanguage = $oSurvey->language;
+            }
+
+            if ($groupLanguage !== $oSurvey->language) {
                 continue;
             }
 
