@@ -40,6 +40,7 @@ class ImportStructure extends ImportFromFile
     private int $questionOrder = 1;
     private int $subQuestionOrder = 1;
     private int $answerOrder = 1;
+    private int $multiFlexColumnOrder = 1;
 
     /** @var string[] */
     private array $languages = [];
@@ -430,6 +431,7 @@ class ImportStructure extends ImportFromFile
         $this->questionOrder++;
         $this->subQuestionOrder = 1;
         $this->answerOrder = 1;
+        $this->multiFlexColumnOrder = 1;
 
     }
 
@@ -896,6 +898,11 @@ class ImportStructure extends ImportFromFile
      */
     private function saveAnswers()
     {
+        if ($this->shouldTreatAnswerAsMultiFlexColumn()) {
+            $this->saveMultiFlexColumnSubQuestion();
+            return;
+        }
+
         $this->currentModel = $this->findAnswer();
         if (!($this->currentModel instanceof Answer)) {
             $this->currentModel = new Answer();
@@ -977,6 +984,91 @@ class ImportStructure extends ImportFromFile
         $this->answerOrder++;
 
         return $this->currentModel->save();
+    }
+
+    private function shouldTreatAnswerAsMultiFlexColumn(): bool
+    {
+        if (!$this->question instanceof Question) {
+            return false;
+        }
+
+        return in_array(
+            $this->question->type,
+            [
+                Question::QT_COLON_ARRAY_NUMBERS,
+                Question::QT_SEMICOLON_ARRAY_TEXT,
+            ],
+            true
+        );
+    }
+
+    /**
+     * Convert exported multi-flex column answers back into subquestions (scale_id=1)
+     *
+     * @throws Exception
+     */
+    private function saveMultiFlexColumnSubQuestion(): void
+    {
+        $columnQuestion = $this->findMultiFlexColumnSubQuestion();
+        if (!($columnQuestion instanceof Question)) {
+            $columnQuestion = new Question();
+        }
+
+        $columnQuestion->sid = $this->survey->sid;
+        $columnQuestion->gid = $this->questionGroup->gid;
+        $columnQuestion->parent_qid = $this->question->qid;
+        $columnQuestion->type = Question::QT_T_LONG_FREE_TEXT;
+        $columnQuestion->title = $this->rowAttributes[self::COLUMN_CODE];
+        $columnQuestion->scale_id = 1;
+        $columnQuestion->question_order = $this->multiFlexColumnOrder;
+        $columnQuestion->mandatory = 'N';
+        $columnQuestion->relevance = $this->rowAttributes[self::COLUMN_RELEVANCE] ?? '';
+        $columnQuestion->other = 'N';
+
+        if (!$columnQuestion->save()) {
+            throw new Exception('Error saving multi-flex column subquestion: ' . serialize($this->rowAttributes) . serialize($columnQuestion->getErrors()));
+        }
+
+        foreach ($this->languages as $language) {
+            $valueKey = self::COLUMN_VALUE . '-' . $language;
+            $helpKey = self::COLUMN_HELP . '-' . $language;
+
+            $l10n = $this->findQuestionL10n($columnQuestion->qid, $language);
+            if (!($l10n instanceof QuestionL10n)) {
+                $l10n = new QuestionL10n();
+            }
+
+            $l10n->setAttributes([
+                'qid' => $columnQuestion->qid,
+                'language' => $language,
+                'question' => strval($this->rowAttributes[$valueKey] ?? ''),
+                'help' => strval($this->rowAttributes[$helpKey] ?? ''),
+            ]);
+
+            if (!$l10n->save()) {
+                throw new Exception('Error saving multi-flex column subquestion translation: ' . serialize($l10n->getErrors()));
+            }
+        }
+
+        $this->multiFlexColumnOrder++;
+    }
+
+    private function findMultiFlexColumnSubQuestion(): ?Question
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('sid=:sid');
+        $criteria->params[':sid'] = $this->survey->primaryKey;
+
+        $criteria->addCondition('parent_qid=:parent_qid');
+        $criteria->params[':parent_qid'] = $this->question->qid;
+
+        $criteria->addCondition('title=:code');
+        $criteria->params[':code'] = $this->rowAttributes[$this->questionCodeColumn];
+
+        $criteria->addCondition('scale_id=:scale_id');
+        $criteria->params[':scale_id'] = 1;
+
+        return Question::model()->find($criteria);
     }
 
     /**

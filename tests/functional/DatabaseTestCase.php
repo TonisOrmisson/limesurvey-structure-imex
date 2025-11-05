@@ -496,13 +496,13 @@ abstract class DatabaseTestCase extends TestCase
     /**
      * Create a test question attribute
      */
-    protected function createTestAttribute(int $questionId, string $attribute, string $value): void
+    protected function createTestAttribute(int $questionId, string $attribute, string $value, ?string $language = 'en'): void
     {
         self::$db->createCommand()->insert('{{question_attributes}}', [
             'qid' => $questionId,
             'attribute' => $attribute,
             'value' => $value,
-            'language' => 'en'
+            'language' => $language
         ]);
     }
 

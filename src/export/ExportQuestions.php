@@ -231,6 +231,8 @@ class ExportQuestions extends AbstractExport
     {
         $this->addQuestion($question);
 
+        [$answerLikeSubQuestions, $regularSubQuestions] = $this->partitionSubQuestions($question);
+
         // Skip answers for M (Multiple Choice) questions - they use subquestions instead
         if ($question->type !== Question::QT_M_MULTIPLE_CHOICE) {
             foreach ($question->answers as $answer) {
@@ -238,11 +240,15 @@ class ExportQuestions extends AbstractExport
             }
         }
 
+        foreach ($answerLikeSubQuestions as $answerSubQuestion) {
+            $this->processSubQuestionAsAnswer($answerSubQuestion);
+        }
+
         if ($this->type === self::TYPE_SUB_QUESTION) {
             return;
         }
 
-        foreach ($question->subquestions as $subQuestion) {
+        foreach ($regularSubQuestions as $subQuestion) {
             $this->type = self::TYPE_SUB_QUESTION;
             $this->addQuestion($subQuestion);
         }
@@ -286,6 +292,37 @@ class ExportQuestions extends AbstractExport
         $row = Row::fromValues($row);
         $this->writer->addRow($row);
 
+    }
+
+    private function processSubQuestionAsAnswer(Question $subQuestion)
+    {
+        $row = [
+            self::TYPE_ANSWER,
+            '',
+            $subQuestion->title,
+        ];
+
+        foreach ($this->languages as $language) {
+            if (!isset($subQuestion->questionl10ns[$language])) {
+                continue;
+            }
+            $row[] = $subQuestion->questionl10ns[$language]->question ?? '';
+            $row[] = '';
+            $row[] = '';
+        }
+
+        $row[] = '';
+        $row[] = '';
+        $row[] = '';
+        $row[] = '';
+        $row[] = '';
+
+        foreach ($this->languages as $language) {
+            $row[] = '';
+        }
+
+        $row = Row::fromValues($row);
+        $this->writer->addRow($row);
     }
 
     private function writeMainTableColumnHelp()
@@ -424,6 +461,47 @@ class ExportQuestions extends AbstractExport
         ];
         
         return $descriptions[$attributeName] ?? 'Attribute specific to question type';
+    }
+
+    private function partitionSubQuestions(Question $question): array
+    {
+        if (!$this->questionHasMultiFlexAxisAnswers($question)) {
+            return [[], $question->subquestions];
+        }
+
+        $answerLike = [];
+        $regular = [];
+
+        foreach ($question->subquestions as $subQuestion) {
+            if ($this->isMultiFlexAxisSubQuestion($question, $subQuestion)) {
+                $answerLike[] = $subQuestion;
+            } else {
+                $regular[] = $subQuestion;
+            }
+        }
+
+        return [$answerLike, $regular];
+    }
+
+    private function questionHasMultiFlexAxisAnswers(Question $question): bool
+    {
+        return in_array(
+            $question->type,
+            [
+                Question::QT_COLON_ARRAY_NUMBERS,
+                Question::QT_SEMICOLON_ARRAY_TEXT,
+            ],
+            true
+        );
+    }
+
+    private function isMultiFlexAxisSubQuestion(Question $parentQuestion, Question $subQuestion): bool
+    {
+        if (!$this->questionHasMultiFlexAxisAnswers($parentQuestion)) {
+            return false;
+        }
+
+        return strtoupper($subQuestion->type) === self::QT_LONG_FREE;
     }
 
 

@@ -925,7 +925,9 @@ class QuestionAttributeDefinition
             'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_SEMICOLON_ARRAY_TEXT => [
             'answer_width' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
@@ -933,7 +935,9 @@ class QuestionAttributeDefinition
             'repeat_headings' => ['default' => '', 'type' => 'integer', 'category' => 'Display'],
             'numbers_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Other'],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
-            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
+            'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
+            'em_validation_sq_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         
         // N - Numerical input

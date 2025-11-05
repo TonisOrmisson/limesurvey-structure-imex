@@ -100,6 +100,7 @@ class QuestionAttributeLanguageManager
 
         // Advanced
         'em_validation_q',
+        'em_validation_sq',
         'random_group',
         'save_as_default',
         'clear_default',
@@ -133,6 +134,7 @@ class QuestionAttributeLanguageManager
 
         // Validation messages
         'em_validation_q_tip',
+        'em_validation_sq_tip',
         'validation_message',
         'fixnum_message',
         'choice_help',
