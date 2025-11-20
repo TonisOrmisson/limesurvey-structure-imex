@@ -113,24 +113,37 @@ abstract class ImportFromFile extends CModel
     {
         $this->beforeProcess();
 
-        if (!empty($this->errors)) {
-            return false;
-        }
+        try {
+            if (!empty($this->errors)) {
+                return false;
+            }
 
-        if (empty($this->readerData)) {
-            $this->addError('data', gT('No data to import!'));
-        } else {
-            foreach ($this->readerData as $key => $row) {
-                $this->importModel($row);
-                if (!empty($this->getErrors())) {
-                    return false;
+            if (empty($this->readerData)) {
+                $this->addError('data', gT('No data to import!'));
+            } else {
+                foreach ($this->readerData as $key => $row) {
+                    $this->importModel($row);
+                    if (!empty($this->getErrors())) {
+                        return false;
+                    }
                 }
             }
+
+            return empty($this->errors) ? null : false;
+        } finally {
+            $this->removeTemporaryFile();
         }
 
-        unlink($this->fileName);
-        return null;
+    }
 
+    /**
+     * Delete the uploaded temporary file if it still exists.
+     */
+    private function removeTemporaryFile(): void
+    {
+        if (!empty($this->fileName) && is_file($this->fileName)) {
+            @unlink($this->fileName);
+        }
     }
 
 

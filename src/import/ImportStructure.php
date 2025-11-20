@@ -247,15 +247,21 @@ class ImportStructure extends ImportFromFile
         $language = $this->survey->language;
         $this->currentModel = $this->findGroup($language);
 
+        $isNewGroup = !($this->currentModel instanceof QuestionGroup) || $this->currentModel->isNewRecord;
         if (!($this->currentModel instanceof QuestionGroup)) {
             $this->currentModel = new QuestionGroup();
         }
 
-        $this->currentModel->setAttributes([
+        // Preserve existing group order when updating an existing group; only assign new order for new groups
+        $attributesToSet = [
             'sid' => $this->survey->sid,
             'grelevance' => strval($this->rowAttributes[self::COLUMN_RELEVANCE]),
-            'group_order' => $this->groupOrder,
-        ]);
+        ];
+        if ($isNewGroup) {
+            $attributesToSet['group_order'] = $this->groupOrder;
+        }
+
+        $this->currentModel->setAttributes($attributesToSet);
         // relevance not in LS model rules!!
         $this->currentModel->grelevance = $this->rowAttributes[self::COLUMN_RELEVANCE];
 
@@ -296,7 +302,9 @@ class ImportStructure extends ImportFromFile
             }
         }
 
-        $this->groupOrder++;
+        if ($isNewGroup) {
+            $this->groupOrder++;
+        }
         $this->questionOrder = 1;
     }
 
