@@ -700,6 +700,11 @@ class ImportStructure extends ImportFromFile
         }
         
         $validator = new QuestionAttributeValidator($this->survey);
+
+        // If question theme is specified (e.g., bootstrap_dropdown), ensure validator uses it
+        if ($this->question instanceof Question && !empty($this->question->question_theme_name)) {
+            $validator->setQuestionThemeName($this->question->question_theme_name);
+        }
         $questionType = $this->question->type;
         
         $validAttributes = [];

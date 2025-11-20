@@ -23,15 +23,27 @@ class QuestionAttributeValidator extends CModel
     /** @var array Cache for question type attribute definitions */
     private static array $attributeDefinitionsCache = [];
 
+    /** @var string|null Selected question theme name (affects attribute set) */
+    private ?string $questionThemeName = null;
+
     /** @var array Validation errors */
     private array $validationErrors = [];
 
     /**
      * @param Survey $survey
      */
-    public function __construct($survey = null)
+    public function __construct($survey = null, ?string $questionThemeName = null)
     {
         $this->survey = $survey;
+        $this->questionThemeName = $questionThemeName;
+    }
+
+    /**
+     * Set the question theme name to use when fetching attribute definitions.
+     */
+    public function setQuestionThemeName(?string $questionThemeName): void
+    {
+        $this->questionThemeName = $questionThemeName;
     }
 
     /**
@@ -43,25 +55,33 @@ class QuestionAttributeValidator extends CModel
      */
     public function getAllowedAttributesForQuestionType($questionType)
     {
-        // Use cache to avoid repeated queries
-        if (isset(self::$attributeDefinitionsCache[$questionType])) {
-            return self::$attributeDefinitionsCache[$questionType];
+        $cacheKey = $questionType . '|' . ($this->questionThemeName ?? '');
+
+        // Use cache to avoid repeated queries (theme-sensitive)
+        if (isset(self::$attributeDefinitionsCache[$cacheKey])) {
+            return self::$attributeDefinitionsCache[$cacheKey];
         }
 
         // Create a dummy question to use with the fetcher
         $dummyQuestion = new Question();
         $dummyQuestion->type = $questionType;
         $dummyQuestion->sid = $this->survey->sid;
+        if (!empty($this->questionThemeName)) {
+            $dummyQuestion->question_theme_name = $this->questionThemeName;
+        }
 
         // Use LimeSurvey's core attribute fetcher
         $fetcher = new QuestionAttributeFetcher();
         $fetcher->setQuestion($dummyQuestion);
         $fetcher->setQuestionType($questionType);
+        if (!empty($this->questionThemeName)) {
+            $fetcher->setTheme($this->questionThemeName);
+        }
 
         $attributeDefinitions = $fetcher->fetch();
 
         // Cache the result
-        self::$attributeDefinitionsCache[$questionType] = $attributeDefinitions;
+        self::$attributeDefinitionsCache[$cacheKey] = $attributeDefinitions;
 
         return $attributeDefinitions;
 
