@@ -117,7 +117,8 @@ class ExportQuestions extends AbstractExport
         }
 
         $row[] = (string) $question->relevance;
-        $row[] = (string) $question->mandatory;
+        // Subquestions don't use mandatory in LS core; keep column empty to avoid exporting irrelevant data
+        $row[] = $this->type === self::TYPE_SUB_QUESTION ? '' : (string) $question->mandatory;
 
         if ($this->type !== self::TYPE_SUB_QUESTION) {
             $row[] = (int) $question->same_script;
