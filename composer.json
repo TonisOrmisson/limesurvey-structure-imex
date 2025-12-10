@@ -35,7 +35,8 @@
         "branch-alias": {
             "dev-master": "2.1.x-dev"
         }
-    },  "autoload": {
+    },
+  "autoload": {
     "psr-4": {
       "tonisormisson\\ls\\structureimex\\": "src"
     }
