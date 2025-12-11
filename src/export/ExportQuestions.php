@@ -398,6 +398,11 @@ class ExportQuestions extends AbstractExport
             
             // Get attributes for this question type
             $attributes = QuestionAttributeDefinition::getAttributesForQuestionType($qType);
+
+            // Sort attributes alphabetically by attribute name for easier orientation
+            if (!empty($attributes)) {
+                ksort($attributes, SORT_NATURAL | SORT_FLAG_CASE);
+            }
             
             if (empty($attributes)) {
                 $data[] = Row::fromValues([
