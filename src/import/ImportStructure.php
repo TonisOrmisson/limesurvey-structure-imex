@@ -47,6 +47,9 @@ class ImportStructure extends ImportFromFile
     
     /** @var bool $clearSurveyContents Whether to clear all survey contents before import */
     private bool $clearSurveyContents = false;
+
+    /** @var bool $surveyIsActive Whether the target survey is currently active (running) */
+    private bool $surveyIsActive = false;
     
     const COLUMN_TYPE = 'type';
     const COLUMN_SUBTYPE = 'subtype';
@@ -140,6 +143,10 @@ class ImportStructure extends ImportFromFile
 
     protected function beforeProcess(): void
     {
+        // Cache active state so we can enforce that running surveys
+        // do not get structural changes through this importer.
+        $this->surveyIsActive = $this->survey->getIsActive();
+
         if ($this->clearSurveyContents) {
             $this->clearAllSurveyContents();
         }
@@ -248,6 +255,22 @@ class ImportStructure extends ImportFromFile
         $this->currentModel = $this->findGroup($language);
 
         $isNewGroup = !($this->currentModel instanceof QuestionGroup) || $this->currentModel->isNewRecord;
+
+        // When the survey is active, we must not add new groups (structural change)
+        if ($this->surveyIsActive && $isNewGroup) {
+            $languageValueKey = self::COLUMN_VALUE . "-" . $language;
+            $groupName = strval($this->rowAttributes[$languageValueKey] ?? $this->rowAttributes[self::COLUMN_CODE] ?? '');
+            $this->addError(
+                'file',
+                sprintf(
+                    "Cannot add new question group '%s' because survey %s is active.",
+                    $groupName,
+                    $this->survey->sid
+                )
+            );
+            return;
+        }
+
         if (!($this->currentModel instanceof QuestionGroup)) {
             $this->currentModel = new QuestionGroup();
         }
@@ -331,9 +354,44 @@ class ImportStructure extends ImportFromFile
         $this->question = null;
 
         $this->currentModel = $this->findQuestion();
+        $isNewQuestion = !($this->currentModel instanceof Question) || $this->currentModel->isNewRecord;
+
+        // When the survey is active, do not allow new questions
+        if ($this->surveyIsActive && $isNewQuestion) {
+            $questionCode = strval($this->rowAttributes[self::COLUMN_CODE] ?? '');
+            $this->addError(
+                'file',
+                sprintf(
+                    "Cannot add new question '%s' because survey %s is active.",
+                    $questionCode,
+                    $this->survey->sid
+                )
+            );
+            return;
+        }
+
         if (!($this->currentModel instanceof Question)) {
             $this->currentModel = new Question();
 
+        }
+
+        // For existing questions in an active survey, the main question type must not change
+        if ($this->surveyIsActive && !$this->currentModel->isNewRecord) {
+            $newType = strval($this->rowAttributes[self::COLUMN_SUBTYPE] ?? '');
+            if ($newType !== '' && strtoupper($this->currentModel->type) !== strtoupper($newType)) {
+                $questionCode = strval($this->rowAttributes[self::COLUMN_CODE] ?? '');
+                $this->addError(
+                    'file',
+                    sprintf(
+                        "Cannot change type of question '%s' on active survey %s (current: %s, new: %s).",
+                        $questionCode,
+                        $this->survey->sid,
+                        $this->currentModel->type,
+                        $newType
+                    )
+                );
+                return;
+            }
         }
 
         $mandatory = "Y";
@@ -854,6 +912,22 @@ class ImportStructure extends ImportFromFile
         $this->subQuestion = null;
         $this->currentModel = $this->findSubQuestion();
 
+        // When the survey is active, do not allow new subquestions
+        if ($this->surveyIsActive && !($this->currentModel instanceof Question)) {
+            $subCode = strval($this->rowAttributes[self::COLUMN_CODE] ?? '');
+            $questionCode = $this->question instanceof Question ? $this->question->title : '';
+            $this->addError(
+                'file',
+                sprintf(
+                    "Cannot add new subquestion '%s' to question '%s' because survey %s is active.",
+                    $subCode,
+                    $questionCode,
+                    $this->survey->sid
+                )
+            );
+            return;
+        }
+
         if (!($this->currentModel instanceof Question)) {
             $this->currentModel = new Question();
         }
@@ -917,6 +991,23 @@ class ImportStructure extends ImportFromFile
         }
 
         $this->currentModel = $this->findAnswer();
+
+        // When the survey is active, do not allow new answer options
+        if ($this->surveyIsActive && !($this->currentModel instanceof Answer)) {
+            $answerCode = strval($this->rowAttributes[self::COLUMN_CODE] ?? '');
+            $questionCode = $this->question instanceof Question ? $this->question->title : '';
+            $this->addError(
+                'file',
+                sprintf(
+                    "Cannot add new answer '%s' to question '%s' because survey %s is active.",
+                    $answerCode,
+                    $questionCode,
+                    $this->survey->sid
+                )
+            );
+            return;
+        }
+
         if (!($this->currentModel instanceof Answer)) {
             $this->currentModel = new Answer();
         }
@@ -1023,6 +1114,24 @@ class ImportStructure extends ImportFromFile
     private function saveMultiFlexColumnSubQuestion(): void
     {
         $columnQuestion = $this->findMultiFlexColumnSubQuestion();
+        $isNewColumn = !($columnQuestion instanceof Question) || $columnQuestion->isNewRecord;
+
+        // When the survey is active, do not allow new multi-flex column subquestions
+        if ($this->surveyIsActive && $isNewColumn) {
+            $code = strval($this->rowAttributes[$this->questionCodeColumn] ?? '');
+            $questionCode = $this->question instanceof Question ? $this->question->title : '';
+            $this->addError(
+                'file',
+                sprintf(
+                    "Cannot add new multi-flex column '%s' to question '%s' because survey %s is active.",
+                    $code,
+                    $questionCode,
+                    $this->survey->sid
+                )
+            );
+            return;
+        }
+
         if (!($columnQuestion instanceof Question)) {
             $columnQuestion = new Question();
         }
