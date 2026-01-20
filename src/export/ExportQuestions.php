@@ -8,6 +8,7 @@ use OpenSpout\Common\Entity\Row;
 use Question;
 use QuestionAttribute;
 use QuestionGroup;
+use LimeSurvey\Models\Services\QuestionAttributeFetcher;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
@@ -134,6 +135,7 @@ class ExportQuestions extends AbstractExport
         }
 
         $attributes = $this->getQuestionAttributes($question);
+        $allowUnknownThemeAttributes = !empty($question->question_theme_name);
         
         
         // Separate global and language-specific attributes
@@ -153,13 +155,17 @@ class ExportQuestions extends AbstractExport
                     continue;
                 }
                 
-                // Only export attributes that are defined for this question type
-                if (!QuestionAttributeDefinition::isValidAttribute($question->type, $attributeName)) {
+                $isKnownAttribute = QuestionAttributeDefinition::isValidAttribute($question->type, $attributeName);
+
+                // Unknown attributes: keep them if a custom theme is set; otherwise skip
+                if (!$isKnownAttribute && !$allowUnknownThemeAttributes) {
                     continue;
                 }
-                
-                // Only export attributes with non-default values
-                if (!QuestionAttributeDefinition::isNonDefaultValue($question->type, $attributeName, $attributeValue)) {
+
+                // Known attributes: only export when value differs from default
+                if ($isKnownAttribute
+                    && !QuestionAttributeDefinition::isNonDefaultValue($question->type, $attributeName, $attributeValue)
+                ) {
                     continue;
                 }
                 
@@ -385,6 +391,7 @@ class ExportQuestions extends AbstractExport
         $questionTypes = $this->getAllQuestionTypes();
         $myQuestionAttribute = new MyQuestionAttribute();
         $possibleValues = $myQuestionAttribute->allowedValues();
+        $themeAttributesByType = $this->collectThemeAttributesByType();
         
         foreach ($questionTypes as $qType => $info) {
             // Add question type header row
@@ -420,6 +427,33 @@ class ExportQuestions extends AbstractExport
                     $data[] = Row::fromValues([
                         '',
                         $attrName,
+                        $attrDef['default'] ?? '',
+                        $description,
+                        $validation
+                    ]);
+                }
+            }
+
+            // Add theme-specific attributes that are not part of the core definitions
+            $themeAttributes = $themeAttributesByType[$qType] ?? [];
+            $seenAttrs = array_keys($attributes);
+
+            foreach ($themeAttributes as $themeName => $attrs) {
+                if (!empty($attrs)) {
+                    ksort($attrs, SORT_NATURAL | SORT_FLAG_CASE);
+                }
+
+                foreach ($attrs as $attrName => $attrDef) {
+                    if (in_array($attrName, $seenAttrs, true)) {
+                        continue; // already listed (core or another theme)
+                    }
+
+                    $seenAttrs[] = $attrName;
+                    $description = $this->getAttributeDescription($attrName);
+                    $validation = $possibleValues[$attrName] ?? $this->describeValidation($attrDef);
+                    $data[] = Row::fromValues([
+                        '',
+                        '[theme: ' . $themeName . '] ' . $attrName,
                         $attrDef['default'] ?? '',
                         $description,
                         $validation
@@ -467,6 +501,70 @@ class ExportQuestions extends AbstractExport
         ];
         
         return $descriptions[$attributeName] ?? 'Attribute specific to question type';
+    }
+
+    private function describeValidation(array $attrDef): string
+    {
+        if (!empty($attrDef['options']) && is_array($attrDef['options'])) {
+            return 'Options: ' . implode(', ', array_keys($attrDef['options']));
+        }
+
+        if (!empty($attrDef['inputtype'])) {
+            return $attrDef['inputtype'];
+        }
+
+        return 'Any value';
+    }
+
+    private function collectThemeAttributesByType(): array
+    {
+        $result = [];
+        $defaultAttrsCache = [];
+
+        foreach ($this->survey->questions as $question) {
+            $theme = $question->question_theme_name;
+            if (empty($theme) || $theme === 'core') {
+                continue;
+            }
+
+            $qType = $question->type;
+            if (isset($result[$qType][$theme])) {
+                continue; // already processed
+            }
+
+            // Fetch default/core attributes for this type once
+            if (!isset($defaultAttrsCache[$qType])) {
+                $defaultQuestion = new Question();
+                $defaultQuestion->type = $qType;
+                $defaultQuestion->sid = $this->survey->sid;
+
+                $defaultFetcher = new QuestionAttributeFetcher();
+                $defaultFetcher->setQuestion($defaultQuestion);
+                $defaultFetcher->setQuestionType($qType);
+                $defaultAttrsCache[$qType] = $defaultFetcher->fetch();
+            }
+
+            $dummyQuestion = new Question();
+            $dummyQuestion->type = $qType;
+            $dummyQuestion->sid = $this->survey->sid;
+            $dummyQuestion->question_theme_name = $theme;
+
+            $fetcher = new QuestionAttributeFetcher();
+            $fetcher->setQuestion($dummyQuestion);
+            $fetcher->setQuestionType($qType);
+            $fetcher->setTheme($theme);
+
+            $themeAttrs = $fetcher->fetch();
+
+            // Keep only attributes that are new compared to core/default
+            $customOnly = array_diff_key($themeAttrs, $defaultAttrsCache[$qType] ?? []);
+
+            if (!empty($customOnly)) {
+                $result[$qType][$theme] = $customOnly;
+            }
+        }
+
+        return $result;
     }
 
     private function partitionSubQuestions(Question $question): array
