@@ -35,8 +35,10 @@ Find the plugin Import / Export buttons from survey tools menu.
 - **Questions**: Export/import survey question structure with attributes
 - **Relevance Logic**: Export/import conditional logic and expressions  
 - **Quotas**: Export/import survey quotas and participation limits
+- **RemoteControl API (optional)**: Exposes plugin actions discoverable via `list_plugin_api` and callable via `call_plugin_api` (requires global `rpc_plugin_api` to be enabled)
 
 See [docs/](docs/) folder for detailed format specifications.
+RemoteControl API usage is documented in [docs/REMOTE_CONTROL_API.md](docs/REMOTE_CONTROL_API.md).
 
 # Updating
 

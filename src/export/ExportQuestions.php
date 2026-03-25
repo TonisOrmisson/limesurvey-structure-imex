@@ -3,20 +3,17 @@
 namespace tonisormisson\ls\structureimex\export;
 
 use Answer;
-use CDbCriteria;
 use OpenSpout\Common\Entity\Row;
 use Question;
-use QuestionAttribute;
 use QuestionGroup;
 use LimeSurvey\Models\Services\QuestionAttributeFetcher;
-use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
-use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 
 class ExportQuestions extends AbstractExport
 {
     private $type = "";
+    private ?ImexQuestionsRowBuilder $rowBuilder = null;
 
 
 
@@ -57,162 +54,19 @@ class ExportQuestions extends AbstractExport
 
     private function addGroup(QuestionGroup $group)
     {
-        $row = [
-            self::TYPE_GROUP,
-            '',
-            $group->gid,
-        ];
-        
-        foreach ($this->languages as $language) {
-            if (!isset($group->questiongroupl10ns[$language])) {
-                continue;
-            }
-            $row[] = $group->questiongroupl10ns[$language]->group_name ?? '';
-            $row[] = $group->questiongroupl10ns[$language]->description ?? '';
-            $row[] = ''; // no script for groups
-        }
-
-        $row[] = $group->grelevance ?? '';
-        $row[] = ''; // no mandatory
-        $row[] = ''; // no same_script for groups
-        $row[] = ''; // no theme
-        $row[] = ''; // no options
-        
-        // Add empty values for language-specific options columns
-        foreach ($this->languages as $language) {
-            $row[] = ''; // no language-specific options for groups
-        }
-
+        $row = $this->getRowBuilder()->buildGroupRow($group);
         $row = Row::fromValues($row, $this->groupStyle);
         $this->writer->addRow($row);
-
-
     }
 
     private function addQuestion(Question $question)
     {
-
-        $row = [
-            $this->type,
-            ($this->type === self::TYPE_SUB_QUESTION ? '' : $question->type),
-            $question->title,
-        ];
-        
-        foreach ($this->languages as $language) {
-            $l10n = $question->questionl10ns[$language] ?? null;
-            $row[] = $l10n->question ?? '';
-            $row[] = $l10n->help ?? '';
-            
-            // Handle script field with "Use for all languages" functionality
-            if ($question->same_script == 1) {
-                // If same_script=1, export script only for base language, empty for others
-                if ($language === $this->survey->language) {
-                    $row[] = $l10n->script ?? '';
-                } else {
-                    $row[] = '';
-                }
-            } else {
-                // Normal per-language script
-                $row[] = $l10n->script ?? '';
-            }
-        }
-
-        $row[] = (string) $question->relevance;
-        // Subquestions don't use mandatory in LS core; keep column empty to avoid exporting irrelevant data
-        $row[] = $this->type === self::TYPE_SUB_QUESTION ? '' : (string) $question->mandatory;
-
-        if ($this->type !== self::TYPE_SUB_QUESTION) {
-            $row[] = (int) $question->same_script;
-        } else {
-            $row[] = '';
-        }
-
-        if ($this->type !== self::TYPE_SUB_QUESTION) {
-            $questionTheme = $question->question_theme_name;
-            $row[] = ($questionTheme != 'core') ? $questionTheme : '';
-        } else {
-            $row[] = '';
-        }
-
-        $attributes = $this->getQuestionAttributes($question);
-        $allowUnknownThemeAttributes = !empty($question->question_theme_name);
-        
-        
-        // Separate global and language-specific attributes
-        $globalAttributes = [];
-        $languageSpecificAttributes = [];
-        
-        if (!empty($attributes)) {
-            
-            // Group attributes by type and language
-            foreach ($attributes as $attribute) {
-                $attributeName = $attribute->attribute;
-                $attributeValue = $attribute->value;
-                $attributeLanguage = $attribute->language;
-                
-                // Skip question_template as it's exported in its own column
-                if ($attributeName === 'question_template') {
-                    continue;
-                }
-                
-                $isKnownAttribute = QuestionAttributeDefinition::isValidAttribute($question->type, $attributeName);
-
-                // Unknown attributes: keep them if a custom theme is set; otherwise skip
-                if (!$isKnownAttribute && !$allowUnknownThemeAttributes) {
-                    continue;
-                }
-
-                // Known attributes: only export when value differs from default
-                if ($isKnownAttribute
-                    && !QuestionAttributeDefinition::isNonDefaultValue($question->type, $attributeName, $attributeValue)
-                ) {
-                    continue;
-                }
-                
-                // Separate by global vs language-specific
-                if (QuestionAttributeLanguageManager::isGlobal($attributeName)) {
-                    // Global attributes (stored with empty language)
-                    if (empty($attributeLanguage)) {
-                        $globalAttributes[$attributeName] = $attributeValue;
-                    }
-                } else {
-                    // Language-specific attributes (stored with language code)
-                    if (!empty($attributeLanguage)) {
-                        if (!isset($languageSpecificAttributes[$attributeLanguage])) {
-                            $languageSpecificAttributes[$attributeLanguage] = [];
-                        }
-                        $languageSpecificAttributes[$attributeLanguage][$attributeName] = $attributeValue;
-                    }
-                }
-            }
-        }
-
-
-        // Add global attributes to the "options" column
-        if (!empty($globalAttributes)) {
-            // @phpstan-ignore-next-line phpstan sees kcfinder polyfill with a different signature
-            $row[] = json_encode($globalAttributes, JSON_UNESCAPED_UNICODE);
-        } else {
-            $row[] = '';
-        }
-        
-        // Add language-specific attributes to "options-{language}" columns
-        foreach ($this->languages as $language) {
-            if (!empty($languageSpecificAttributes[$language])) {
-                // @phpstan-ignore-next-line phpstan sees kcfinder polyfill with a different signature
-                $row[] = json_encode($languageSpecificAttributes[$language], JSON_UNESCAPED_UNICODE);
-            } else {
-                $row[] = '';
-            }
-        }
+        $row = $this->getRowBuilder()->buildQuestionRow($question, $this->type);
 
         $style = $this->type === self::TYPE_SUB_QUESTION ? $this->subQuestionStyle : $this->questionStyle;
 
-
         $row = Row::fromValues($row, $style);
         $this->writer->addRow($row);
-
-
     }
 
     /**
@@ -238,7 +92,7 @@ class ExportQuestions extends AbstractExport
     {
         $this->addQuestion($question);
 
-        [$answerLikeSubQuestions, $regularSubQuestions] = $this->partitionSubQuestions($question);
+        [$answerLikeSubQuestions, $regularSubQuestions] = $this->getRowBuilder()->partitionSubQuestions($question, $question->subquestions);
 
         // Skip answers for M (Multiple Choice) questions - they use subquestions instead
         if ($question->type !== Question::QT_M_MULTIPLE_CHOICE) {
@@ -269,65 +123,14 @@ class ExportQuestions extends AbstractExport
      */
     private function processAnswer(Answer $answer)
     {
-        $row = [
-            self::TYPE_ANSWER,
-            '',
-            $answer->code,
-        ];
-        
-        foreach ($this->languages as $language) {
-            if (!isset($answer->answerl10ns[$language])) {
-                continue;
-            }
-            $row[] = $answer->answerl10ns[$language]->answer ?? '';
-            $row[] = ''; // no help texts for answers
-            $row[] = ''; // no script for answers
-        }
-
-        // Add the missing columns for answers (relevance, mandatory, same_script, theme, options)
-        $row[] = ''; // no relevance for answers
-        $row[] = ''; // no mandatory for answers
-        $row[] = ''; // no same_script for answers  
-        $row[] = ''; // no theme for answers
-        $row[] = ''; // no options for answers
-        
-        // Add empty values for language-specific options columns
-        foreach ($this->languages as $language) {
-            $row[] = ''; // no language-specific options for answers
-        }
-
+        $row = $this->getRowBuilder()->buildAnswerRow($answer);
         $row = Row::fromValues($row);
         $this->writer->addRow($row);
-
     }
 
     private function processSubQuestionAsAnswer(Question $subQuestion)
     {
-        $row = [
-            self::TYPE_ANSWER,
-            '',
-            $subQuestion->title,
-        ];
-
-        foreach ($this->languages as $language) {
-            if (!isset($subQuestion->questionl10ns[$language])) {
-                continue;
-            }
-            $row[] = $subQuestion->questionl10ns[$language]->question ?? '';
-            $row[] = '';
-            $row[] = '';
-        }
-
-        $row[] = '';
-        $row[] = '';
-        $row[] = '';
-        $row[] = '';
-        $row[] = '';
-
-        foreach ($this->languages as $language) {
-            $row[] = '';
-        }
-
+        $row = $this->getRowBuilder()->buildSubQuestionAsAnswerRow($subQuestion);
         $row = Row::fromValues($row);
         $this->writer->addRow($row);
     }
@@ -567,48 +370,6 @@ class ExportQuestions extends AbstractExport
         return $result;
     }
 
-    private function partitionSubQuestions(Question $question): array
-    {
-        if (!$this->questionHasMultiFlexAxisAnswers($question)) {
-            return [[], $question->subquestions];
-        }
-
-        $answerLike = [];
-        $regular = [];
-
-        foreach ($question->subquestions as $subQuestion) {
-            if ($this->isMultiFlexAxisSubQuestion($question, $subQuestion)) {
-                $answerLike[] = $subQuestion;
-            } else {
-                $regular[] = $subQuestion;
-            }
-        }
-
-        return [$answerLike, $regular];
-    }
-
-    private function questionHasMultiFlexAxisAnswers(Question $question): bool
-    {
-        return in_array(
-            $question->type,
-            [
-                Question::QT_COLON_ARRAY_NUMBERS,
-                Question::QT_SEMICOLON_ARRAY_TEXT,
-            ],
-            true
-        );
-    }
-
-    private function isMultiFlexAxisSubQuestion(Question $parentQuestion, Question $subQuestion): bool
-    {
-        if (!$this->questionHasMultiFlexAxisAnswers($parentQuestion)) {
-            return false;
-        }
-
-        return strtoupper($subQuestion->type) === self::QT_LONG_FREE;
-    }
-
-
     private function getAllQuestionTypes()
     {
         return [
@@ -777,53 +538,14 @@ class ExportQuestions extends AbstractExport
 
     protected function loadHeader()
     {
-        $this->header = [
-            ImportStructure::COLUMN_TYPE,
-            ImportStructure::COLUMN_SUBTYPE,
-            ImportStructure::COLUMN_CODE,
-        ];
-        
-        foreach ($this->languages as $language) {
-            $this->header[] = ImportStructure::COLUMN_VALUE . "-" . $language;
-            $this->header[] = ImportStructure::COLUMN_HELP . "-" . $language;
-            $this->header[] = ImportStructure::COLUMN_SCRIPT . "-" . $language;
-        }
-
-        $this->header[] = ImportStructure::COLUMN_RELEVANCE;
-        $this->header[] = ImportStructure::COLUMN_MANDATORY;
-        $this->header[] = ImportStructure::COLUMN_SAME_SCRIPT;
-        $this->header[] = ImportStructure::COLUMN_THEME;
-        $this->header[] = ImportStructure::COLUMN_OPTIONS;
-        
-        // Add language-specific options columns
-        foreach ($this->languages as $language) {
-            $this->header[] = ImportStructure::COLUMN_OPTIONS . "-" . $language;
-        }
+        $this->header = $this->getRowBuilder()->buildHeader();
     }
 
-    private function getQuestionAttributes($question)
+    private function getRowBuilder(): ImexQuestionsRowBuilder
     {
-        // Use direct SQL query to avoid any model filtering issues
-        $sql = "SELECT * FROM {{question_attributes}} WHERE qid = :qid AND value != ''";
-        $command = \Yii::app()->db->createCommand($sql);
-        $command->bindValue(':qid', $question->qid);
-        $rows = $command->queryAll();
-        
-        // Convert to QuestionAttribute objects
-        $attributes = [];
-        foreach ($rows as $row) {
-            $attr = new QuestionAttribute();
-            $attr->qaid = $row['qaid'];
-            $attr->qid = $row['qid'];
-            $attr->attribute = $row['attribute'];
-            $attr->value = $row['value'];
-            $attr->language = $row['language'];
-            $attributes[] = $attr;
+        if ($this->rowBuilder === null) {
+            $this->rowBuilder = new ImexQuestionsRowBuilder($this->survey, $this->languages);
         }
-        
-        return $attributes;
+        return $this->rowBuilder;
     }
-
-
-
 }
