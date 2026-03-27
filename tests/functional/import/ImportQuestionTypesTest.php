@@ -208,7 +208,7 @@ class ImportQuestionTypesTest extends DatabaseTestCase
             'attributes' => [
                 'min_answers' => '2',
                 'max_answers' => '5',
-                'random_order' => '0'
+                'subquestion_order' => 'normal'
             ]
         ]);
         

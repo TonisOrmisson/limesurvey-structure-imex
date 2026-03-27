@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.12] - 2026-03-27
+
+### Fixed
+- Normalize legacy multiple choice `random_order` imports to canonical `subquestion_order`
+- Align functional import tests with current multiple choice ordering storage
+
 ## [2.1.11] - 2026-03-27
 
 ### Fixed
