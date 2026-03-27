@@ -22,7 +22,7 @@
         "sebastian/version": "^6"
     },
     "require-dev": {
-        "limesurvey/limesurvey": "^6",
+        "limesurvey/limesurvey": "^7",
         "phpstan/phpstan": "^1|^2",
         "phpunit/phpunit": "^9|^10|^11|^12"
     },
