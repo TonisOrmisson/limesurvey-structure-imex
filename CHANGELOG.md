@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.10] - 2026-03-27
+
+### Added
+- Added `ImexQuestionsRowBuilder` to the tracked source tree for IMEX row generation used by export and RemoteControl API actions
+- Added RemoteControl plugin API documentation for `StructureImEx`
+
 ## [2.1.9] - 2026-03-27
 
 ### Added
