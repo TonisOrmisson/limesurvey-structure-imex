@@ -1,6 +1,7 @@
 <?php
 
 use tonisormisson\ls\structureimex\import\ImportQuotas;
+use tonisormisson\ls\structureimex\StructureImEx;
 
 /** @var Survey $survey */
 /** @var AdminController $this */

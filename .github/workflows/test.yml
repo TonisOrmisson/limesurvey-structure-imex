@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.3']
+        php-versions: ['8.3', '8.4', '8.5']
     
     services:
       mysql:
@@ -24,7 +24,7 @@ jobs:
         options: --health-cmd="mysqladmin ping -ptestpassword" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -253,4 +253,4 @@ jobs:
         vendor/bin/phpunit
 
     - name: Run PHPStan code analysis
-      run: vendor/bin/phpstan analyse src --level=5
+      run: vendor/bin/phpstan

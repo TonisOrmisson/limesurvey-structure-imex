@@ -325,7 +325,12 @@ class ExportQuestions extends AbstractExport
         $result = [];
         $defaultAttrsCache = [];
 
-        foreach ($this->survey->questions as $question) {
+        $questions = Question::model()->findAllByAttributes(
+            ['sid' => $this->survey->sid],
+            ['order' => 'qid ASC']
+        );
+
+        foreach ($questions as $question) {
             $theme = $question->question_theme_name;
             if (empty($theme) || $theme === 'core') {
                 continue;
@@ -361,7 +366,7 @@ class ExportQuestions extends AbstractExport
             $themeAttrs = $fetcher->fetch();
 
             // Keep only attributes that are new compared to core/default
-            $customOnly = array_diff_key($themeAttrs, $defaultAttrsCache[$qType] ?? []);
+            $customOnly = array_diff_key($themeAttrs, $defaultAttrsCache[$qType]);
 
             if (!empty($customOnly)) {
                 $result[$qType][$theme] = $customOnly;

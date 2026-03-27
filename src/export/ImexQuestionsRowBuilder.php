@@ -185,14 +185,14 @@ class ImexQuestionsRowBuilder
         }
 
         if (!empty($globalAttributes)) {
-            $row[] = json_encode($globalAttributes, JSON_UNESCAPED_UNICODE);
+            $row[] = json_encode($globalAttributes);
         } else {
             $row[] = '';
         }
 
         foreach ($this->languages as $language) {
             if (!empty($languageSpecificAttributes[$language])) {
-                $row[] = json_encode($languageSpecificAttributes[$language], JSON_UNESCAPED_UNICODE);
+                $row[] = json_encode($languageSpecificAttributes[$language]);
             } else {
                 $row[] = '';
             }

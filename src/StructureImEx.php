@@ -732,9 +732,6 @@ class StructureImEx extends PluginBase
         $rowBuilder = new ImexQuestionsRowBuilder($survey, $survey->getAllLanguages());
         $groupImexRow = $rowBuilder->buildAssocRow($rowBuilder->buildGroupRow($group));
         $groupQuestions = $group->questions;
-        if (!is_array($groupQuestions)) {
-            $groupQuestions = [];
-        }
 
         $questions = [];
         foreach ($groupQuestions as $question) {
@@ -830,9 +827,6 @@ class StructureImEx extends PluginBase
         $resultGroups = [];
         foreach ($groups as $group) {
             $groupQuestions = $group->questions;
-            if (!is_array($groupQuestions)) {
-                $groupQuestions = [];
-            }
 
             $groupImexRow = $rowBuilder->buildAssocRow($rowBuilder->buildGroupRow($group));
             $questions = [];
@@ -933,7 +927,7 @@ class StructureImEx extends PluginBase
         );
         $questionOptions = $this->decodeImexOptions($questionRow, $labelLanguage);
 
-        $allSubQuestions = is_array($question->subquestions) ? $question->subquestions : [];
+        $allSubQuestions = $question->subquestions;
         [$answerLikeSubQuestions, $regularSubQuestions] = $rowBuilder->partitionSubQuestions($question, $allSubQuestions);
 
         $subquestionRows = [];
@@ -974,7 +968,7 @@ class StructureImEx extends PluginBase
 
         $answers = [];
         $directAnswerRows = [];
-        $directAnswers = is_array($question->answers) ? $question->answers : [];
+        $directAnswers = $question->answers;
         foreach ($directAnswers as $answer) {
             $row = $rowBuilder->buildAssocRow($rowBuilder->buildAnswerRow($answer));
             $answerText = $this->getImexLocalizedColumn(
