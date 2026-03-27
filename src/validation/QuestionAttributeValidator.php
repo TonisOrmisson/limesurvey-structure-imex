@@ -113,11 +113,6 @@ class QuestionAttributeValidator extends CModel
         $allowedAttributes = $this->getAllowedAttributesForQuestionType($questionType);
 
         if (!array_key_exists($attributeName, $allowedAttributes)) {
-            // Allow only for non-core custom themes; core/inherited themes should still reject unknowns.
-            if (!empty($this->questionThemeName) && strtolower($this->questionThemeName) !== strtolower(Question::DEFAULT_QUESTION_THEME)) {
-                return true;
-            }
-
             $this->addValidationError($attributeName, "Attribute '{$attributeName}' is not allowed for question type '{$questionType}'");
             return false;
         }

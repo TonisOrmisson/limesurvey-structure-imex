@@ -472,6 +472,27 @@ class QuestionAttributeValidatorTest extends BaseExportTest
         $this->assertContains("Attribute 'invalid_attribute' is not allowed for question type 'T'", $errors['invalid_attribute']);
     }
 
+    public function testUnknownAttributesRemainInvalidForCustomThemes()
+    {
+        $mockValidator = $this->getMockBuilder(QuestionAttributeValidator::class)
+            ->setConstructorArgs([$this->mockSurvey, 'bootstrap_buttons'])
+            ->onlyMethods(['getAllowedAttributesForQuestionType'])
+            ->getMock();
+
+        $mockValidator->method('getAllowedAttributesForQuestionType')
+            ->willReturn([
+                'hide_tip' => ['inputtype' => 'switch'],
+            ]);
+
+        $mockValidator->clearValidationErrors();
+        $result = $mockValidator->validateAttributeValue('M', 'other_replace_text3', 'Custom other text');
+
+        $this->assertFalse($result);
+        $this->assertTrue($mockValidator->hasValidationErrors());
+        $errors = $mockValidator->getValidationErrors();
+        $this->assertArrayHasKey('other_replace_text3', $errors);
+    }
+
     private function getPrivateProperty($object, $propertyName)
     {
         $reflection = new \ReflectionClass($object);

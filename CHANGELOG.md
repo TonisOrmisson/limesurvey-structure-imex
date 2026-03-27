@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [2.1.11] - 2026-03-27
+
+### Fixed
+- Reject unknown attributes again when `importUnknownAttributes` is disabled, even if the question uses a non-core theme
+
 ## [2.1.10] - 2026-03-27
 
 ### Added
