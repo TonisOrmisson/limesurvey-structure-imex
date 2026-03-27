@@ -116,6 +116,11 @@ class ExportQuestionsDefinitionTest extends TestCase
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('L', 'answer_order'));
         $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('L', 'answer_order', 'random'));
         $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('L', 'answer_order', 'normal'));
+
+        // Test M type (Multiple Choice) uses subquestion ordering
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('M', 'subquestion_order'));
+        $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('M', 'subquestion_order', 'random'));
+        $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('M', 'subquestion_order', 'normal'));
         
         // Test N type (Numerical) specific attributes  
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('N', 'min_num_value_n'));

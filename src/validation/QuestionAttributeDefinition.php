@@ -590,6 +590,12 @@ class QuestionAttributeDefinition
                 'type' => 'integer',
                 'category' => 'Input'
             ],
+            'subquestion_order' => [
+                'default' => 'normal',
+                'type' => 'singleselect',
+                'options' => ['normal', 'random', 'alphabetical', 'random_alphabetical'],
+                'category' => 'Display'
+            ],
             'other_replace_text' => [
                 'default' => '',
                 'type' => 'text',
@@ -875,6 +881,12 @@ class QuestionAttributeDefinition
             'other_replace_text' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
+            'subquestion_order' => [
+                'default' => 'normal',
+                'type' => 'singleselect',
+                'options' => ['normal', 'random', 'alphabetical', 'random_alphabetical'],
+                'category' => 'Display'
+            ],
             'em_validation_q' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic'],
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],

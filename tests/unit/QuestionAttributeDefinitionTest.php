@@ -43,6 +43,13 @@ class QuestionAttributeDefinitionTest extends TestCase
         $this->assertNotEmpty($lAttributes);
         $this->assertArrayHasKey('hide_tip', $lAttributes);
         $this->assertArrayHasKey('answer_order', $lAttributes);
+
+        // Test Multiple Choice (M)
+        $mAttributes = QuestionAttributeDefinition::getAttributesForQuestionType('M');
+        $this->assertIsArray($mAttributes);
+        $this->assertNotEmpty($mAttributes);
+        $this->assertArrayHasKey('subquestion_order', $mAttributes);
+        $this->assertSame('normal', $mAttributes['subquestion_order']['default']);
         
         // Test Numerical (N)
         $nAttributes = QuestionAttributeDefinition::getAttributesForQuestionType('N');
@@ -72,6 +79,7 @@ class QuestionAttributeDefinitionTest extends TestCase
         $this->assertEquals('0', QuestionAttributeDefinition::getDefaultValue('T', 'hide_tip'));
         $this->assertEquals('0', QuestionAttributeDefinition::getDefaultValue('L', 'hidden'));
         $this->assertEquals('normal', QuestionAttributeDefinition::getDefaultValue('L', 'answer_order'));
+        $this->assertEquals('normal', QuestionAttributeDefinition::getDefaultValue('M', 'subquestion_order'));
         $this->assertEquals('', QuestionAttributeDefinition::getDefaultValue('N', 'min_answers'));
         
         // Test unknown attribute
@@ -89,6 +97,8 @@ class QuestionAttributeDefinitionTest extends TestCase
         // Test valid attributes
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('T', 'hide_tip'));
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('L', 'answer_order'));
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('M', 'subquestion_order'));
+        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('P', 'subquestion_order'));
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('N', 'min_answers'));
         
         // Test invalid attributes
@@ -130,11 +140,13 @@ class QuestionAttributeDefinitionTest extends TestCase
         // Test default values (should return false - don't export)
         $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('T', 'hide_tip', '0'));
         $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('L', 'answer_order', 'normal'));
+        $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('M', 'subquestion_order', 'normal'));
         $this->assertFalse(QuestionAttributeDefinition::isNonDefaultValue('N', 'min_answers', ''));
         
         // Test non-default values (should return true - do export)
         $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('T', 'hide_tip', '1'));
         $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('L', 'answer_order', 'random'));
+        $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('M', 'subquestion_order', 'random'));
         $this->assertTrue(QuestionAttributeDefinition::isNonDefaultValue('N', 'min_answers', '5'));
         
         // Test empty string vs null handling
@@ -169,6 +181,9 @@ class QuestionAttributeDefinitionTest extends TestCase
         $this->assertTrue(QuestionAttributeDefinition::validateAttributeValue('L', 'answer_order', 'random'));
         $this->assertTrue(QuestionAttributeDefinition::validateAttributeValue('L', 'answer_order', 'alphabetical'));
         $this->assertFalse(QuestionAttributeDefinition::validateAttributeValue('L', 'answer_order', 'invalid'));
+        $this->assertTrue(QuestionAttributeDefinition::validateAttributeValue('M', 'subquestion_order', 'random'));
+        $this->assertTrue(QuestionAttributeDefinition::validateAttributeValue('M', 'subquestion_order', 'random_alphabetical'));
+        $this->assertFalse(QuestionAttributeDefinition::validateAttributeValue('M', 'subquestion_order', 'invalid'));
         
         // Test text attributes (should always be valid)
         $this->assertTrue(QuestionAttributeDefinition::validateAttributeValue('T', 'cssclass', 'any-text'));

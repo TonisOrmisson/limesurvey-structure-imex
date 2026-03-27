@@ -288,6 +288,7 @@ class ExportQuestions extends AbstractExport
             'max_num_value_n' => 'Maximum allowed numerical value',
             'suffix' => 'Text to display after numerical input',
             'answer_order' => 'Order of answer options (normal/random)',
+            'subquestion_order' => 'Order of subquestions (normal/random/alphabetical/random_alphabetical)',
             'assessment_value' => 'Enable assessment scoring (0=off, 1=on)',
             'scale_export' => 'Export scale values instead of codes (0=codes, 1=values)',
             'min_answers' => 'Minimum required number of selections',
@@ -430,12 +431,12 @@ class ExportQuestions extends AbstractExport
             // === MULTIPLE CHOICE TYPES ===
             'M' => [
                 'name' => 'Multiple Choice',
-                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, answer_order, array_filter, array_filter_style, array_filter_exclude',
+                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, subquestion_order, array_filter, array_filter_style, array_filter_exclude',
                 'description' => 'Checkboxes allowing multiple selections with validation and array filtering'
             ],
             'P' => [
                 'name' => 'Multiple Choice with Comments',
-                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, answer_order',
+                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers, subquestion_order',
                 'description' => 'Multiple choice with comment fields for each selected option'
             ],
             

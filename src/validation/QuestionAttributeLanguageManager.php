@@ -38,6 +38,7 @@ class QuestionAttributeLanguageManager
         'mandatory',
         'other',
         'answer_order',
+        'subquestion_order',
         'random_order',
         'assessment_value',
         'scale_export',

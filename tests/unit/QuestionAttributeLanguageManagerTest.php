@@ -235,6 +235,7 @@ class QuestionAttributeLanguageManagerTest extends TestCase
         $this->assertTrue(QuestionAttributeLanguageManager::isGlobal('mandatory'));
         $this->assertTrue(QuestionAttributeLanguageManager::isGlobal('other'));
         $this->assertTrue(QuestionAttributeLanguageManager::isGlobal('random_order'));
+        $this->assertTrue(QuestionAttributeLanguageManager::isGlobal('subquestion_order'));
         
         // Validation-related global attributes
         $this->assertTrue(QuestionAttributeLanguageManager::isGlobal('numbers_only'));
