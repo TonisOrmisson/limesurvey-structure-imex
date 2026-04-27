@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.13] - 2026-04-27
+
+### Fixed
+- Import cached values for Excel formula cells instead of formula expressions
+- Reject XLSX imports when formula cells do not include cached values
+
 ## [2.1.12] - 2026-03-27
 
 ### Fixed

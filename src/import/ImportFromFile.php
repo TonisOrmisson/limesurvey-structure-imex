@@ -5,6 +5,7 @@ namespace tonisormisson\ls\structureimex\import;
 use CModel;
 use CUploadedFile;
 use LSYii_Application;
+use OpenSpout\Common\Entity\Cell\FormulaCell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Reader\ReaderInterface;
 use OpenSpout\Reader\SheetInterface;
@@ -160,10 +161,59 @@ abstract class ImportFromFile extends CModel
             default => throw new ImexException("invalid extension '$extension'"),
         };
 
+        if ($extension === 'xlsx') {
+            $this->validateFormulaCellsHaveCachedValues();
+        }
+
         $this->reader->open($this->fileName);
         $this->setReaderData();
         $this->prepareReaderData();
         return true;
+    }
+
+    private function validateFormulaCellsHaveCachedValues(): void
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($this->fileName) !== true) {
+            throw new ImexException('Unable to inspect XLSX formulas before import.');
+        }
+
+        $previousLibxmlSetting = libxml_use_internal_errors(true);
+
+        try {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $fileName = $zip->getNameIndex($i);
+                if (!is_string($fileName) || !preg_match('#^xl/worksheets/.*\.xml$#', $fileName)) {
+                    continue;
+                }
+
+                $xml = $zip->getFromName($fileName);
+                if (!is_string($xml)) {
+                    continue;
+                }
+
+                $document = new \DOMDocument();
+                if (!$document->loadXML($xml)) {
+                    throw new ImexException("Unable to inspect worksheet '$fileName' before import.");
+                }
+
+                $xpath = new \DOMXPath($document);
+                $formulaCellsWithoutCachedValues = $xpath->query('//*[local-name()="c"][*[local-name()="f"] and not(*[local-name()="v"])]');
+                if ($formulaCellsWithoutCachedValues === false) {
+                    throw new ImexException("Unable to inspect formulas in worksheet '$fileName'.");
+                }
+
+                foreach ($formulaCellsWithoutCachedValues as $cell) {
+                    $cellReference = $cell instanceof \DOMElement ? $cell->getAttribute('r') : '';
+                    $cellReference = $cellReference !== '' ? $cellReference : 'unknown';
+                    throw new ImexException("Formula cell $cellReference has no cached value. Open and save the spreadsheet in Excel or LibreOffice before importing.");
+                }
+            }
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousLibxmlSetting);
+            $zip->close();
+        }
     }
 
     protected function prepareReaderData(): void
@@ -192,7 +242,10 @@ abstract class ImportFromFile extends CModel
             $cells = $row->getCells();
             $cellIndex = 0;
             foreach ($cells as $cell) {
-                $cellValue = $cell->getValue();
+                $cellValue = $cell instanceof FormulaCell ? $cell->getComputedValue() : $cell->getValue();
+                if ($cell instanceof FormulaCell && $cellValue === null) {
+                    throw new ImexException('Formula cell has no cached value. Open and save the spreadsheet in Excel or LibreOffice before importing.');
+                }
                 $rowData[] = $cellValue;
                 $cellIndex++;
             }
