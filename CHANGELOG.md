@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.14] - 2026-04-29
+
+### Fixed
+- Refresh LimeSurvey ExpressionManager state after relevance imports
+- Reject malformed relevance rows where `group` is set together with `code` or `parent`
+
 ## [2.1.13] - 2026-04-27
 
 ### Fixed

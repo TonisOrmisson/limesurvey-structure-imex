@@ -18,6 +18,16 @@ class ImportRelevance extends ImportFromFile
 
     public Question|QuestionGroup|null $currentModel = null;
 
+    public function process()
+    {
+        $result = parent::process();
+
+        if ($result !== false && empty($this->getErrors()) && $this->successfulModelsCount > 0) {
+            \LimeExpressionManager::SetDirtyFlag();
+        }
+
+        return $result;
+    }
 
     /**
      * @inheritdoc
@@ -26,6 +36,11 @@ class ImportRelevance extends ImportFromFile
     {
         $this->currentModel = null;
         $this->rowAttributes = $attributes;
+
+        if (!$this->validateRowFormat($attributes)) {
+            return;
+        }
+
         $this->currentModel = $this->findModel($attributes);
 
         $this->questionCodeColumn = 'code';
@@ -63,6 +78,24 @@ class ImportRelevance extends ImportFromFile
 
         $this->failedModelsCount++;
 
+    }
+
+    private function validateRowFormat(array $row): bool
+    {
+        $hasGroup = !empty($row['group']);
+        $hasCode = !empty($row['code']);
+        $hasParent = !empty($row['parent']);
+
+        if ($hasGroup && ($hasCode || $hasParent)) {
+            $this->addError(
+                'currentModel',
+                'Invalid relevance import format: group column may only be set on group rows; code and parent must be empty when group is set. Row: ' . json_encode($row)
+            );
+            $this->failedModelsCount++;
+            return false;
+        }
+
+        return true;
     }
 
     private function updateGroup(QuestionGroup $model) : bool|int
