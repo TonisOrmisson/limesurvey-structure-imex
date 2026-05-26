@@ -5,6 +5,7 @@ namespace tonisormisson\ls\structureimex\import;
 use Answer;
 use AnswerL10n;
 use CDbCriteria;
+use Condition;
 use Exception;
 use LSActiveRecord;
 use Question;
@@ -439,6 +440,7 @@ class ImportStructure extends ImportFromFile
         if (!$result) {
             throw new Exception("Error saving baseQuestion nr $i: " . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
         }
+        $this->deleteConditionsForImportedQuestion($this->currentModel);
 
         $this->question = $this->currentModel;
         $this->saveQuestionAttributes();
@@ -991,6 +993,7 @@ class ImportStructure extends ImportFromFile
         if (!$result) {
             throw new Exception('Error saving subQuestion : ' . serialize($this->rowAttributes) . serialize($this->currentModel->getErrors()));
         }
+        $this->deleteConditionsForImportedQuestion($this->currentModel);
 
         $this->subQuestion = $this->currentModel;
 
@@ -1018,6 +1021,11 @@ class ImportStructure extends ImportFromFile
         }
 
         $this->subQuestionOrder++;
+    }
+
+    private function deleteConditionsForImportedQuestion(Question $question): void
+    {
+        Condition::model()->deleteAll('qid=:qid', [':qid' => $question->qid]);
     }
 
     /**

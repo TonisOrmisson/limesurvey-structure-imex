@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [2.1.15] - 2026-05-26
+
+### Fixed
+- Keep conditions for questions outside partial structure imports unchanged
+- Remove stale LimeSurvey conditions when importing explicit relevance for imported questions
+- Preserve LimeSurvey translated OR relevance between condition scenarios on export
+
 ## [2.1.14] - 2026-04-29
 
 ### Fixed
