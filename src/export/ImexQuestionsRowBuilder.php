@@ -7,12 +7,15 @@ use Question;
 use QuestionAttribute;
 use QuestionGroup;
 use Survey;
+use tonisormisson\ls\structureimex\AppTrait;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 
 class ImexQuestionsRowBuilder
 {
+    use AppTrait;
+
     /**
      * @param string[] $languages
      */
@@ -143,7 +146,6 @@ class ImexQuestionsRowBuilder
         }
 
         $attributes = $this->getQuestionAttributes($question);
-        $allowUnknownThemeAttributes = !empty($question->question_theme_name);
 
         $globalAttributes = [];
         $languageSpecificAttributes = [];
@@ -154,19 +156,6 @@ class ImexQuestionsRowBuilder
             $attributeLanguage = (string) $attribute->language;
 
             if ($attributeName === 'question_template') {
-                continue;
-            }
-
-            $isKnownAttribute = QuestionAttributeDefinition::isValidAttribute((string) $question->type, $attributeName);
-
-            if (!$isKnownAttribute && !$allowUnknownThemeAttributes) {
-                continue;
-            }
-
-            if (
-                $isKnownAttribute
-                && !QuestionAttributeDefinition::isNonDefaultValue((string) $question->type, $attributeName, $attributeValue)
-            ) {
                 continue;
             }
 
@@ -182,6 +171,14 @@ class ImexQuestionsRowBuilder
                     $languageSpecificAttributes[$attributeLanguage][$attributeName] = $attributeValue;
                 }
             }
+        }
+
+        $globalAttributes = $this->filterExportAttributes(
+            $question,
+            QuestionAttributeDefinition::normalizeOrderingAttributes((string) $question->type, $globalAttributes)
+        );
+        foreach ($languageSpecificAttributes as $language => $languageAttributes) {
+            $languageSpecificAttributes[$language] = $this->filterExportAttributes($question, $languageAttributes);
         }
 
         if (!empty($globalAttributes)) {
@@ -308,13 +305,27 @@ class ImexQuestionsRowBuilder
         return strtoupper((string) $subQuestion->type) === ExportQuestions::QT_LONG_FREE;
     }
 
+    private function filterExportAttributes(Question $question, array $attributes): array
+    {
+        foreach ($attributes as $name => $value) {
+            $isKnown = QuestionAttributeDefinition::isValidAttribute((string) $question->type, $name);
+            if (
+                (!$isKnown && empty($question->question_theme_name))
+                || ($isKnown && !QuestionAttributeDefinition::isNonDefaultValue((string) $question->type, $name, $value))
+            ) {
+                unset($attributes[$name]);
+            }
+        }
+        return $attributes;
+    }
+
     /**
      * @return QuestionAttribute[]
      */
     private function getQuestionAttributes(Question $question): array
     {
         $sql = "SELECT * FROM {{question_attributes}} WHERE qid = :qid AND value != ''";
-        $command = \Yii::app()->db->createCommand($sql);
+        $command = $this->app()->db->createCommand($sql);
         $command->bindValue(':qid', $question->qid);
         $rows = $command->queryAll();
 

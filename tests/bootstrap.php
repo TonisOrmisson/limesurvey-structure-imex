@@ -39,6 +39,11 @@ $hasVendorLimeSurvey = file_exists(__DIR__ . '/../vendor/limesurvey/limesurvey')
 $isVendorEnvironment = getenv('LIMESURVEY_VENDOR_PATH') !== false;
 $isUnitTestOnly = getenv('UNIT_TEST_ONLY') === 'true';
 
+// The CI application is a pinned LimeSurvey checkout with its own bundled dependencies.
+if ($hasVendorLimeSurvey) {
+    require_once __DIR__ . '/../vendor/limesurvey/limesurvey/vendor/autoload.php';
+}
+
 // For unit tests - load minimal LimeSurvey without plugin system
 // If we're inside a LimeSurvey installation, use that even for unit tests
 if (($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) && !$isInsideLimeSurvey) {
@@ -208,7 +213,7 @@ if (($isUnitTestRun || ($isUnitTestOnly && getenv('CI') === 'true')) && !$isInsi
     }
     $error .= "\n\nPlease either:";
     $error .= "\n1. Run tests from within a LimeSurvey installation, or";
-    $error .= "\n2. Install with LimeSurvey dependency: COMPOSER=composer-ci.json composer install";
+    $error .= "\n2. Check out LimeSurvey 6 (including vendor dependencies) at vendor/limesurvey/limesurvey";
     $error .= "\n3. For CI: set LIMESURVEY_VENDOR_PATH environment variable";
     throw new Exception($error);
 }

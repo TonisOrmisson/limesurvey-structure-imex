@@ -33,8 +33,29 @@ jobs:
         extensions: mbstring, xml, ctype, json, curl, dom, fileinfo, gd, iconv, intl, mbstring, openssl, pcre, pdo, pdo_mysql, tokenizer, zip
         coverage: xdebug
 
-    - name: Install dependencies (with LimeSurvey)
-      run: COMPOSER=composer-ci.json composer install --prefer-dist --no-progress
+    - name: Install and audit plugin dependencies
+      run: |
+        composer install --prefer-dist --no-progress
+        composer audit --locked --no-interaction
+
+    - name: Checkout LimeSurvey 6 test application
+      uses: actions/checkout@v5
+      with:
+        repository: TonisOrmisson/LimeSurvey
+        ref: aeaad4daabcbb0d78695a856aec066b85bcec73a # v6.17.14-to.0, includes bundled runtime dependencies
+        path: vendor/limesurvey/limesurvey
+        persist-credentials: false
+
+    - name: Verify LimeSurvey major version
+      run: |
+        php -r '
+          $config = require "vendor/limesurvey/limesurvey/application/config/version.php";
+          $version = $config["versionnumber"];
+          if (!str_starts_with($version, "6.")) {
+              throw new RuntimeException("CI requires LimeSurvey 6, got " . $version);
+          }
+          echo "Testing LimeSurvey " . $version . PHP_EOL;
+        '
 
     - name: Validate LimeSurvey installation
       run: |
@@ -114,8 +135,9 @@ jobs:
         # Verify LimeSurvey vendor installation
         ls -la vendor/limesurvey/limesurvey/
         
-        # Create LimeSurvey config for vendor installation
+        # Create LimeSurvey config and writable theme directories absent from a Git checkout.
         cd vendor/limesurvey/limesurvey
+        mkdir -p upload/themes/survey upload/themes/question
         
         # Find the correct config sample file
         if [ -f "application/config/config-sample-mysql.php" ]; then
@@ -190,10 +212,12 @@ jobs:
         cp -r src vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         cp StructureImEx.php vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         cp config.xml vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
-        cp composer.json vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
+        cp composer.json composer.lock vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         
-        # Install plugin dependencies in vendor LimeSurvey
+        # Install plugin dependencies in vendor LimeSurvey. The test runner uses the same lock,
+        # so give the installed copy a distinct Composer initializer class.
         cd vendor/limesurvey/limesurvey/upload/plugins/StructureImEx
+        composer config autoloader-suffix StructureImExCiInstalled
         composer install --no-dev --prefer-dist
         
         echo "Plugin installed in vendor LimeSurvey"

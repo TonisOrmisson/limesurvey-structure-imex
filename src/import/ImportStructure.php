@@ -16,6 +16,7 @@ use QuestionL10n;
 use tonisormisson\ls\structureimex\exceptions\InvalidModelTypeException;
 use tonisormisson\ls\structureimex\export\ExportQuestions;
 use tonisormisson\ls\structureimex\validation\MyQuestionAttribute;
+use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeValidator;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 
@@ -595,7 +596,12 @@ class ImportStructure extends ImportFromFile
             }
         }
 
-        $result = $this->normalizeLegacyOrderingAttributes($result);
+        if ($this->question instanceof Question) {
+            $result['global'] = QuestionAttributeDefinition::normalizeOrderingAttributes(
+                $this->question->type,
+                $result['global']
+            );
+        }
         
         \Yii::log("collectAttributeData: Final result: " . print_r($result, true), 'debug', 'plugin.tonisormisson.imex');
         
@@ -611,44 +617,6 @@ class ImportStructure extends ImportFromFile
         return $result;
     }
 
-    /**
-     * Normalize legacy attribute names from older IMEX files.
-     *
-     * Multiple choice questions historically used `random_order` in some exports,
-     * but LimeSurvey stores the canonical setting as `subquestion_order`.
-     *
-     * @param array $attributeData
-     * @return array
-     */
-    private function normalizeLegacyOrderingAttributes(array $attributeData): array
-    {
-        if (!($this->question instanceof Question)) {
-            return $attributeData;
-        }
-
-        if (!in_array($this->question->type, [
-            Question::QT_M_MULTIPLE_CHOICE,
-            Question::QT_P_MULTIPLE_CHOICE_WITH_COMMENTS,
-        ], true)) {
-            return $attributeData;
-        }
-
-        if (!array_key_exists('random_order', $attributeData['global'])) {
-            return $attributeData;
-        }
-
-        if (!array_key_exists('subquestion_order', $attributeData['global'])) {
-            $legacyValue = $attributeData['global']['random_order'];
-            $attributeData['global']['subquestion_order'] = in_array($legacyValue, ['1', 1, true, 'random'], true)
-                ? 'random'
-                : 'normal';
-        }
-
-        unset($attributeData['global']['random_order']);
-
-        return $attributeData;
-    }
-    
     /**
      * Parse an options column (either global or language-specific) into an associative array
      * 
@@ -883,6 +851,17 @@ class ImportStructure extends ImportFromFile
                 . serialize($attributeModel->getErrors()));
         } else {
             \Yii::log("saveGlobalQuestionAttribute: Successfully saved global $attributeName = $value", 'debug', 'plugin.tonisormisson.imex');
+        }
+
+        if (
+            in_array($attributeName, ['answer_order', 'subquestion_order'], true)
+            && QuestionAttributeDefinition::isValidAttribute($model->type, $attributeName)
+        ) {
+            // A stale random_order=1 can override even an explicitly imported normal order.
+            QuestionAttribute::model()->deleteAll('qid=:qid AND attribute=:attribute', [
+                ':qid' => $model->qid,
+                ':attribute' => 'random_order',
+            ]);
         }
     }
 

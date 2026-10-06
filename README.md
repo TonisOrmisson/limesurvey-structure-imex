@@ -40,6 +40,21 @@ Find the plugin Import / Export buttons from survey tools menu.
 See [docs/](docs/) folder for detailed format specifications.
 RemoteControl API usage is documented in [docs/REMOTE_CONTROL_API.md](docs/REMOTE_CONTROL_API.md).
 
+## Answer and subquestion ordering
+
+Use the global `options` column for ordering settings:
+
+| Question types | Attribute | Values |
+| --- | --- | --- |
+| List radio (`L`), dropdown (`!`), list with comment (`O`), ranking (`R`) | `answer_order` | `normal`, `random`, `alphabetical`, `random_alphabetical` |
+| Multiple choice (`M`, `P`) | `subquestion_order` | `normal`, `random`, `alphabetical`, `random_alphabetical` |
+| Arrays (`A`, `B`, `C`, `E`, `F`, `H`, `1`, `:`, `;`), multiple numerical (`K`), multiple short text (`Q`) | `random_order` | `0`, `1` |
+
+For example, randomize a List radio question with `{"answer_order":"random"}`.
+Since 2.1.16, legacy `{"random_order":"1"}` / `{"random_order":"0"}` is converted to the appropriate ordering attribute on import and export for list, ranking and multiple-choice questions. An explicitly supplied canonical attribute takes precedence. Importing a canonical ordering value also removes stale `random_order` records for that question, so an old value cannot override `normal`.
+
+Updating the plugin alone does not migrate existing survey data. Reimport the ordering settings to update stored attributes; exports use the canonical names without modifying the survey. Default values are omitted from exports as before.
+
 # Updating
 
 go to plugin folder
@@ -113,17 +128,17 @@ This will:
 ```bash
 vendor/bin/phpunit
 ```
-Coverage. We only can run codecoverage on local env right now. There is an issue that on GH actions, in order
-to have a LimeSurvey instance for testing we duplicate the plugin code inside the LS isside vendor, so we have 
-something like ./vendor/limesurvey/limesurvey/upload/plugins/StructireImex ... while the root itself is the plugin
-source. This will create an autoload conflict for the codecoverage process that I have not been able to solve for 
-gh actions. So fir now, run codecoverage on your local env:
+To collect code coverage locally with Xdebug:
 
 ```bash
 XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html tests/runtime/coverage
 ```
 
 ## CI/CD (GitHub Actions)
+
+CI tests against **LimeSurvey 6.17.14-to.0** from `TonisOrmisson/LimeSurvey`, pinned to commit `aeaad4daabcbb0d78695a856aec066b85bcec73a`. The application is checked out at `vendor/limesurvey/limesurvey` with its bundled runtime dependencies, matching the deployed release. A version check rejects applications outside the 6.x series. The installed plugin copy uses a distinct Composer autoloader suffix so it can coexist with the test runner using the same lock file.
+
+Plugin dependencies use the regular `composer.json` and committed `composer.lock`; CI runs `composer audit --locked` without advisory exceptions. LimeSurvey itself is the separately pinned test application, not a plugin Composer dependency. Its bundled dependencies and application security must be maintained in the LimeSurvey repository; the plugin dependency audit does not audit that application.
 
 The project includes GitHub Actions workflows for:
 

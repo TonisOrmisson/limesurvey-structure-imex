@@ -119,12 +119,6 @@ class QuestionAttributeDefinition
             'options' => ['N', 'Y'],
             'category' => 'Logic'
         ],
-        'random_order' => [
-            'default' => '0',
-            'type' => 'switch',
-            'options' => ['0', '1'],
-            'category' => 'Display'
-        ],
         'other_numbers_only' => [
             'default' => '0',
             'type' => 'switch',
@@ -142,12 +136,6 @@ class QuestionAttributeDefinition
             'type' => 'switch',
             'options' => ['0', '1'],
             'category' => 'Other'
-        ],
-        'answer_order' => [
-            'default' => 'normal',
-            'type' => 'singleselect',
-            'options' => ['normal', 'random', 'alphabetical'],
-            'category' => 'Display'
         ],
         'other_comment_mandatory' => [
             'default' => '0',
@@ -214,6 +202,38 @@ class QuestionAttributeDefinition
         $typeSpecific = self::$definitions[$questionType];
         // Merge universal attributes with type-specific ones
         return array_merge(self::$universalAttributes, $typeSpecific);
+    }
+
+    /**
+     * Upgrade legacy ordering without overriding an explicitly supplied canonical value.
+     * Array and multiple-input questions still use random_order.
+     */
+    public static function normalizeOrderingAttributes(string $questionType, array $attributes): array
+    {
+        if (!array_key_exists('random_order', $attributes)) {
+            return $attributes;
+        }
+
+        foreach (['answer_order', 'subquestion_order'] as $canonicalName) {
+            if (!self::isValidAttribute($questionType, $canonicalName)) {
+                continue;
+            }
+
+            if (!array_key_exists($canonicalName, $attributes)) {
+                $legacyValue = $attributes['random_order'];
+                if (!in_array($legacyValue, ['0', 0, false, 'normal', '1', 1, true, 'random'], true)) {
+                    // Leave invalid values for the import validator rather than silently disabling ordering.
+                    return $attributes;
+                }
+                $attributes[$canonicalName] = in_array($legacyValue, ['1', 1, true, 'random'], true)
+                    ? 'random'
+                    : 'normal';
+            }
+            unset($attributes['random_order']);
+            break;
+        }
+
+        return $attributes;
     }
 
     /**
@@ -477,6 +497,7 @@ class QuestionAttributeDefinition
         
         // L - List (Radio)
         \Question::QT_L_LIST => [
+            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random', 'alphabetical', 'random_alphabetical'], 'category' => 'Display'],
             'answer_width' => [
                 'default' => '',
                 'type' => 'integer',
@@ -732,6 +753,7 @@ class QuestionAttributeDefinition
         
         // ! - List Dropdown
         \Question::QT_EXCLAMATION_LIST_DROPDOWN => [
+            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random', 'alphabetical', 'random_alphabetical'], 'category' => 'Display'],
             'category_separator' => [
                 'default' => '',
                 'type' => 'text',
@@ -786,6 +808,7 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_Q_MULTIPLE_SHORT_TEXT => [
+            'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'text_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'label_input_columns' => ['default' => '', 'type' => 'singleselect', 'options' => ['', 'hidden', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
@@ -891,6 +914,7 @@ class QuestionAttributeDefinition
             'em_validation_q_tip' => ['default' => '', 'type' => 'textarea', 'category' => 'Logic']
         ],
         \Question::QT_R_RANKING => [
+            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random', 'alphabetical', 'random_alphabetical'], 'category' => 'Display'],
             'choice_title' => ['default' => '', 'type' => 'text', 'category' => 'Display'],
             'min_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
             'max_answers' => ['default' => '', 'type' => 'integer', 'category' => 'Input'],
@@ -993,7 +1017,7 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_O_LIST_WITH_COMMENT => [
-            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random'], 'category' => 'Display'],
+            'answer_order' => ['default' => 'normal', 'type' => 'singleselect', 'options' => ['normal', 'random', 'alphabetical', 'random_alphabetical'], 'category' => 'Display'],
             'other_comment_mandatory' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
             'other_numbers_only' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Logic'],
             'other_position' => ['default' => 'default', 'type' => 'singleselect', 'options' => ['beginning', 'default', 'end', 'specific'], 'category' => 'Display'],
@@ -1006,6 +1030,7 @@ class QuestionAttributeDefinition
         ],
         
         \Question::QT_K_MULTIPLE_NUMERICAL => [
+            'random_order' => ['default' => '0', 'type' => 'switch', 'options' => ['0', '1'], 'category' => 'Display'],
             'text_input_width' => ['default' => '', 'type' => 'singleselect', 'options' => ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'], 'category' => 'Display'],
             'equals_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
             'max_num_value' => ['default' => '', 'type' => 'text', 'category' => 'Input'],
