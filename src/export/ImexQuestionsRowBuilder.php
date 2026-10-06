@@ -7,12 +7,15 @@ use Question;
 use QuestionAttribute;
 use QuestionGroup;
 use Survey;
+use tonisormisson\ls\structureimex\AppTrait;
 use tonisormisson\ls\structureimex\import\ImportStructure;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeDefinition;
 use tonisormisson\ls\structureimex\validation\QuestionAttributeLanguageManager;
 
 class ImexQuestionsRowBuilder
 {
+    use AppTrait;
+
     /**
      * @param string[] $languages
      */
@@ -322,7 +325,7 @@ class ImexQuestionsRowBuilder
     private function getQuestionAttributes(Question $question): array
     {
         $sql = "SELECT * FROM {{question_attributes}} WHERE qid = :qid AND value != ''";
-        $command = \Yii::app()->db->createCommand($sql);
+        $command = $this->app()->db->createCommand($sql);
         $command->bindValue(':qid', $question->qid);
         $rows = $command->queryAll();
 
