@@ -213,8 +213,10 @@ jobs:
         cp config.xml vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         cp composer.json composer.lock vendor/limesurvey/limesurvey/upload/plugins/StructureImEx/
         
-        # Install plugin dependencies in vendor LimeSurvey
+        # Install plugin dependencies in vendor LimeSurvey. The test runner uses the same lock,
+        # so give the installed copy a distinct Composer initializer class.
         cd vendor/limesurvey/limesurvey/upload/plugins/StructureImEx
+        composer config autoloader-suffix StructureImExCiInstalled
         composer install --no-dev --prefer-dist
         
         echo "Plugin installed in vendor LimeSurvey"

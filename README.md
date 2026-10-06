@@ -128,11 +128,7 @@ This will:
 ```bash
 vendor/bin/phpunit
 ```
-Coverage. We only can run codecoverage on local env right now. There is an issue that on GH actions, in order
-to have a LimeSurvey instance for testing we duplicate the plugin code inside the LS isside vendor, so we have 
-something like ./vendor/limesurvey/limesurvey/upload/plugins/StructireImex ... while the root itself is the plugin
-source. This will create an autoload conflict for the codecoverage process that I have not been able to solve for 
-gh actions. So fir now, run codecoverage on your local env:
+To collect code coverage locally with Xdebug:
 
 ```bash
 XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html tests/runtime/coverage
@@ -140,7 +136,7 @@ XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html tests/runtime/coverage
 
 ## CI/CD (GitHub Actions)
 
-CI tests against **LimeSurvey 6.17.14-to.0** from `TonisOrmisson/LimeSurvey`, pinned to commit `aeaad4daabcbb0d78695a856aec066b85bcec73a`. The application is checked out at `vendor/limesurvey/limesurvey` with its bundled runtime dependencies, matching the deployed release. A version check rejects applications outside the 6.x series.
+CI tests against **LimeSurvey 6.17.14-to.0** from `TonisOrmisson/LimeSurvey`, pinned to commit `aeaad4daabcbb0d78695a856aec066b85bcec73a`. The application is checked out at `vendor/limesurvey/limesurvey` with its bundled runtime dependencies, matching the deployed release. A version check rejects applications outside the 6.x series. The installed plugin copy uses a distinct Composer autoloader suffix so it can coexist with the test runner using the same lock file.
 
 Plugin dependencies use the regular `composer.json` and committed `composer.lock`; CI runs `composer audit --locked` without advisory exceptions. LimeSurvey itself is the separately pinned test application, not a plugin Composer dependency. Its bundled dependencies and application security must be maintained in the LimeSurvey repository; the plugin dependency audit does not audit that application.
 
