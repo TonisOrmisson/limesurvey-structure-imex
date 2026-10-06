@@ -40,6 +40,21 @@ Find the plugin Import / Export buttons from survey tools menu.
 See [docs/](docs/) folder for detailed format specifications.
 RemoteControl API usage is documented in [docs/REMOTE_CONTROL_API.md](docs/REMOTE_CONTROL_API.md).
 
+## Answer and subquestion ordering
+
+Use the global `options` column for ordering settings:
+
+| Question types | Attribute | Values |
+| --- | --- | --- |
+| List radio (`L`), dropdown (`!`), list with comment (`O`), ranking (`R`) | `answer_order` | `normal`, `random`, `alphabetical`, `random_alphabetical` |
+| Multiple choice (`M`, `P`) | `subquestion_order` | `normal`, `random`, `alphabetical`, `random_alphabetical` |
+| Arrays (`A`, `B`, `C`, `E`, `F`, `H`, `1`, `:`, `;`), multiple numerical (`K`), multiple short text (`Q`) | `random_order` | `0`, `1` |
+
+For example, randomize a List radio question with `{"answer_order":"random"}`.
+Since 2.1.16, legacy `{"random_order":"1"}` / `{"random_order":"0"}` is converted to the appropriate ordering attribute on import and export for list, ranking and multiple-choice questions. An explicitly supplied canonical attribute takes precedence. Importing a canonical ordering value also removes stale `random_order` records for that question, so an old value cannot override `normal`.
+
+Updating the plugin alone does not migrate existing survey data. Reimport the ordering settings to update stored attributes; exports use the canonical names without modifying the survey. Default values are omitted from exports as before.
+
 # Updating
 
 go to plugin folder

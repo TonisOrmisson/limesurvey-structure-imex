@@ -143,7 +143,6 @@ class ImexQuestionsRowBuilder
         }
 
         $attributes = $this->getQuestionAttributes($question);
-        $allowUnknownThemeAttributes = !empty($question->question_theme_name);
 
         $globalAttributes = [];
         $languageSpecificAttributes = [];
@@ -154,19 +153,6 @@ class ImexQuestionsRowBuilder
             $attributeLanguage = (string) $attribute->language;
 
             if ($attributeName === 'question_template') {
-                continue;
-            }
-
-            $isKnownAttribute = QuestionAttributeDefinition::isValidAttribute((string) $question->type, $attributeName);
-
-            if (!$isKnownAttribute && !$allowUnknownThemeAttributes) {
-                continue;
-            }
-
-            if (
-                $isKnownAttribute
-                && !QuestionAttributeDefinition::isNonDefaultValue((string) $question->type, $attributeName, $attributeValue)
-            ) {
                 continue;
             }
 
@@ -182,6 +168,14 @@ class ImexQuestionsRowBuilder
                     $languageSpecificAttributes[$attributeLanguage][$attributeName] = $attributeValue;
                 }
             }
+        }
+
+        $globalAttributes = $this->filterExportAttributes(
+            $question,
+            QuestionAttributeDefinition::normalizeOrderingAttributes((string) $question->type, $globalAttributes)
+        );
+        foreach ($languageSpecificAttributes as $language => $languageAttributes) {
+            $languageSpecificAttributes[$language] = $this->filterExportAttributes($question, $languageAttributes);
         }
 
         if (!empty($globalAttributes)) {
@@ -306,6 +300,20 @@ class ImexQuestionsRowBuilder
         }
 
         return strtoupper((string) $subQuestion->type) === ExportQuestions::QT_LONG_FREE;
+    }
+
+    private function filterExportAttributes(Question $question, array $attributes): array
+    {
+        foreach ($attributes as $name => $value) {
+            $isKnown = QuestionAttributeDefinition::isValidAttribute((string) $question->type, $name);
+            if (
+                (!$isKnown && empty($question->question_theme_name))
+                || ($isKnown && !QuestionAttributeDefinition::isNonDefaultValue((string) $question->type, $name, $value))
+            ) {
+                unset($attributes[$name]);
+            }
+        }
+        return $attributes;
     }
 
     /**

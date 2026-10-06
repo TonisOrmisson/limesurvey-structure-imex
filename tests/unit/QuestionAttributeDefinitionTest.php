@@ -105,9 +105,44 @@ class QuestionAttributeDefinitionTest extends TestCase
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'unknown_attribute'));
         $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('INVALID', 'hide_tip'));
         
-        // Test universal attributes are valid for all types
+        // Ordering is question-type specific, not universal.
         $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('L', 'answer_order'));
-        $this->assertTrue(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
+        $this->assertFalse(QuestionAttributeDefinition::isValidAttribute('T', 'answer_order'));
+    }
+
+    public function testOrderingAttributesMatchQuestionTypes(): void
+    {
+        foreach (QuestionAttributeDefinition::getSupportedQuestionTypes() as $type) {
+            $type = (string) $type;
+            $this->assertSame(in_array($type, ['L', '!', 'O', 'R'], true),
+                QuestionAttributeDefinition::isValidAttribute($type, 'answer_order'), $type);
+            $this->assertSame(in_array($type, ['M', 'P'], true),
+                QuestionAttributeDefinition::isValidAttribute($type, 'subquestion_order'), $type);
+            $this->assertSame(in_array($type, ['A', 'B', 'C', 'E', 'F', 'H', 'K', 'Q', '1', ':', ';'], true),
+                QuestionAttributeDefinition::isValidAttribute($type, 'random_order'), $type);
+        }
+        foreach (['L', '!', 'O', 'R', 'M', 'P'] as $type) {
+            $canonical = in_array($type, ['M', 'P'], true) ? 'subquestion_order' : 'answer_order';
+            foreach (['normal', 'random', 'alphabetical', 'random_alphabetical'] as $value) {
+                $this->assertTrue(QuestionAttributeDefinition::validateAttributeValue($type, $canonical, $value));
+            }
+            foreach (['0', 0, false, 'normal', '1', 1, true, 'random'] as $legacy) {
+                $expected = in_array($legacy, ['1', 1, true, 'random'], true) ? 'random' : 'normal';
+                $this->assertSame([$canonical => $expected],
+                    QuestionAttributeDefinition::normalizeOrderingAttributes($type, ['random_order' => $legacy]));
+            }
+            foreach (['normal', 'random', 'alphabetical', 'random_alphabetical'] as $value) {
+                $this->assertSame([$canonical => $value], QuestionAttributeDefinition::normalizeOrderingAttributes(
+                    $type, ['random_order' => '1', $canonical => $value]
+                ));
+            }
+        }
+        foreach (['F', 'Q', 'K', 'T'] as $type) {
+            $this->assertSame(['random_order' => '1'],
+                QuestionAttributeDefinition::normalizeOrderingAttributes($type, ['random_order' => '1']));
+        }
+        $this->assertSame(['random_order' => 'invalid'],
+            QuestionAttributeDefinition::normalizeOrderingAttributes('L', ['random_order' => 'invalid']));
     }
 
     /**

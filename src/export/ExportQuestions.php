@@ -287,7 +287,8 @@ class ExportQuestions extends AbstractExport
             'min_num_value_n' => 'Minimum allowed numerical value',
             'max_num_value_n' => 'Maximum allowed numerical value',
             'suffix' => 'Text to display after numerical input',
-            'answer_order' => 'Order of answer options (normal/random)',
+            'answer_order' => 'Order of answer options (normal/random/alphabetical/random_alphabetical)',
+            'random_order' => 'Randomize subquestions (0/1); list and ranking questions use answer_order, multiple choice uses subquestion_order',
             'subquestion_order' => 'Order of subquestions (normal/random/alphabetical/random_alphabetical)',
             'assessment_value' => 'Enable assessment scoring (0=off, 1=on)',
             'scale_export' => 'Export scale values instead of codes (0=codes, 1=values)',
@@ -419,17 +420,17 @@ class ExportQuestions extends AbstractExport
             ],
             'Y' => [
                 'name' => 'Yes/No Radio',
-                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'common_attributes' => 'hidden, hide_tip',
                 'description' => 'Simple Yes/No radio button selection'
             ],
             'G' => [
                 'name' => 'Gender',
-                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'common_attributes' => 'hidden, hide_tip',
                 'description' => 'Gender selection with Male/Female options'
             ],
             'I' => [
                 'name' => 'Language Switch',
-                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'common_attributes' => 'hidden, hide_tip',
                 'description' => 'Language selection for multi-language surveys'
             ],
             
@@ -448,59 +449,59 @@ class ExportQuestions extends AbstractExport
             // === ARRAY TYPES ===
             'F' => [
                 'name' => 'Array (Flexible Labels)',
-                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'common_attributes' => 'hidden, hide_tip, random_order, assessment_value',
                 'description' => 'Matrix question with custom row/column labels'
             ],
             'A' => [
                 'name' => 'Array 5 Point Choice',
-                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'common_attributes' => 'hidden, hide_tip, random_order, assessment_value',
                 'description' => 'Matrix with 5-point scale (1-5) for each row'
             ],
             'B' => [
                 'name' => 'Array 10 Choice Questions',
-                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'common_attributes' => 'hidden, hide_tip, random_order, assessment_value',
                 'description' => 'Matrix with 10-point scale (1-10) for each row'
             ],
             'C' => [
                 'name' => 'Array Yes/Uncertain/No',
-                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'common_attributes' => 'hidden, hide_tip, random_order, assessment_value',
                 'description' => 'Matrix with Yes/Uncertain/No options for each row'
             ],
             'E' => [
                 'name' => 'Array Increase/Same/Decrease',
-                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'common_attributes' => 'hidden, hide_tip, random_order, assessment_value',
                 'description' => 'Matrix with Increase/Same/Decrease options'
             ],
             'H' => [
                 'name' => 'Array by Column',
-                'common_attributes' => 'hidden, hide_tip, answer_order, assessment_value',
+                'common_attributes' => 'hidden, hide_tip, random_order, assessment_value',
                 'description' => 'Flexible array with dropdown selections in columns'
             ],
             '1' => [
                 'name' => 'Array Dual Scale',
-                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'common_attributes' => 'hidden, hide_tip, random_order',
                 'description' => 'Matrix with two separate scales for each row'
             ],
             ':' => [
                 'name' => 'Array Numbers',
-                'common_attributes' => 'hidden, hide_tip, answer_order, num_value_int_only',
+                'common_attributes' => 'hidden, hide_tip, random_order, num_value_int_only',
                 'description' => 'Matrix with numerical input fields'
             ],
             ';' => [
                 'name' => 'Array Text',
-                'common_attributes' => 'hidden, hide_tip, answer_order, maximum_chars',
+                'common_attributes' => 'hidden, hide_tip, random_order, maximum_chars',
                 'description' => 'Matrix with text input fields for each cell'
             ],
             
             // === MULTIPLE INPUT TYPES ===
             'Q' => [
                 'name' => 'Multiple Short Text',
-                'common_attributes' => 'hidden, hide_tip, maximum_chars, text_input_width',
+                'common_attributes' => 'hidden, hide_tip, random_order, maximum_chars, text_input_width',
                 'description' => 'Multiple text inputs based on subquestions'
             ],
             'K' => [
                 'name' => 'Multiple Numerical Input',
-                'common_attributes' => 'hidden, hide_tip, num_value_int_only, suffix',
+                'common_attributes' => 'hidden, hide_tip, random_order, num_value_int_only, suffix',
                 'description' => 'Multiple numerical inputs with validation'
             ],
             
@@ -512,7 +513,7 @@ class ExportQuestions extends AbstractExport
             ],
             'R' => [
                 'name' => 'Ranking',
-                'common_attributes' => 'hidden, hide_tip, min_answers, max_answers',
+                'common_attributes' => 'hidden, hide_tip, answer_order, min_answers, max_answers',
                 'description' => 'Drag-and-drop ranking of options in order of preference'
             ],
             '|' => [
@@ -532,7 +533,7 @@ class ExportQuestions extends AbstractExport
             ],
             '5' => [
                 'name' => '5 Point Choice',
-                'common_attributes' => 'hidden, hide_tip, answer_order',
+                'common_attributes' => 'hidden, hide_tip',
                 'description' => 'Single 5-point scale selection (1-5)'
             ]
         ];
