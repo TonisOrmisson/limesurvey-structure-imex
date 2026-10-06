@@ -135,8 +135,9 @@ jobs:
         # Verify LimeSurvey vendor installation
         ls -la vendor/limesurvey/limesurvey/
         
-        # Create LimeSurvey config for vendor installation
+        # Create LimeSurvey config and writable theme directories absent from a Git checkout.
         cd vendor/limesurvey/limesurvey
+        mkdir -p upload/themes/survey upload/themes/question
         
         # Find the correct config sample file
         if [ -f "application/config/config-sample-mysql.php" ]; then
