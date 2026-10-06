@@ -10,6 +10,8 @@
 - Preserve explicit canonical ordering values and remove stale legacy ordering records when importing a canonical setting
 - Support all four `answer_order` values, including `random_alphabetical`, consistently for list and ranking questions
 - Keep `random_order` for arrays and multiple-input questions
+- Run CI against the pinned LimeSurvey 6.17.14-to.0 application and install plugin dependencies from the committed lock file
+- Update locked PHPUnit dependencies to address CVE-2026-24765 and audit plugin dependencies in CI
 
 ## [2.1.15] - 2026-05-26
 

@@ -140,6 +140,10 @@ XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html tests/runtime/coverage
 
 ## CI/CD (GitHub Actions)
 
+CI tests against **LimeSurvey 6.17.14-to.0** from `TonisOrmisson/LimeSurvey`, pinned to commit `aeaad4daabcbb0d78695a856aec066b85bcec73a`. The application is checked out at `vendor/limesurvey/limesurvey` with its bundled runtime dependencies, matching the deployed release. A version check rejects applications outside the 6.x series.
+
+Plugin dependencies use the regular `composer.json` and committed `composer.lock`; CI runs `composer audit --locked` without advisory exceptions. LimeSurvey itself is the separately pinned test application, not a plugin Composer dependency. Its bundled dependencies and application security must be maintained in the LimeSurvey repository; the plugin dependency audit does not audit that application.
+
 The project includes GitHub Actions workflows for:
 
 - **Unit Tests**: Run on every push/PR
