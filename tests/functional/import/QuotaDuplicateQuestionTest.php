@@ -39,10 +39,13 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
      */
     public function testSameQuestionWithDifferentAnswersInSameQuotaIsAllowed()
     {
+        // Use a question of the survey being imported into
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+
         $quotaData = [
             ['type' => 'Q', 'name' => 'testQuota', 'value' => '10', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'N', 'active' => ''], // Same question, different value
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'Y', 'active' => ''],
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'N', 'active' => ''], // Same question, different value
         ];
 
         $result = $this->importQuotas($quotaData);
@@ -51,7 +54,7 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
 
         $criteria = new \CDbCriteria();
         $criteria->condition = 'sid = :sid AND qid = :qid';
-        $criteria->params = [':sid' => $this->testSurveyId, ':qid' => $this->testQuestion->qid];
+        $criteria->params = [':sid' => $this->testSurveyId, ':qid' => $question->qid];
         $memberCodes = array_map(function($m) { return $m->code; }, QuotaMember::model()->findAll($criteria));
         sort($memberCodes);
         $this->assertSame(['N', 'Y'], $memberCodes, 'Both answers should be stored as separate quota members');
@@ -62,10 +65,12 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
      */
     public function testDuplicateAnswerInSameQuotaFails()
     {
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+
         $quotaData = [
             ['type' => 'Q', 'name' => 'testQuota', 'value' => '10', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''], // Same question, same value
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'Y', 'active' => ''],
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'Y', 'active' => ''], // Same question, same value
         ];
 
         $result = $this->importQuotas($quotaData);
@@ -78,10 +83,12 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
      */
     public function testDuplicateQuestionErrorMessage()
     {
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+
         $quotaData = [
             ['type' => 'Q', 'name' => 'GenderQuota', 'value' => '50', 'active' => '1'],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'M', 'active' => ''],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'M', 'active' => ''], // Duplicate answer
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'M', 'active' => ''],
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'M', 'active' => ''], // Duplicate answer
         ];
         
         $fileName = $this->createExcelFileFromData($quotaData);
@@ -106,7 +113,7 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
             foreach ((array)$fieldErrors as $error) {
                 if (strpos($error, 'appears multiple times in quota') !== false) {
                     $hasValidationError = true;
-                    $this->assertStringContainsString($this->testQuestion->title, $error);
+                    $this->assertStringContainsString($question->title, $error);
                     $this->assertStringContainsString('GenderQuota', $error);
                     break 2;
                 }

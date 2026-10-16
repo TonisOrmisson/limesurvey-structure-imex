@@ -152,30 +152,35 @@ class QuotaImportTest extends DatabaseTestCase
         }
     }
 
-    public function testImportDuplicateQuestionInSameQuotaFails()
+    public function testImportSameQuestionWithSeveralAnswersInSameQuota()
     {
-        $question = $this->createQuotaTestQuestion('gender', 'Gender Question');
-        
-        // Test with same question multiple times (should fail due to AND logic limitation)
+        $question = $this->createQuotaTestQuestion('age', 'Age Question');
+
+        // Several answers of the same question are OR-ed by LimeSurvey
         $importData = [
-            ['type' => 'Q', 'name' => 'Invalid Quota', 'value' => '50', 'active' => '1', 'autoload_url' => '0'],
-            ['type' => 'QM', 'name' => 'gender', 'value' => 'M', 'active' => '', 'autoload_url' => ''],
-            ['type' => 'QM', 'name' => 'gender', 'value' => 'F', 'active' => '', 'autoload_url' => ''], // Same question - not allowed
+            ['type' => 'Q', 'name' => 'Age 16-26', 'value' => '50', 'active' => '1', 'autoload_url' => '0'],
+            ['type' => 'QM', 'name' => 'age', 'value' => 'A1', 'active' => '', 'autoload_url' => ''],
+            ['type' => 'QM', 'name' => 'age', 'value' => 'A2', 'active' => '', 'autoload_url' => ''],
         ];
-        
+
         $fileName = $this->createExcelFileFromData($importData);
         $import = $this->createImport();
-        
+
         $import->fileName = $fileName;
         $this->assertTrue($import->prepare());
         $import->process();
-        
-        $this->assertNotEmpty($import->getErrors(), 'Import should have validation errors for duplicate question');
-        
-        // Check that the specific validation error is present
-        $errors = $import->getErrors();
-        $validationErrors = $errors['validation'] ?? [];
-        $this->assertContains("Question 'gender' appears multiple times in quota 'Invalid Quota'", $validationErrors);
+
+        $this->assertEmpty($import->getErrors(), 'Import should allow several answers of the same question');
+
+        $quota = Quota::model()->find('sid = :sid AND name = :name', [':sid' => $this->testSurveyId, ':name' => 'Age 16-26']);
+        $this->assertNotNull($quota);
+        $members = QuotaMember::model()->findAll('quota_id = :quota_id AND qid = :qid', [
+            ':quota_id' => $quota->id,
+            ':qid' => $question->qid,
+        ]);
+        $memberCodes = array_map(function($m) { return $m->code; }, $members);
+        sort($memberCodes);
+        $this->assertSame(['A1', 'A2'], $memberCodes);
         
         // Clean up temp file
         if (file_exists($fileName)) {
