@@ -35,30 +35,53 @@ class QuotaDuplicateQuestionTest extends DatabaseTestCase
     }
 
     /**
-     * Test that duplicate question references in same quota are rejected
+     * Test that the same question with different answers in same quota is allowed (LimeSurvey ORs them)
      */
-    public function testDuplicateQuestionInSameQuotaFails()
+    public function testSameQuestionWithDifferentAnswersInSameQuotaIsAllowed()
     {
         $quotaData = [
             ['type' => 'Q', 'name' => 'testQuota', 'value' => '10', 'active' => '1'],
             ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''],
             ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'N', 'active' => ''], // Same question, different value
         ];
-        
+
         $result = $this->importQuotas($quotaData);
-        
-        $this->assertFalse($result, 'Import should fail due to duplicate question reference');
+
+        $this->assertTrue($result, 'Import should succeed - answers of the same question are OR-ed');
+
+        $criteria = new \CDbCriteria();
+        $criteria->condition = 'sid = :sid AND qid = :qid';
+        $criteria->params = [':sid' => $this->testSurveyId, ':qid' => $this->testQuestion->qid];
+        $memberCodes = array_map(function($m) { return $m->code; }, QuotaMember::model()->findAll($criteria));
+        sort($memberCodes);
+        $this->assertSame(['N', 'Y'], $memberCodes, 'Both answers should be stored as separate quota members');
     }
 
     /**
-     * Test that duplicate question references get proper error message
+     * Test that the same question with the same answer twice in same quota is rejected
+     */
+    public function testDuplicateAnswerInSameQuotaFails()
+    {
+        $quotaData = [
+            ['type' => 'Q', 'name' => 'testQuota', 'value' => '10', 'active' => '1'],
+            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''],
+            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'Y', 'active' => ''], // Same question, same value
+        ];
+
+        $result = $this->importQuotas($quotaData);
+
+        $this->assertFalse($result, 'Import should fail due to duplicate answer reference');
+    }
+
+    /**
+     * Test that duplicate answer references get proper error message
      */
     public function testDuplicateQuestionErrorMessage()
     {
         $quotaData = [
             ['type' => 'Q', 'name' => 'GenderQuota', 'value' => '50', 'active' => '1'],
             ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'M', 'active' => ''],
-            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'F', 'active' => ''], // Duplicate question
+            ['type' => 'QM', 'name' => $this->testQuestion->title, 'value' => 'M', 'active' => ''], // Duplicate answer
         ];
         
         $fileName = $this->createExcelFileFromData($quotaData);

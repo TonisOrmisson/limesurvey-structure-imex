@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [2.1.17] - 2026-10-16
+
+### Fixed
+- Allow several quota members of the same question in one quota (e.g. age `16-20` and `21-26`); LimeSurvey combines answers of the same question with OR and different questions with AND
+- Keep every imported answer as its own quota member instead of overwriting the previous one; on re-import the answers in the file replace that question's existing members in the quota
+- Still reject the same question and answer listed twice in one quota
+- Update the quota export help sheet to describe the AND/OR logic
+
 ## [2.1.16] - 2026-10-06
 
 ### Fixed

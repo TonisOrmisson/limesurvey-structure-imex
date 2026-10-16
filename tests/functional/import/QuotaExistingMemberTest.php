@@ -101,6 +101,33 @@ class QuotaExistingMemberTest extends DatabaseTestCase
         $this->assertCount(1, $allMembers, 'Should have exactly 1 quota member after update');
     }
 
+    /**
+     * Test that several answers for a question replace the existing members of that question in the quota
+     */
+    public function testImportMultipleAnswersReplacesExistingMembersOfQuestion()
+    {
+        $question = Question::model()->find('sid = :sid', [':sid' => $this->testSurveyId]);
+
+        $quotaData = [
+            ['type' => 'Q', 'name' => 'ExistingQuota', 'value' => '100', 'active' => '1'],
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'A1', 'active' => ''],
+            ['type' => 'QM', 'name' => $question->title, 'value' => 'A2', 'active' => ''],
+        ];
+
+        $this->assertTrue($this->importQuotas($quotaData), 'Import should succeed');
+
+        $criteria = new \CDbCriteria();
+        $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
+        $criteria->params = [':quota_id' => $this->existingQuota->id, ':qid' => $question->qid];
+        $memberCodes = array_map(function($m) { return $m->code; }, QuotaMember::model()->findAll($criteria));
+        sort($memberCodes);
+        $this->assertSame(['A1', 'A2'], $memberCodes, 'Imported answers should replace the existing EXISTING member');
+
+        // Re-importing the same file must not create duplicates
+        $this->assertTrue($this->importQuotas($quotaData), 'Re-import should succeed');
+        $this->assertCount(2, QuotaMember::model()->findAll($criteria), 'Re-import should keep exactly 2 members');
+    }
+
 
     /**
      * Test that importing a quota member for a different question in the same quota succeeds

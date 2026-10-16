@@ -435,15 +435,15 @@ class ExportQuotas extends AbstractExport
         $data[] = \OpenSpout\Common\Entity\Row::fromValues([
             'Quota Logic:',
             '',
-            'LimeSurvey quotas use AND logic only',
+            'Members of different questions are combined with AND',
             '',
             ''
         ]);
-        
+
         $data[] = \OpenSpout\Common\Entity\Row::fromValues([
             '',
             '',
-            'One quota member per question per quota maximum',
+            'Several answers of the same question are combined with OR (e.g. age 16-20 or 21-26)',
             '',
             ''
         ]);

@@ -4,11 +4,11 @@
         <name>StructureImEx</name>
         <type>plugin</type>
         <creationDate>2018-12-18</creationDate>
-        <last_update>2026-05-26</last_update>
+        <last_update>2026-10-16</last_update>
         <author>Tõnis Ormisson</author>
         <authorUrl>https://andmemasin.eu</authorUrl>
         <license>MIT</license>
-        <version>2.1.16</version>
+        <version>2.1.17</version>
         <description>Survey logic import/export</description>
     </metadata>
 

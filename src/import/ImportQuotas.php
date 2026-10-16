@@ -31,6 +31,15 @@ class ImportQuotas extends ImportFromFile
 
     private $currentQuotaName = '';
 
+    /**
+     * Answer codes per question per quota in the import file: [quotaName][questionCode] => string[]
+     * Members of the same question are OR-ed by LimeSurvey, so a question may have several codes.
+     */
+    private array $quotaMemberCodes = [];
+
+    /** @var array<string, bool> "quotaId:qid" pairs whose stale members were already removed */
+    private array $syncedQuotaQuestions = [];
+
     protected function importModel(array $attributes): void
     {
         $type = $attributes['type'] ?? '';
@@ -99,6 +108,7 @@ class ImportQuotas extends ImportFromFile
             throw new ImexException("Question not found: {$questionCode}");
         }
 
+        $this->removeStaleQuotaMembers($quota, $question, $quotaName, $questionCode, $answerCode);
         $member = $this->findOrCreateQuotaMember($quota, $question, $answerCode);
         
         $member->sid = $this->survey->sid;
@@ -155,14 +165,38 @@ class ImportQuotas extends ImportFromFile
         return Question::model()->find($criteria);
     }
 
-    private function findOrCreateQuotaMember(Quota $quota, Question $question, string $code): QuotaMember
+    /**
+     * The answer codes in the import file replace the existing members of that question in that quota.
+     * Members of questions not present in the file are left untouched.
+     */
+    private function removeStaleQuotaMembers(Quota $quota, Question $question, string $quotaName, string $questionCode, string $answerCode): void
     {
-        // Find existing quota member for this question in this quota (only one allowed per question)
+        $key = $quota->id . ':' . $question->qid;
+        if (isset($this->syncedQuotaQuestions[$key])) {
+            return;
+        }
+        $this->syncedQuotaQuestions[$key] = true;
+
+        $codes = $this->quotaMemberCodes[$quotaName][$questionCode] ?? [$answerCode];
         $criteria = new \CDbCriteria();
         $criteria->condition = 'quota_id = :quota_id AND qid = :qid';
         $criteria->params = [
             ':quota_id' => $quota->id,
             ':qid' => $question->qid
+        ];
+        $criteria->addNotInCondition('code', $codes);
+        QuotaMember::model()->deleteAll($criteria);
+    }
+
+    private function findOrCreateQuotaMember(Quota $quota, Question $question, string $code): QuotaMember
+    {
+        // Several members per question are allowed (OR-ed by LimeSurvey), so match on the answer code too
+        $criteria = new \CDbCriteria();
+        $criteria->condition = 'quota_id = :quota_id AND qid = :qid AND code = :code';
+        $criteria->params = [
+            ':quota_id' => $quota->id,
+            ':qid' => $question->qid,
+            ':code' => $code
         ];
 
         /** @var QuotaMember|null $member */
@@ -267,14 +301,14 @@ class ImportQuotas extends ImportFromFile
         $missingQuestions = [];
         $duplicateQuestions = [];
         $currentQuotaName = '';
-        $quotaQuestions = []; // Track questions per quota (only one member per question allowed)
+        $this->quotaMemberCodes = [];
 
         foreach ($this->readerData as $row) {
             $type = $row['type'] ?? '';
-            
+
             if ($type === 'Q') {
                 $currentQuotaName = isset($row['name']) ? trim((string)$row['name']) : '';
-                $quotaQuestions[$currentQuotaName] = []; // Reset for new quota
+                $this->quotaMemberCodes[$currentQuotaName] = []; // Reset for new quota
             } elseif ($type === 'QM') {
                 $questionCode = isset($row['name']) ? trim((string)$row['name']) : '';
                 $answerCode = isset($row['value']) ? trim((string)$row['value']) : '';
@@ -289,12 +323,13 @@ class ImportQuotas extends ImportFromFile
                     continue;
                 }
 
-                // Check for duplicate question within same quota in import file
-                // LimeSurvey quota members use AND logic, so only one member per question per quota is allowed
-                if (in_array($questionCode, $quotaQuestions[$currentQuotaName] ?? [])) {
-                    $duplicateQuestions[] = "Question '$questionCode' appears multiple times in quota '$currentQuotaName'";
+                // LimeSurvey ORs members of the same question and ANDs different questions,
+                // so a question may appear several times in a quota, but only with different answer codes
+                $existingCodes = $this->quotaMemberCodes[$currentQuotaName][$questionCode] ?? [];
+                if (in_array($answerCode, $existingCodes, true)) {
+                    $duplicateQuestions[] = "Question '$questionCode' answer '$answerCode' appears multiple times in quota '$currentQuotaName'";
                 } else {
-                    $quotaQuestions[$currentQuotaName][] = $questionCode;
+                    $this->quotaMemberCodes[$currentQuotaName][$questionCode][] = $answerCode;
                 }
 
                 // Check if question exists
